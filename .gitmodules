@@ -1,0 +1,15 @@
+[submodule "graphs"]
+	path = graphs
+	url = https://github.com/yzerlaut/graphs.git
+[submodule "paper"]
+	path = paper
+	url = https://github.com/yzerlaut/paper.git
+[submodule "data_analysis"]
+	path = data_analysis
+	url = https://github.com/yzerlaut/data_analysis.git
+[submodule "neural_network_dynamics"]
+	path = neural_network_dynamics
+	url = https://github.com/yzerlaut/neural_network_dynamics.git
+[submodule "ml"]
+	path = ml
+	url = https://github.com/yzerlaut/ml.git

@@ -1,0 +1,303 @@
+Title: A template for scientific papers
+Authors: First Author{1}, Second Author{1,2}*
+Short Title: Paper Template
+Short Authors: Author et al.
+Affiliations: {1} My first affiliation, {2} Second author affiliation
+Correspondence: firstname.lastname@domain.country
+Keywords: scientific papers; biology journals; txt files; Org-Mode; $\LaTeX$
+Conflict of interest: All manuscripts must contain a statement regarding Competing interests. If there are no competing interests, a statement to this effect must be included. All authors should disclose any conflict of interest in accordance with journal policy.
+Acknowledgements: Acknowledgements should be the minimum consistent with courtesy. The wording of acknowledgements of scientific assistance or advice must have been seen and approved by the persons concerned. This section should not include details of funding. 
+Funding: Authors must indicate all sources of funding, including grant numbers. If authors have not received funding, this must be stated.
+
+* Abstract
+
+Org-Mode is for keeping notes, maintaining TODO lists, planning
+projects, and authoring documents with a fast and effective plain-text
+system. Visit \url{http://orgmode.org/}. Here we build up a template
+for scientific papers with the following characteristics:Praesent
+blandit blandit mauris. Praesent lectus tellus, aliquet aliquam,
+luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
+quis urna dictum turpis accumsan semper. Sed interdum libero ut
+metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
+sit amet ante lobortis sollicitudin. Praesent blandit blandit
+mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a,
+turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum
+turpis accumsan semper. Praesent lectus tellus, aliquet aliquam,
+luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
+quis urna dictum turpis accumsan semper. Sed interdum libero ut
+metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
+sit amet ante lobortis sollicitudin. Praesent blandit blandit
+mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a,
+turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum
+turpis accumsan semper.Praesent lectus tellus, aliquet aliquam,
+luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
+quis urna dictum turpis accumsan semper. Sed interdum libero ut
+metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
+sit amet ante lobortis sollicitudin.
+
+* Significance
+
+Lorem ipsum dolor sit amet, consectetuer adipisc ing elit. Etiam
+lobortis facilisis sem. Nullam nec mi et neque pharetra
+sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper, felis
+non sodales commodo, lectus velit ultrices augue, a dignissim nibh
+lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel,
+semper in, velit.  Ut porttitor. Praesent in sapien. Lorem ipsum dolor
+sit amet, consectetuer adipiscing elit. Duis fringilla tristique
+neque. Praesent lectus tellus, aliquet aliquam,
+luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
+quis urna dictum turpis accumsan semper. Sed interdum libero ut
+metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
+sit amet ante lobortis sollicitudin. Praesent blandit blandit
+mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a,
+turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum
+turpis accumsan semper.
+
+* Introduction
+
+[[Figure {Fig1} around here]]
+
+We can play with references (Telenczuk et al., 2017; Destexhe et al., 2003; Chance et al., 2002) and also include them in text, such as in Destexhe et al. (2003) or Reig et al. (2015). We make a a reference to Figure {Fig1}a,c and
+Figure {Fig3}B and Figure {Fig2}(ii).
+
+Together with a reference to Equation {first} and Equation {eq1} and
+to Table {Tab1} and to Table {Tab2}.
+
+Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam
+lobortis facilisis sem. Nullam nec mi et neque pharetra
+sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper,
+felis non sodales commodo, lectus velit ultrices augue, a dig- nissim
+nibh lectus placerat pede.
+
+we can play with references (Destexhe et al., 2003; Chance et al., 2002) and also include them in text, such as in Destexhe et al. (2003). \NOTE{add another reference here !}
+
+We make a a reference to Figure {Fig1}a,c and Figure {Fig3}B and
+Figure {Fig2}.
+
+* Results
+
+
+[[Figure {Fig3} around here]]
+
+*** Section talking abour first result
+
+We replace values coming from the "analysis.npz" file:
+
+This statistical test was: {stat_test_example}
+The output here was {data_output}
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. Nullam necmi et neque pharetra sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dignissim nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies vel, semper in, velit. Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis sollicitudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum turpis accumsan semper. \TODO{this additional analysis}
+
+\begin{equation}
+\label{eq:eq1}
+\left\{
+\begin{split}
+& \frac{\partial^2 d}{\partial t ^2} = -x^3 \\
+& \sum_{x} 1/x^2 \rightarrow y
+\end{split}
+\right.
+\end{equation}
+
+
+*** Section talking abour second result
+
+Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dig- nissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.  Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis sollicitudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum turpis accumsan semper.Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dig- nissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit. Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis sollici- tudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum turpis accumsan semper.
+
+* Methods
+
+*** First methodological section
+
+\begin{equation}
+\label{eq:first}
+\tau \, \frac{dx}{dt} = E_L-v
+\end{equation}
+
+[[Table {Tab1} around here]]
+
+[[Table {Tab2} around here]]
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam
+lobortis facilisis sem. Nullam necmi et neque pharetra
+sollicitudin. Praesent im-perdiet mi nec ante. Donec ullamcorper,
+felis nonsodales commodo, lectus velit ultrices augue, a dig-nissim
+nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies
+vel, semper in, velit.Ut porttitor. Praesent in sapien. Lorem
+ipsumdolor sit amet, consectetuer adipiscing elit. Duisfringilla
+tristique neque. Sed interdum libero utmetus. Pellentesque
+placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis
+sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus,
+aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit
+amet ipsum. Nuncquis urna dictum turpis accumsan semper.
+
+*** Second methodological section
+
+\begin{equation}
+\label{eq:second}
+\tau \, \frac{dx}{dt} = E_L-v + \xi (t)
+\end{equation}
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam
+lobortis facilisis sem. Nullam necmi et neque pharetra
+sollicitudin. Praesent im-perdiet mi nec ante. Donec ullamcorper,
+felis nonsodales commodo, lectus velit ultrices augue, a dig-nissim
+nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies
+vel, semper in, velit.Ut porttitor. Praesent in sapien. Lorem
+ipsumdolor sit amet, consectetuer adipiscing elit. Duisfringilla
+tristique neque. Sed interdum libero utmetus. Pellentesque
+placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis
+sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus,
+aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit
+amet ipsum. Nuncquis urna dictum turpis accumsan semper.  Lorem ipsum
+dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis
+sem. Nullam necmi et neque pharetra sollicitudin. Praesent im-perdiet
+mi nec ante. Donec ullamcorper, felis nonsodales commodo, lectus velit
+ultrices augue, a dig-nissim nibh lectus placerat pede. Vivamus
+nuncnunc, molestie ut, ultricies vel, semper in, velit.Ut
+porttitor. Praesent in sapien. Lorem ipsumdolor sit amet, consectetuer
+adipiscing elit. Duisfringilla tristique neque. Sed interdum libero
+utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit
+sit amet ante lobortis sollici-tudin. Praesent blandit blandit
+mauris. Praesentlectus tellus, aliquet aliquam, luctus a, egestas
+a,turpis. Mauris lacinia lorem sit amet ipsum. Nuncquis urna dictum
+turpis accumsan semper.
+
+
+playing with some reference here (Destexhe et al., 2003)
+
+* Figures
+
+*** A one column figure where the legend wraps around the figure.
+#+options : {'label':'Fig1', 'extent':'singlecolumn', 'wrapfig':True, 'width':.57, 'height':10, 'wrapfig_space_left':-1.5, 'file':os.path.expanduser("~")+'/work/graphs/output/2d.png'}
+Generate the figure with the file \texttt{surface\_plot.py} from the \texttt{graphs} module available at the following \href{https://bitbucket.org/yzerlaut/graphs/src/master/}{[link]}. Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. We added an optional horizontal rule at the bottom.
+
+*** A two column figure where the legend wraps around the figure.
+#+options : {'label':'Fig3', 'extent':'doublecolumn', 'wrapfig':True, 'width':.52, 'height':9, 'hrule_bottom':True, 'file':os.path.expanduser("~")+'/work/graphs/output/fig.png'}
+(a) Lorem ipsumdolor sit amet in *B* and *C*, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris.
+(b) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. 
+(c) Nuncquis urna dictum turpis accumsan semper. Lorem ipsum dolor sit amet, consectetuer adipisc ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper,felis non sodales commodo, lectus velit ultrices augue, a dignissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.
+
+* Tables
+
+*** Caption for the first table
+#+options : {'label':'Tab1', 'extent':'singlecolumn'}
+Subcaption for the first table
+| Name    |    Phone | Age |
+|---------+----------+-----|
+| Peter   | {blabla} |  17 |
+| Anna    |     4321 |  25 |
+| Patrick |     4321 |  25 |
+\begin{tabular}{l|r|r}
+Name & Phone & Age\\
+\hline
+Peter & {blabla} & 17\\
+\hline
+Anna & 4321 & 25\\
+Patrick & 4321 & 25\\
+\hline
+\end{tabular}
+
+*** Caption for the second table
+#+options : {'label':'Tab2', 'extent':'doublecolumn'}
+Subcaption for the second table
+| model   | \(P_0\)(mV) | \(P_\mu\)(mV)             | \(P_\sigma\)(mV) | \(P_\tau\)(mV) |
+|---------+-------------+---------------------------+------------------+----------------|
+| simple  | 8           | 9                         |                4 |            387 |
+|---------+-------------+---------------------------+------------------+----------------|
+| complex | \(\pi/d^4\) | \(\frac{\pi}{\sqrt{28}}\) |               23 |              3 |
+|---------+-------------+---------------------------+------------------+----------------|
+| none    | 0           | 0                         |                0 |              0 |
+|---------+-------------+---------------------------+------------------+----------------|
+\begin{center}
+\begin{tabular}{lrrrr}
+model & \(P_0\)(mV) & \(P_\mu\)(mV) & \(P_\sigma\)(mV) & \(P_\tau\)(mV)\\
+\hline
+simple & 8 & 9 & 4 & 387\\
+\hline
+complex & \(\pi/d^4\) & \(\frac{\pi}{\sqrt{28}}\) & 23 & 3\\
+\hline
+none & 0 & 0 & 0 & 0\\
+\hline
+\end{tabular}
+\end{center}
+
+* Discussion
+
+Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dig- nissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.  Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis sollici- tudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum turpis accumsan semper.Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. (Telenczuk et al., 2017; Destexhe et al., 2003; Chance et al., 2002). Reference to to Table {Tab2} and Equation {eq1} and Figure {Fig1}.
+
+* Supplementary
+** Supplementary Text
+*** Section talking abour first supplementary result
+
+Lorem ipsum dolor sit amet, consectetuer adipisc-
+ing elit. Etiam lobortis facilisis sem. Nullam nec
+mi et neque pharetra sollicitudin. Praesent im-
+perdiet mi nec ante. Donec ullamcorper, felis non
+sodales commodo, lectus velit ultrices augue, a dig-
+nissim nibh lectus placerat pede. Vivamus nunc
+nunc, molestie ut, ultricies vel, semper in, velit.
+Ut porttitor. Praesent in sapien. Lorem ipsum
+dolor sit amet, consectetuer adipiscing elit. Duis
+fringilla tristique neque. Sed interdum libero ut
+metus. Pellentesque placerat. Nam rutrum augue
+a leo. Morbi sed elit sit amet ante lobortis sollici-
+tudin. Praesent blandit blandit mauris. Praesent
+lectus tellus, aliquet aliquam, luctus a, egestas a,
+turpis. Mauris lacinia lorem sit amet ipsum. Nunc
+quis urna dictum turpis accumsan semper.
+
+\begin{equation}
+\left\{
+\begin{split}
+& \frac{\partial^2 d}{\partial t ^2} = -x^3 \\
+& \sum_{x} 1/x^2 \rightarrow y
+\end{split}
+\right.
+\end{equation}
+
+** Supplementary Figures
+
+*** Caption for first supplementary figure.
+#+options : {'label':'Fig1', 'extent':'singlecolumn', 'file':'/Users/yzerlaut/work/graphs/fig2.png'}
+(a) Generate the figure with : \url{python_code/script.py} Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. (b) Nullam necmi et neque pharetra sollicitudin. Praesent im-perdiet mi nec ante. Donec ullamcorper, felis nonsodales commodo, lectus velit ultrices augue, a dig-nissim nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies vel, semper in, velit.Ut porttitor. Praesent in sapien. (c) Lorem ipsumdolor sit amet, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. Nuncquis urna dictum turpis accumsan semper.
+
+** Supplementary Tables
+
+*** Caption for the first supplementary table
+#+options : {'label':'sTab1', 'extent':'singlecolumn'}
+\begin{tabular}{lrr}
+Name & Phone & Age\\
+\hline
+Peter & \{blabla\} & 17\\
+Anna & 4321 & 25\\
+Patrick & 4321 & 25\\
+\end{tabular}
+
+# | Name    |    Phone | Age |
+# |---------+----------+-----|
+# | Peter   | {blabla} |  17 |
+# | Anna    |     4321 |  25 |
+# | Patrick |     4321 |  25 |
+
+* Key Points
+
+\item writing scientific papers 
+\item using meta-anaysis file for paper results
+\item different styles of paper formatting
+* Notes /not exported/
+
+** Constructing tables
+| Name    | Phone | Age |
+|---------+-------+-----|
+| Peter   |  1234 |  17 |
+| Anna    |  4321 |  25 |
+| Patrick |  4321 |  25 |
+
+
+*** Caption for second figure.
+#+options : {'label':'Fig2', 'sidecap':(.5,.02,.4), 'extent':'doublecolumn', 'file':'/Users/yzerlaut/work/graphs/fig2.png'}
+(a) Generate the figure with : =python code/script.py= Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. (b) Nullam necmi et neque pharetra sollicitudin. Praesent im-perdiet mi nec ante. Donec ullamcorper, felis nonsodales commodo, lectus velit ultrices augue, a dig-nissim nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies vel, semper in, velit.Ut porttitor. Praesent in sapien. (C) Lorem ipsumdolor sit amet, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. Nuncquis urna dictum turpis accumsan semper.
+
+*** Caption for third figure.
+#+options : {'scale':1., 'label':'Fig3', 'extent':'doublecolumn', 'file':'/Users/yzerlaut/work/graphs/fig.png'}
+(A) Lorem ipsumdolor sit amet in *B* and *C*, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris. (B) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. (C) Nuncquis urna dictum turpis accumsan semper.
+
