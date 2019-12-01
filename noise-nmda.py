@@ -2,163 +2,237 @@ import sys, pathlib, os
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 import numpy as np
 
-
 import neural_network_dynamics.main as ntwk # my custom layer on top of Brian2
 from graphs.my_graph import graphs # my custom data visualization library
-from graphs.nrn_morpho import * # plotting neuronal morphologies
+from graphs.nrn_morpho import plot_nrn_shape, coordinate_projection, add_dot_on_morpho # plotting neuronal morphologies
 
-mg = graphs()
+# mg = graphs('dark_emacs_png')
+mg = graphs('screen')
 
+##########################################################
+# -- EQUATIONS FOR THE SYNAPTIC AND CELLULAR BIOPHYSICS --
+##########################################################
 
-###################################################
-# ---------- SIMULATION PARAMS  ----------------- #
-###################################################
-
-dt, tstop = 0.1*ntwk.ms, 200*ntwk.ms
-
-############################################
-# ---------- MORPHOLOGY  ----------------- #
-############################################
-
-# loading a morphology:
-filename = os.path.join('neural_network_dynamics', 'single_cell_integration', 'morphologies', 'Jiang_et_al_2015', 'L5pyr-j140408b.CNG.swc')
-morpho = ntwk.Morphology.from_swc_file(filename)
-
-def get_compartment_list(morpho,
-                         inclusion_condition='True',
-                         without_axon=False):
-    """
-    condition should be of the form: 'comp.z>130'
-    """
-    
-    COMP_LIST, INCLUSION = [], []
-    exec("COMP_LIST.append(morpho); comp = COMP_LIST[-1]; INCLUSION.append("+inclusion_condition+")")
-    
-    TOPOL = str(morpho.topology())
-    TT = TOPOL.split('\n')
-    condition, comp, ii = True, None, 0
-    for index, t in enumerate(TT[1:-1]):
-
-        # exec("COMP_LIST.append(morpho."+t.split(' .')[-1]+"); comp = COMP_LIST[-1]; INCLUSION.append("+inclusion_condition+"); print("+inclusion_condition+")")
-        exec("COMP_LIST.append(morpho."+t.split(' .')[-1]+"); comp = COMP_LIST[-1]; INCLUSION.append("+inclusion_condition+")")
-
-        if without_axon and (len(t.split('axon'))>1):
-            INCLUSION[-1] = False
-    COMPARTMENT_LIST = []
-    for c,i in zip(COMP_LIST, INCLUSION):
-        if i:
-            COMPARTMENT_LIST.append(c)
-    return COMPARTMENT_LIST, np.arange(len(COMP_LIST))[np.array(INCLUSION, dtype=bool)]
-
-
-# FULL LIST
-COMP_LIST, INDICES = get_compartment_list(morpho)#, inclusion_condition='comp.x.mean()>200*ntwk.um')
-soma = COMP_LIST[0]
-# ONLY APICAL
-COMP_LIST_APICAL, INDICES_APICAL = get_compartment_list(morpho,
-                                                        inclusion_condition='np.sqrt(comp.y.mean()**2+comp.x.mean()**2+comp.z.mean()**2)>220*ntwk.um')
-
-fig, ax = mg.figure(figsize=(0.6,2),
-                    left=0., top=1., bottom=0., right=1.)
-_, ax = plot_nrn_shape(mg, COMP_LIST, dend_color='gray', apic_color='gray', axon_color='None', ax=ax)
-_, ax = plot_nrn_shape(mg, [soma]+COMP_LIST_APICAL,
-                       dend_color='b', apic_color='b', axon_color='None', ax=ax) # plotting requires [soma], to be fixed
-
-
-##################################################
-# ---------- BIOPHYSICAL PROPS ----------------- #
-##################################################
-
-SEGMENT_LIST = get_segment_list(morpho)
-
-gL = 1e-4*ntwk.siemens/ntwk.cm**2
-EL = -60*ntwk.mV
-Ee, Ei = 0*ntwk.mV, -80*ntwk.mV
-
+# cable theory:
 eqs='''
 Im = gL * (EL - v) : amp/meter**2
 Is = gE * (Ee - v) + gI * (Ei - v) : amp (point current)
 gE : siemens
 gI : siemens
 '''
-neuron = ntwk.SpatialNeuron(morphology=morpho,
-                            model=eqs,
-                            Cm=1 * ntwk.uF / ntwk.cm ** 2,
-                            Ri=100 * ntwk.ohm * ntwk.cm)
-neuron.v = EL
-
-###############################################
-# ---------- SYNAPTIC MODEL ----------------- #
-###############################################
-
-# AMPA parameters
-wAMPA = 0.5*ntwk.nS
-tauAMPA = 2.*ntwk.ms
-
-#NMDA parameters
-wNMDA = 1.*ntwk.nS
-tauRiseNMDA, tauDecayNMDA = 3.*ntwk.ms, 70.*ntwk.ms
-V0NMDA = 1./0.08*ntwk.mV
-# let's determine the peak-time for normalization
-time = np.linspace(0, 100, int(1e3))*ntwk.ms
-psp = lambda t: np.exp(-t/tauDecayNMDA)-np.exp(-t/tauRiseNMDA)
-ANMDA = 1./psp(time[np.argmax(psp(time))]) # normalization in paper
-
-EXC_SYNAPSES_EQUATIONS = '''dgAMPA/dt = -gAMPA/tauAMPA : siemens
-                           dgRiseNMDA/dt = -gRiseNMDA/tauRiseNMDA : 1
-                           dgDecayNMDA/dt = -gDecayNMDA/tauDecayNMDA : 1
+# synaptic dynamics:
+EXC_SYNAPSES_EQUATIONS = '''dgAMPA/dt = -gAMPA/tauAMPA : siemens (clock-driven)
+                           dgRiseNMDA/dt = -gRiseNMDA/tauRiseNMDA : 1 (clock-driven)
+                           dgDecayNMDA/dt = -gDecayNMDA/tauDecayNMDA : 1 (clock-driven)
                            gE_post = gAMPA+wNMDA*ANMDA*(gDecayNMDA-gRiseNMDA)/(1+0.3*exp(-v/V0NMDA)) : siemens (summed)''' 
 ON_EXC_EVENT = 'gAMPA += wAMPA; gDecayNMDA += 1; gRiseNMDA += 1'
 
-#####################################################
-# ---------- SYNAPTIC STIMULATION ----------------- #
-#####################################################
 
-# ===> Evoked activity
+stim_apic_compartment_index, stim_apic_compartment_seg = -1, 0
+rec2_apic_compartment_index, rec2_apic_compartment_seg = -3, 0
 
-stim_apic_index = 14
-evoked_stimulation = ntwk.SpikeGeneratorGroup(2, np.arange(1), 5.*np.ones(1)*ntwk.ms)
-ES = ntwk.Synapses(evoked_stimulation, neuron,
-                  model=EXC_SYNAPSES_EQUATIONS,
-                  on_pre=ON_EXC_EVENT)
-ES.connect(i=0, j=INDICES_APICAL[stim_apic_index])
+###################################################
+# ---------- SIMULATION PARAMS  ----------------- #
+###################################################
 
+def run_sim(args):
 
-# ===> Background activity 
-
-# Nsyn = 1
-# Nspikes = 4
-# spk_times = np.cumsum(np.random.exponential(.4, size=Nspikes))*tstop/Nspikes
-# background_stimulation = ntwk.SpikeGeneratorGroup(Nsyn, # ids of synapses
-#                                                   np.random.choice(np.arange(Nsyn), Nspikes), # picking which spike
-#                                                   spk_times)
-# BG = ntwk.Synapses(background_stimulation, neuron,
-#                    model=EXC_SYNAPSES_EQUATIONS,
-#                    on_pre=ON_EXC_EVENT)
-# for i in range(Nsyn):
-#     BG.connect(i=i, j=COMP_LIST_APICAL[stim_apic_index])
-# BG.connect(i=i, j=COMP_LIST[np.random.choice(INDICES_APICAL)])
-
+    # simulation params
+    dt, tstop = args.dt*ntwk.ms, args.tstop*ntwk.ms
+    # loading a morphology:
+    morpho = ntwk.Morphology.from_swc_file(args.morpho)
+    # fetching all compartments
+    COMP_LIST, SEG_INDICES = ntwk.morpho_analysis.get_compartment_list(morpho)
+    SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
+    
+    if args.verbose:
+        print('List of available compartment *types* for this morphology:',
+              ntwk.morpho_analysis.list_compartment_types(COMP_LIST))
         
-# # highlight soma & recorded point
-ax.scatter([1e6*SEGMENT_LIST['xcoords'][0]], [1e6*SEGMENT_LIST['ycoords'][0]], s=100, edgecolors='k', marker='o', facecolors='none', lw=3)
-ax.scatter([1e6*SEGMENT_LIST['xcoords'][stim_apic_index]], [1e6*SEGMENT_LIST['ycoords'][stim_apic_index]], s=100, edgecolors='b', marker='o', facecolors='none', lw=3)
+    # somatic compartment
+    soma = ntwk.morpho_analysis.get_compartment_list(morpho,
+                        inclusion_condition='comp.type=="soma"')[0]
+    
+    # restriction to apical tuft
+    APICAL_COMP_LIST, APICAL_NSEG_INDICES = ntwk.morpho_analysis.get_compartment_list(morpho,
+       inclusion_condition='comp.type=="apic"')
+    # inclusion_condition='(comp.type=="apic") and np.sqrt(comp.y.mean()**2+comp.x.mean()**2+comp.z.mean()**2)>130*ntwk.um')
+    
+    # full dendritic
+    DEND_COMP_LIST, DEND_INDICES = ntwk.morpho_analysis.get_compartment_list(morpho,
+                                   inclusion_condition='comp.type in ["dend", "apic"]')
 
-# # # # recording and running
-M = ntwk.StateMonitor(neuron, ('v'), record=[0, INDICES_APICAL[stim_apic_index]])#np.arange(len(neuron.v)))
-ntwk.run(500.*ntwk.ms)
+    gL = args.gL*ntwk.siemens/ntwk.cm**2
+    EL = args.EL*ntwk.mV
+    Ee, Ei = args.Ee*ntwk.mV, args.Ei*ntwk.mV
 
-figT, axT = mg.figure(figsize=(3,1))
-t = np.array(M.t/ntwk.ms)
-Vm_soma = np.array(M.v/ntwk.mV)[0,:]
-Vm_dend = np.array(M.v/ntwk.mV)[1,:]#[ES.j[0],:]
-axT.plot(t, Vm_soma, 'k-')
-axT.plot(t, Vm_dend, 'b-')
+    neuron = ntwk.SpatialNeuron(morphology=morpho,
+                                model=eqs,
+                                Cm=args.cm * ntwk.uF / ntwk.cm ** 2,
+                                Ri=args.Ri * ntwk.ohm * ntwk.cm)
+    
+    neuron.v = EL # Vm initialized to E
 
-figT.savefig('figures/temp.svg')
-# # mg.show()
+    # AMPA parameters
+    wAMPA, tauAMPA = args.wAMPA*ntwk.nS, args.tauAMPA*ntwk.ms
+    #NMDA parameters
+    wNMDA = args.wNMDA*ntwk.nS
+    tauRiseNMDA, tauDecayNMDA = args.tauRiseNMDA*ntwk.ms, args.tauDecayNMDA*ntwk.ms
+    V0NMDA = args.V0NMDA*ntwk.mV
+    # let's determine the peak-time for normalization
+    time = np.linspace(0, 100, int(1e3))*ntwk.ms
+    psp = lambda t: np.exp(-t/tauDecayNMDA)-np.exp(-t/tauRiseNMDA)
+    ANMDA = 1./psp(time[np.argmax(psp(time))]) # normalization in paper
 
-# fig.savefig('figures/temp.svg')
+    # ===> Evoked activity at that specific location:
+    synapse_ID, location_ID, time_ID = [0], [(stim_apic_compartment_index, stim_apic_compartment_seg)], [10.]
+    for k in range(10):
+        synapse_ID.append(0)
+        location_ID.append((stim_apic_compartment_index, stim_apic_compartment_seg))
+        time_ID.append(10.+0.1*(k+1))
+
+        evoked_stimulation = ntwk.SpikeGeneratorGroup(len(synapse_ID),
+                                                      np.array(synapse_ID),
+                                                      np.array(time_ID)*ntwk.ms)
+        ES = ntwk.Synapses(evoked_stimulation, neuron,
+                           model=EXC_SYNAPSES_EQUATIONS,
+                           on_pre=ON_EXC_EVENT)
+        # for i in range(len(synapse_ID)):
+        #     ES.connect(i=i, j=APICAL_NSEG_INDICES[location_ID[i][0]][location_ID[i][1]])
+
+    ES.connect(i=0, j=SEGMENTS['index'][-1])
+
+    # recording and running
+    M = ntwk.StateMonitor(neuron, ('v'), record=[0, # soma
+            APICAL_NSEG_INDICES[rec2_apic_compartment_index][rec2_apic_compartment_seg],
+            APICAL_NSEG_INDICES[stim_apic_compartment_index][stim_apic_compartment_seg]])
+    
+    # Run simulation
+    ntwk.run(tstop)
+
+    output = {'t':np.array(M.t/ntwk.ms),
+              'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
+              'Vm_apic':np.array(M.v/ntwk.mV)[1,:],
+              'Vm_syn':np.array(M.v/ntwk.mV)[2,:]}
+    
+    return output
+
+def plot_nrn_and_signals(args, output):
+
+    # loading the morphology
+    morpho = ntwk.Morphology.from_swc_file(args.morpho)
+    soma = ntwk.morpho_analysis.get_compartment_list(morpho,
+                                                     inclusion_condition='comp.type=="soma"')[0]
+    DEND_COMP_LIST, DEND_INDICES = ntwk.morpho_analysis.get_compartment_list(morpho,
+                                   inclusion_condition='comp.type in ["dend", "apic"]')
+    
+    fig, AX = mg.figure(figsize=(.95,.38),
+                        left=.1, bottom=.1,
+                        wspace=.6, hspace=.1,
+                        grid=[(0,0,1,3),
+                              (1,0,3,1),
+                              (1,1,3,1),
+                              (1,2,3,1)])
+
+    _, ax = plot_nrn_shape(mg, DEND_COMP_LIST,
+                           soma_comp=soma,
+                           ax=AX[0])
+    
+    mg.title(AX[0], args.morpho.split(os.path.sep)[-1].split('.CNG')[0])
+    
+    add_dot_on_morpho(mg, AX[0], DEND_COMP_LIST[args.stim_apic_compartment_index],
+                      index=stim_apic_compartment_seg,
+                      soma_comp=soma, color=mg.colors[0])
+    
+    add_dot_on_morpho(mg, AX[0], DEND_COMP_LIST[args.rec2_apic_compartment_index],
+                      index=rec2_apic_compartment_seg,
+                      soma_comp=soma, color=mg.colors[1])
+    
+    add_dot_on_morpho(mg, AX[0], COMP_LIST[0],
+                      index=0,
+                      soma_comp=soma, color=mg.colors[2])
+
+    # plotting
+    AX[1].plot(output['t'], output['Vm_syn'], '-', color=mg.colors[0])
+    AX[2].plot(output['t'], output['Vm_apic'], '-', color=mg.colors[1])
+    AX[3].plot(output['t'], output['Vm_soma'], '-', color=mg.colors[2])
+    
+    for i, ax, label in zip(range(3), AX[1:], ['synaptic location', 'tuft start', 'soma']):
+        mg.set_plot(ax, ['left'], ylabel='mV')
+        mg.annotate(ax, '$V_m$ at %s' % label, (1., 0.), ha='right', va='top',
+                    color=mg.colors[i])
+    Tbar = 20 # ms
+    AX[1].plot([output['t'][-1], output['t'][-1]-Tbar], AX[1].get_ylim()[1]*np.ones(2), '-',
+               color=mg.default_color)    
+    mg.annotate(AX[1], '%sms' % Tbar, (.98, 1.), ha='right', color=mg.default_color)
+    # fig.savefig('figures/temp.png')
 
 
 
+if __name__=='__main__':
+    
+    import argparse
+    # First a nice documentation 
+    parser=argparse.ArgumentParser(description=""" 
+     Running simulations of morphologically-detailed models using Brian2
+     """
+    ,formatter_class=argparse.RawTextHelpFormatter)
+
+    parser.add_argument('-p', "--protocol",
+                        help="either: 'run' / 'plot' / 'demo' ")
+
+    ############################################
+    # ---------- MORPHOLOGY  ----------------- #
+    ############################################
+    parser.add_argument("--morpho", help='path to the ".swc" morphology ',
+                        default=os.path.join('neural_network_dynamics',
+                                             'single_cell_integration',
+                                             'morphologies',
+                                             'Jiang_et_al_2015',
+                                             'L5pyr-j140408b.CNG.swc'))
+    ###################################################
+    # ---------- SIMULATION PARAMS  ----------------- #
+    ###################################################
+    parser.add_argument("--tstop", help='[ms]', type=float, default=200.)
+    parser.add_argument("--dt", help='[ms]', type=float, default=0.1)
+    ##################################################
+    # ---------- BIOPHYSICAL PROPS ----------------- #
+    ##################################################
+    parser.add_argument("--gL", help='[S/cm2]', type=float, default=1e-4)
+    parser.add_argument("--cm", help='[uF/cm2]', type=float, default=1.)
+    parser.add_argument("--Ri", help='[Ohm*cm]', type=float, default=100.)
+    parser.add_argument("--EL", help='[mV]', type=float, default=-70.)
+    ###################################################
+    # ---------- SYNAPTIC PARAMS  ----------------- #
+    ###################################################
+    parser.add_argument("--Ee", help='[mV]', type=float, default=0.)
+    parser.add_argument("--Ei", help='[mV]', type=float, default=-80.)
+    parser.add_argument("--wAMPA", help='[nS]', type=float, default=0.5)
+    parser.add_argument("--wNMDA", help='[nS]', type=float, default=1.)
+    parser.add_argument("--tauAMPA", help='[ms]', type=float, default=2.)
+    parser.add_argument("--tauRiseNMDA", help='[ms]', type=float, default=3.)
+    parser.add_argument("--tauDecayNMDA", help='[ms]', type=float, default=70.)
+    parser.add_argument("--V0NMDA", help='[mV]', type=float, default=1./0.08)
+    ###################################################
+    # ---------- SYNAPTIC PARAMS  ----------------- #
+    ###################################################
+    parser.add_argument("--stim_apic_compartment_index", type=int, default=10)
+    parser.add_argument("--rec2_apic_compartment_index", type=int, default=10)
+    
+    parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                        action="store_true")
+    parser.add_argument("-s", "--save", help="save the figures",
+                        action="store_true")
+    parser.add_argument("--filename", '-f', help="filename",type=str, default='data.npz')
+
+    
+    args = parser.parse_args()
+
+    if args.protocol=='run':
+        run_sim(args)
+    elif args.protocol=='plot':
+        pass
+    else:
+        output = run_sim(args)
+        plot_nrn_and_signals(args, output)
+        mg.show()
