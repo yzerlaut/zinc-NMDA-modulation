@@ -12,7 +12,6 @@ mg = graphs('screen')
 ##########################################################
 # -- EQUATIONS FOR THE SYNAPTIC AND CELLULAR BIOPHYSICS --
 ##########################################################
-
 # cable theory:
 eqs='''
 Im = gL * (EL - v) : amp/meter**2
@@ -31,10 +30,6 @@ ON_EXC_EVENT = 'gAMPA += wAMPA; gDecayNMDA += 1; gRiseNMDA += 1'
 INH_SYNAPSES_EQUATIONS = '''dgGABA/dt = -gGABA/tauGABA : siemens (clock-driven)
                             gI_post = gGABA : siemens (summed)''' 
 ON_INH_EVENT = 'gGABA += wGABA'
-
-
-stim_apic_compartment_index, stim_apic_compartment_seg = -1, 0
-rec2_apic_compartment_index, rec2_apic_compartment_seg = -3, 0
 
 ###################################################
 # ---------- SIMULATION PARAMS  ----------------- #
@@ -84,28 +79,55 @@ def run_sim(args):
     wNMDA = args.wNMDA*ntwk.nS
     tauRiseNMDA, tauDecayNMDA = args.tauRiseNMDA*ntwk.ms, args.tauDecayNMDA*ntwk.ms
     V0NMDA = args.V0NMDA*ntwk.mV
+    # GABA parameters
+    wGABA, tauGABA = args.wGABA*ntwk.nS, args.tauGABA*ntwk.ms
     # let's determine the peak-time for normalization
     time = np.linspace(0, 100, int(1e3))*ntwk.ms
     psp = lambda t: np.exp(-t/tauDecayNMDA)-np.exp(-t/tauRiseNMDA)
     ANMDA = 1./psp(time[np.argmax(psp(time))]) # normalization in paper
 
+    synapse_ID, location_ID, time_ID = [], [], []
     # ===> Evoked activity at that specific location:
-    synapse_ID, location_ID, time_ID = [0], [(stim_apic_compartment_index, stim_apic_compartment_seg)], [10.]
     for k in range(args.Nsyn_synch_stim):
         synapse_ID.append(0)
-        location_ID.append((stim_apic_compartment_index, stim_apic_compartment_seg))
-        time_ID.append(10.+0.1*(k+1))
+        time_ID.append(args.tsyn_stim+args.dt*(k+1))
 
-        evoked_stimulation = ntwk.SpikeGeneratorGroup(len(synapse_ID),
-                                                      np.array(synapse_ID),
-                                                      np.array(time_ID)*ntwk.ms)
-        ES = ntwk.Synapses(evoked_stimulation, neuron,
-                           model=EXC_SYNAPSES_EQUATIONS,
-                           on_pre=ON_EXC_EVENT)
-        # for i in range(len(synapse_ID)):
-        #     ES.connect(i=i, j=APICAL_NSEG_INDICES[location_ID[i][0]][location_ID[i][1]])
+    # ===> Background activity everywhere
+    # excitation
+    for syn in range(1, args.Nsyn_Ebg+1):
+        for e, event in enumerate(np.cumsum(np.random.exponential(1e3/args.Fexc_bg,
+                                         size=int(1.3e-3*args.tstop*args.Fexc_bg)))):
+            synapse_ID.append(syn)
+            time_ID.append(event+e*args.dt)
 
+    excitatory_stimulation = ntwk.SpikeGeneratorGroup(args.Nsyn_Ebg+1,
+                                                  np.array(synapse_ID),
+                                                  np.array(time_ID)*ntwk.ms)
+    ES = ntwk.Synapses(excitatory_stimulation, neuron,
+                       model=EXC_SYNAPSES_EQUATIONS,
+                       on_pre=ON_EXC_EVENT)
+    # connecting evoked activity synapse
     ES.connect(i=0, j=args.stim_apic_compartment_index)
+    # connecting evoked activity synapse
+    for syn in range(1, args.Nsyn_Ebg+1):
+        ES.connect(i=syn, j=np.random.choice(range(900,1600))) # to be fixed
+    
+    # inhibition
+    synapseI_ID, timeI_ID = [], []
+    for syn in range(args.Nsyn_Ibg):
+        for e, event in enumerate(np.cumsum(np.random.exponential(1e3/args.Finh_bg,
+                                         size=int(1.3e-3*args.tstop*args.Finh_bg)))):
+            synapseI_ID.append(syn)
+            timeI_ID.append(event+e*args.dt)
+    inhibitory_stimulation = ntwk.SpikeGeneratorGroup(args.Nsyn_Ibg,
+                                                      np.array(synapseI_ID),
+                                                      np.array(timeI_ID)*ntwk.ms)
+    IS = ntwk.Synapses(inhibitory_stimulation, neuron,
+                       model=INH_SYNAPSES_EQUATIONS,
+                       on_pre=ON_INH_EVENT)
+    # connecting evoked activity synapse
+    for syn in range(args.Nsyn_Ibg):
+        IS.connect(i=syn, j=np.random.choice(range(900,1600))) # to be fixed
 
     # recording and running
     M = ntwk.StateMonitor(neuron, ('v'), record=[0, # soma
@@ -208,24 +230,32 @@ if __name__=='__main__':
     parser.add_argument("--Ei", help='[mV]', type=float, default=-80.)
     parser.add_argument("--wAMPA", help='[nS]', type=float, default=0.5)
     parser.add_argument("--wNMDA", help='[nS]', type=float, default=1.)
+    parser.add_argument("--wGABA", help='[nS]', type=float, default=1.)
     parser.add_argument("--tauAMPA", help='[ms]', type=float, default=2.)
+    parser.add_argument("--tauGABA", help='[ms]', type=float, default=5.)
     parser.add_argument("--tauRiseNMDA", help='[ms]', type=float, default=3.)
     parser.add_argument("--tauDecayNMDA", help='[ms]', type=float, default=70.)
     parser.add_argument("--V0NMDA", help='[mV]', type=float, default=1./0.08)
-    ###################################################
-    # ---------- SYNAPTIC PARAMS  ----------------- #
-    ###################################################
+    #############################################################
+    # ---------- SYNAPTIC STIMULATION PARAMS  ----------------- #
+    #############################################################
+    # evoked
     parser.add_argument("--stim_apic_compartment_index", type=int, default=1652)
     parser.add_argument("--rec2_apic_compartment_index", type=int, default=860)
     parser.add_argument("--Nsyn_synch_stim", type=int, default=5)
+    parser.add_argument("--tsyn_stim", type=int, default=10.)
+    # bg
+    parser.add_argument("--Nsyn_Ebg", type=int, default=0)
+    parser.add_argument("--Nsyn_Ibg", type=int, default=0)
+    parser.add_argument("--Fexc_bg", type=float, default=10.)
+    parser.add_argument("--Finh_bg", type=float, default=10.)
     
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
     parser.add_argument("-s", "--save", help="save the figures",
                         action="store_true")
     parser.add_argument("--filename", '-f', help="filename",type=str, default='data.npz')
-    parser.add_argument("--fig", help="filename for saving a figure" ,type=str)
-
+    parser.add_argument("--fig", help="filename for saving a figure" ,type=str, default='')
     
     args = parser.parse_args()
 

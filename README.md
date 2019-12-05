@@ -14,6 +14,8 @@ We make use of the publicly available dataset of cellular morphologies taken fro
 
 Jiang et al., _Science_ (2015): Principles of connectivity among morphologically defined cell types in adult neocortex https://science.sciencemag.org/content/350/6264/aac9462
 
+Set of morphologies (dendritic arborization in red, axonal projections in green):
+
 ![](figures/all_cells.png)
 
 ## cellular biophysics: implementation
@@ -56,6 +58,21 @@ Post-synaptic potentials at -50mV (5 synchronous synaptic events):
 
 ## Background synaptic activity
 
+Adding stochastic background synaptic activity on top of the evoked (synchronous) synaptic event(s):
 
+N.B. We restrict the synaptic activity to the apical tuft.
+
+No background:
+
+![](figures/no_bg.png)
+
+With excitatoy background only (20 synapses at 10Hz):
+
+![](figures/with_exc_bg.png)
+
+
+With excitatoy-inhibitory background activity (20 synapses each, $\nu_e$=40Hz, $\nu_ei=100Hz):
+
+![](figures/with_bg_40_100.png)
 
 contributor:  yann.zerlaut@cnrs.fr
