@@ -66,16 +66,29 @@ No background:
 
 ![](figures/no_bg.png)
 
-With excitatoy background only (20 synapses at Fe=15Hz):
+With excitatoy background only (10 synapses at Fe=15Hz):
 
 ![](figures/with_exc_bg_15.png)
 
-With excitatoy background only (20 synapses at Fe=25Hz):
+With excitatoy background only (10 synapses at Fe=25Hz):
 
 ![](figures/with_exc_bg_25.png)
 
-With excitatoy-inhibitory background activity (20 synapses each, $\nu_e$=40Hz, $\nu_ei=100Hz):
+With excitatoy-inhibitory background activity (10 synapses each, Fe=25Hz, Fi=10Hz):
 
-![](figures/with_bg_40_100.png)
+![](figures/with_bg_25_10.png)
 
-contributor:  yann.zerlaut@cnrs.fr
+With excitatoy-inhibitory background activity (10 synapses each, Fe=25Hz, Fi=15Hz):
+
+![](figures/with_bg_25_15.png)
+
+With excitatoy-inhibitory background activity (10 synapses each, Fe=60Hz, Fi=150Hz):
+
+![](figures/with_bg_60_150.png)
+
+
+## Acknowledgments
+
+[...]
+
+contact: yann.zerlaut@cnrs.fr
