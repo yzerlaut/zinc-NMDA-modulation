@@ -1,20 +1,24 @@
-# Zinc modulation of NMDA-dependent synaptic transmission in neocortical neurons
+# Theoretical analysis of the Zinc-mediated modulation of NMDA-dependent synaptic transmission in neocortical neurons
 
-Source code for the analysis of zinc modulation of NMDA-dependent synaptic transmission in neocortical neurons. Implementing stochastic synaptic activity emulating _in-vivo_-like ongoing dynamics in neocortical networks 
+Source code for the theoretical model of zinc modulation of NMDA-dependent synaptic transmission in neocortical neurons. Implementing stochastic synaptic activity emulating _in-vivo_-like ongoing dynamics in neocortical networks. Analyzing the impact on cellular computation under 
 
 ## Requirements
 
-- =python= (use a python distribution for scientific computing, e.g. Anaconda)
+- `python` (use a python distribution for scientific computing, e.g. Anaconda)
 
-- =brian2=: a simulator of single cell computation and network dynamics, get it with `pip install brian2`
+- `brian2`: a simulator of single cell computation and network dynamics, get it with `pip install brian2`
 
 ## Cellular morphology dataset
 
 We make use of the publicly available dataset of cellular morphologies taken from the following study:
 
-Jiang et al., _Science_ (2015): Principles of connectivity among morphologically defined cell types in adult neocortex !(https://science.sciencemag.org/content/350/6264/aac9462)[https://science.sciencemag.org/content/350/6264/aac9462]
+Jiang et al., _Science_ (2015): Principles of connectivity among morphologically defined cell types in adult neocortex https://science.sciencemag.org/content/350/6264/aac9462
+
+![](figures/all_cells.png)
 
 ## cellular biophysics: implementation
+
+Analogous to Farinella et al. _PLoS Comp Biol_:
 
 ```
 ##########################################################
@@ -51,5 +55,7 @@ Post-synaptic potentials at -50mV (5 synchronous synaptic events):
 ![](figures/PSP_at_depol_level.png)
 
 ## Background synaptic activity
+
+
 
 contributor:  yann.zerlaut@cnrs.fr
