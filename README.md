@@ -1,4 +1,4 @@
-# Theoretical analysis of the Zinc-mediated modulation of NMDA-dependent synaptic transmission in neocortical neurons
+# Theoretical analysis of the Zinc-mediated modulation of NMDA-dependent synaptic transmission in neocortical neurons: modeling and impact on cellular computation
 
 Source code for the theoretical model of zinc modulation of NMDA-dependent synaptic transmission in neocortical neurons. Implementing stochastic synaptic activity emulating _in-vivo_-like ongoing dynamics in neocortical networks. Analyzing the impact on cellular computation under 
 
