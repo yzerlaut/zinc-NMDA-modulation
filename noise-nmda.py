@@ -39,6 +39,7 @@ def run_sim(args):
 
     # simulation params
     dt, tstop = args.dt*ntwk.ms, args.tstop*ntwk.ms
+    np.random.seed(args.seed)
     # loading a morphology:
     morpho = ntwk.Morphology.from_swc_file(args.morpho)
     # fetching all compartments
@@ -119,10 +120,12 @@ def run_sim(args):
                                          size=int(1.3e-3*args.tstop*args.Finh_bg)))):
             synapseI_ID.append(syn)
             timeI_ID.append(event+e*args.dt)
-    inhibitory_stimulation = ntwk.SpikeGeneratorGroup(args.Nsyn_Ibg,
+
+    if args.Nsyn_Ibg>0:
+        inhibitory_stimulation = ntwk.SpikeGeneratorGroup(args.Nsyn_Ibg,
                                                       np.array(synapseI_ID),
                                                       np.array(timeI_ID)*ntwk.ms)
-    IS = ntwk.Synapses(inhibitory_stimulation, neuron,
+        IS = ntwk.Synapses(inhibitory_stimulation, neuron,
                        model=INH_SYNAPSES_EQUATIONS,
                        on_pre=ON_INH_EVENT)
     # connecting evoked activity synapse
@@ -216,6 +219,7 @@ if __name__=='__main__':
     ###################################################
     parser.add_argument("--tstop", help='[ms]', type=float, default=200.)
     parser.add_argument("--dt", help='[ms]', type=float, default=0.1)
+    parser.add_argument("--seed", type=int, default=1)
     ##################################################
     # ---------- BIOPHYSICAL PROPS ----------------- #
     ##################################################
