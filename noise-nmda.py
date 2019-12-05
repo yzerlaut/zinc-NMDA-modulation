@@ -21,11 +21,16 @@ gE : siemens
 gI : siemens
 '''
 # synaptic dynamics:
+# -- excitation (NMDA-dependent)
 EXC_SYNAPSES_EQUATIONS = '''dgAMPA/dt = -gAMPA/tauAMPA : siemens (clock-driven)
                            dgRiseNMDA/dt = -gRiseNMDA/tauRiseNMDA : 1 (clock-driven)
                            dgDecayNMDA/dt = -gDecayNMDA/tauDecayNMDA : 1 (clock-driven)
                            gE_post = gAMPA+wNMDA*ANMDA*(gDecayNMDA-gRiseNMDA)/(1+0.3*exp(-v/V0NMDA)) : siemens (summed)''' 
 ON_EXC_EVENT = 'gAMPA += wAMPA; gDecayNMDA += 1; gRiseNMDA += 1'
+# -- inhibition (NMDA-dependent)
+INH_SYNAPSES_EQUATIONS = '''dgGABA/dt = -gGABA/tauGABA : siemens (clock-driven)
+                            gI_post = gGABA : siemens (summed)''' 
+ON_INH_EVENT = 'gGABA += wGABA'
 
 
 stim_apic_compartment_index, stim_apic_compartment_seg = -1, 0
@@ -219,6 +224,7 @@ if __name__=='__main__':
     parser.add_argument("-s", "--save", help="save the figures",
                         action="store_true")
     parser.add_argument("--filename", '-f', help="filename",type=str, default='data.npz')
+    parser.add_argument("--fig", help="filename for saving a figure" ,type=str)
 
     
     args = parser.parse_args()
@@ -229,5 +235,8 @@ if __name__=='__main__':
         pass
     else:
         output = run_sim(args)
-        plot_nrn_and_signals(args, output)
-        mg.show()
+        fig = plot_nrn_and_signals(args, output)
+        if args.fig=='':
+            mg.show()
+        else:
+            fig.savefig(args.fig)
