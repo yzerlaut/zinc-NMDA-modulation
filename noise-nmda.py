@@ -86,7 +86,7 @@ def run_sim(args):
 
     # ===> Evoked activity at that specific location:
     synapse_ID, location_ID, time_ID = [0], [(stim_apic_compartment_index, stim_apic_compartment_seg)], [10.]
-    for k in range(10):
+    for k in range(args.Nsyn_synch_stim):
         synapse_ID.append(0)
         location_ID.append((stim_apic_compartment_index, stim_apic_compartment_seg))
         time_ID.append(10.+0.1*(k+1))
@@ -100,12 +100,12 @@ def run_sim(args):
         # for i in range(len(synapse_ID)):
         #     ES.connect(i=i, j=APICAL_NSEG_INDICES[location_ID[i][0]][location_ID[i][1]])
 
-    ES.connect(i=0, j=SEGMENTS['index'][-1])
+    ES.connect(i=0, j=args.stim_apic_compartment_index)
 
     # recording and running
     M = ntwk.StateMonitor(neuron, ('v'), record=[0, # soma
-            APICAL_NSEG_INDICES[rec2_apic_compartment_index][rec2_apic_compartment_seg],
-            APICAL_NSEG_INDICES[stim_apic_compartment_index][stim_apic_compartment_seg]])
+                                                 args.rec2_apic_compartment_index,
+                                                 args.stim_apic_compartment_index])
     
     # Run simulation
     ntwk.run(tstop)
@@ -121,10 +121,7 @@ def plot_nrn_and_signals(args, output):
 
     # loading the morphology
     morpho = ntwk.Morphology.from_swc_file(args.morpho)
-    soma = ntwk.morpho_analysis.get_compartment_list(morpho,
-                                                     inclusion_condition='comp.type=="soma"')[0]
-    DEND_COMP_LIST, DEND_INDICES = ntwk.morpho_analysis.get_compartment_list(morpho,
-                                   inclusion_condition='comp.type in ["dend", "apic"]')
+    SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
     
     fig, AX = mg.figure(figsize=(.95,.38),
                         left=.1, bottom=.1,
@@ -134,23 +131,19 @@ def plot_nrn_and_signals(args, output):
                               (1,1,3,1),
                               (1,2,3,1)])
 
-    _, ax = plot_nrn_shape(mg, DEND_COMP_LIST,
-                           soma_comp=soma,
-                           ax=AX[0])
+    _, ax = plot_nrn_shape(mg, SEGMENTS, ax=AX[0],
+                           comp_types=['soma', 'dend', 'apic'])
     
-    mg.title(AX[0], args.morpho.split(os.path.sep)[-1].split('.CNG')[0])
+    mg.annotate(fig, args.morpho.split(os.path.sep)[-1].split('.CNG')[0], (0.01, 0.01))
     
-    add_dot_on_morpho(mg, AX[0], DEND_COMP_LIST[args.stim_apic_compartment_index],
-                      index=stim_apic_compartment_seg,
-                      soma_comp=soma, color=mg.colors[0])
+    add_dot_on_morpho(mg, AX[0], SEGMENTS, args.stim_apic_compartment_index,
+                      color=mg.colors[0])
     
-    add_dot_on_morpho(mg, AX[0], DEND_COMP_LIST[args.rec2_apic_compartment_index],
-                      index=rec2_apic_compartment_seg,
-                      soma_comp=soma, color=mg.colors[1])
-    
-    add_dot_on_morpho(mg, AX[0], COMP_LIST[0],
-                      index=0,
-                      soma_comp=soma, color=mg.colors[2])
+    add_dot_on_morpho(mg, AX[0], SEGMENTS, args.rec2_apic_compartment_index,
+                      color=mg.colors[1])
+
+    add_dot_on_morpho(mg, AX[0], SEGMENTS, 0,
+                      color=mg.colors[2])
 
     # plotting
     AX[1].plot(output['t'], output['Vm_syn'], '-', color=mg.colors[0])
@@ -165,8 +158,9 @@ def plot_nrn_and_signals(args, output):
     AX[1].plot([output['t'][-1], output['t'][-1]-Tbar], AX[1].get_ylim()[1]*np.ones(2), '-',
                color=mg.default_color)    
     mg.annotate(AX[1], '%sms' % Tbar, (.98, 1.), ha='right', color=mg.default_color)
-    # fig.savefig('figures/temp.png')
+    return fig
 
+    
 
 
 if __name__=='__main__':
@@ -216,8 +210,9 @@ if __name__=='__main__':
     ###################################################
     # ---------- SYNAPTIC PARAMS  ----------------- #
     ###################################################
-    parser.add_argument("--stim_apic_compartment_index", type=int, default=10)
-    parser.add_argument("--rec2_apic_compartment_index", type=int, default=10)
+    parser.add_argument("--stim_apic_compartment_index", type=int, default=1652)
+    parser.add_argument("--rec2_apic_compartment_index", type=int, default=860)
+    parser.add_argument("--Nsyn_synch_stim", type=int, default=5)
     
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
