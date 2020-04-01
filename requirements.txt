@@ -1,0 +1,6 @@
+numpy
+scipy
+argparse
+brian2
+git+https://github.com/yzerlaut/datavyz
+git+https://github.com/yzerlaut/analyz
