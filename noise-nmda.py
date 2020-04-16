@@ -1,13 +1,11 @@
-import sys, pathlib, os
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
+import os
 import numpy as np
 
 import neural_network_dynamics.main as ntwk # my custom layer on top of Brian2
-from graphs.my_graph import graphs # my custom data visualization library
-from graphs.nrn_morpho import plot_nrn_shape, coordinate_projection, add_dot_on_morpho # plotting neuronal morphologies
+from datavyz import ge
 
-# mg = graphs('dark_emacs_png')
-mg = graphs('screen')
+from datavyz.nrn_morpho import plot_nrn_shape, coordinate_projection, add_dot_on_morpho # plotting neuronal morphologies
+
 
 ##########################################################
 # -- EQUATIONS FOR THE SYNAPTIC AND CELLULAR BIOPHYSICS --
@@ -153,7 +151,7 @@ def plot_nrn_and_signals(args, output):
     morpho = ntwk.Morphology.from_swc_file(args.morpho)
     SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
     
-    fig, AX = mg.figure(figsize=(.95,.38),
+    fig, AX = ge.figure(figsize=(.95,.38),
                         left=.1, bottom=.1,
                         wspace=.6, hspace=.1,
                         grid=[(0,0,1,3),
@@ -161,33 +159,33 @@ def plot_nrn_and_signals(args, output):
                               (1,1,3,1),
                               (1,2,3,1)])
 
-    _, ax = plot_nrn_shape(mg, SEGMENTS, ax=AX[0],
+    _, ax = plot_nrn_shape(ge, SEGMENTS, ax=AX[0],
                            comp_types=['soma', 'dend', 'apic'])
     
-    mg.annotate(fig, args.morpho.split(os.path.sep)[-1].split('.CNG')[0], (0.01, 0.01))
+    ge.annotate(fig, args.morpho.split(os.path.sep)[-1].split('.CNG')[0], (0.01, 0.01))
     
-    add_dot_on_morpho(mg, AX[0], SEGMENTS, args.stim_apic_compartment_index,
-                      color=mg.colors[0])
+    add_dot_on_morpho(ge, AX[0], SEGMENTS, args.stim_apic_compartment_index,
+                      color=ge.colors[0])
     
-    add_dot_on_morpho(mg, AX[0], SEGMENTS, args.rec2_apic_compartment_index,
-                      color=mg.colors[1])
+    add_dot_on_morpho(ge, AX[0], SEGMENTS, args.rec2_apic_compartment_index,
+                      color=ge.colors[1])
 
-    add_dot_on_morpho(mg, AX[0], SEGMENTS, 0,
-                      color=mg.colors[2])
+    add_dot_on_morpho(ge, AX[0], SEGMENTS, 0,
+                      color=ge.colors[2])
 
     # plotting
-    AX[1].plot(output['t'], output['Vm_syn'], '-', color=mg.colors[0])
-    AX[2].plot(output['t'], output['Vm_apic'], '-', color=mg.colors[1])
-    AX[3].plot(output['t'], output['Vm_soma'], '-', color=mg.colors[2])
+    AX[1].plot(output['t'], output['Vm_syn'], '-', color=ge.colors[0])
+    AX[2].plot(output['t'], output['Vm_apic'], '-', color=ge.colors[1])
+    AX[3].plot(output['t'], output['Vm_soma'], '-', color=ge.colors[2])
     
     for i, ax, label in zip(range(3), AX[1:], ['synaptic location', 'tuft start', 'soma']):
-        mg.set_plot(ax, ['left'], ylabel='mV')
-        mg.annotate(ax, '$V_m$ at %s' % label, (1., 0.), ha='right', va='top',
-                    color=mg.colors[i])
+        ge.set_plot(ax, ['left'], ylabel='mV')
+        ge.annotate(ax, '$V_m$ at %s' % label, (1., 0.), ha='right', va='top',
+                    color=ge.colors[i])
     Tbar = 20 # ms
     AX[1].plot([output['t'][-1], output['t'][-1]-Tbar], AX[1].get_ylim()[1]*np.ones(2), '-',
-               color=mg.default_color)    
-    mg.annotate(AX[1], '%sms' % Tbar, (.98, 1.), ha='right', color=mg.default_color)
+               color=ge.default_color)    
+    ge.annotate(AX[1], '%sms' % Tbar, (.98, 1.), ha='right', color=ge.default_color)
     return fig
 
     
@@ -271,6 +269,6 @@ if __name__=='__main__':
         output = run_sim(args)
         fig = plot_nrn_and_signals(args, output)
         if args.fig=='':
-            mg.show()
+            ge.show()
         else:
             fig.savefig(args.fig)
