@@ -150,6 +150,7 @@ def plot_nrn_and_signals(args, output):
     # loading the morphology
     morpho = ntwk.Morphology.from_swc_file(args.morpho)
     SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
+
     
     fig, AX = ge.figure(figsize=(.95,.38),
                         left=.1, bottom=.1,
@@ -159,8 +160,9 @@ def plot_nrn_and_signals(args, output):
                               (1,1,3,1),
                               (1,2,3,1)])
 
-    _, ax = plot_nrn_shape(ge, SEGMENTS, ax=AX[0],
-                           comp_types=['soma', 'dend', 'apic'])
+    # _, ax = plot_nrn_shape(ge, SEGMENTS, ax=AX[0],
+    #                        comp_types=['soma', 'dend', 'apic'])
+    _, ax = plot_nrn_shape(ge, SEGMENTS, ax=AX[0])
     
     ge.annotate(fig, args.morpho.split(os.path.sep)[-1].split('.CNG')[0], (0.01, 0.01))
     
