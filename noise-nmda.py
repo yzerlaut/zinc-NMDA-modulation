@@ -54,7 +54,7 @@ def run_sim(args):
     
     # restriction to apical tuft
     APICAL_COMP_LIST, APICAL_NSEG_INDICES = ntwk.morpho_analysis.get_compartment_list(morpho,
-       inclusion_condition='comp.type=="apic"')
+                                                    inclusion_condition='comp.type=="apic"')
     # inclusion_condition='(comp.type=="apic") and np.sqrt(comp.y.mean()**2+comp.x.mean()**2+comp.z.mean()**2)>130*ntwk.um')
     
     # full dendritic
