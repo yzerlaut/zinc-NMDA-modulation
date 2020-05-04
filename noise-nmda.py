@@ -100,8 +100,8 @@ def run_sim(args):
             time_ID.append(event+e*args.dt)
 
     excitatory_stimulation = ntwk.SpikeGeneratorGroup(args.Nsyn_Ebg+1,
-                                                  np.array(synapse_ID),
-                                                  np.array(time_ID)*ntwk.ms)
+                                                      np.array(synapse_ID),
+                                                      np.array(time_ID)*ntwk.ms)
     ES = ntwk.Synapses(excitatory_stimulation, neuron,
                        model=EXC_SYNAPSES_EQUATIONS,
                        on_pre=ON_EXC_EVENT)
@@ -145,35 +145,31 @@ def run_sim(args):
     
     return output
 
-def plot_nrn_and_signals(args, output):
+def plot_nrn_and_signals(args, output, ge=None):
 
+    if ge is None:
+        from datavyz import ges as ge
+        
     # loading the morphology
     morpho = ntwk.Morphology.from_swc_file(args.morpho)
     SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
 
-    
-    fig, AX = ge.figure(figsize=(.95,.38),
+    fig, AX = ge.figure(figsize=(1.5, 1.),
                         left=.1, bottom=.1,
-                        wspace=.6, hspace=.1,
+                        hspace=.1,
                         grid=[(0,0,1,3),
-                              (1,0,3,1),
-                              (1,1,3,1),
-                              (1,2,3,1)])
+                              (1,0,2,1),
+                              (1,1,2,1),
+                              (1,2,2,1)])
 
-    # _, ax = plot_nrn_shape(ge, SEGMENTS, ax=AX[0],
-    #                        comp_types=['soma', 'dend', 'apic'])
-    _, ax = plot_nrn_shape(ge, SEGMENTS, ax=AX[0])
+    _, ax = plot_nrn_shape(ge, SEGMENTS, ax=AX[0],
+                           comp_type=['apic', 'dend', 'soma'])
     
     ge.annotate(fig, args.morpho.split(os.path.sep)[-1].split('.CNG')[0], (0.01, 0.01))
     
-    add_dot_on_morpho(ge, AX[0], SEGMENTS, args.stim_apic_compartment_index,
-                      color=ge.colors[0])
-    
-    add_dot_on_morpho(ge, AX[0], SEGMENTS, args.rec2_apic_compartment_index,
-                      color=ge.colors[1])
-
-    add_dot_on_morpho(ge, AX[0], SEGMENTS, 0,
-                      color=ge.colors[2])
+    add_dot_on_morpho(ge, AX[0], SEGMENTS, args.stim_apic_compartment_index, color=ge.colors[0])
+    add_dot_on_morpho(ge, AX[0], SEGMENTS, args.rec2_apic_compartment_index, color=ge.colors[1])
+    add_dot_on_morpho(ge, AX[0], SEGMENTS, 0, color=ge.colors[2])
 
     # plotting
     AX[1].plot(output['t'], output['Vm_syn'], '-', color=ge.colors[0])
@@ -182,12 +178,13 @@ def plot_nrn_and_signals(args, output):
     
     for i, ax, label in zip(range(3), AX[1:], ['synaptic location', 'tuft start', 'soma']):
         ge.set_plot(ax, ['left'], ylabel='mV')
-        ge.annotate(ax, '$V_m$ at %s' % label, (1., 0.), ha='right', va='top',
-                    color=ge.colors[i])
+        ge.annotate(ax, '$V_m$ at %s' % label, (1., 0.), ha='right', va='top', color=ge.colors[i])
+        
     Tbar = 20 # ms
     AX[1].plot([output['t'][-1], output['t'][-1]-Tbar], AX[1].get_ylim()[1]*np.ones(2), '-',
                color=ge.default_color)    
     ge.annotate(AX[1], '%sms' % Tbar, (.98, 1.), ha='right', color=ge.default_color)
+    
     return fig
 
     
@@ -213,7 +210,10 @@ if __name__=='__main__':
                                              'single_cell_integration',
                                              'morphologies',
                                              'Jiang_et_al_2015',
-                                             'L5pyr-j140408b.CNG.swc'))
+                                             'L23pyr-j150407a.CNG.swc'))
+    #L23pyr-j150407a.CNG.swc
+    #L23pyr-j150811a.CNG.swc
+    
     ###################################################
     # ---------- SIMULATION PARAMS  ----------------- #
     ###################################################

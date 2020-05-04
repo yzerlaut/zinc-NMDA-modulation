@@ -32,7 +32,7 @@ Binding dynamics is implemented by low-pass filtering
 
 The function $\mathcal{S}$ is the sigmoid function defined by: $\mathcal{S} : X \rightarrow \frac{1}{1+e^{-X}}$, the parameters $x_0$ and $\delta x$ therefore define the center and slope of the sigmoid.
 
-*** Functional 
+*** The pathway-specificity of Zinc modulation enables time-dependent routing of information transfer
 
 [[Figure {Fig2} around here]]
 
@@ -69,17 +69,56 @@ The maximum conductance following a synaptic event is set by the following produ
 
 * Figures
 
-*** Modeling Zinc modulation of NMDAR signaling.
-#+options : {'label':'Fig1', 'extent':'singlecolumn', 'page_position':'b!', 'file':'figures/fig-model-description.png'}
-Generate the figure with the file \texttt{surface\_plot.py} from the \texttt{graphs} module available at the following \href{https://bitbucket.org/yzerlaut/graphs/src/master/}{[link]}. Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. We added an optional horizontal rule at the bottom.
+*** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
+#+options : {'label':'Fig1', 'extent':'one-and-a-half-column', 'height':13.5, 'file':'figures/fig-model-description.png'}
+(a) Biophysical model of Zinc modulation at the single synapse level. Glutamate release is translated into a state-dependent integration variable $x$ (the $x$-dependency of the $\Delta x$ increments is shown in the inset, grey line). The $x$ variable is then non-linearly transformed and low-pass filtered to give the Zinc-binding variable $b_{Zn}$ (see the sigmoid in the inset, black line). Zinc binding reduces the NMDA synaptic conductance ($g_{NMDA}$, top plot), at full-binding $b_{Zn}=1$, the conductance is reduced by a factor $\alpha_{Zn}$. The increment parameter of the model $\Delta x^0$ is set to 0 when there is no available Zinc ("chelated-Zinc", green lines). (b) Morphological reconstruction of a Layer 2/3 pyramidal in the primary sensory cortex of the mouse, taken from Jiang et al. (2015).  (c) [...].
 
-*** Zinc modulation produces pathway-specific routing of information.
+*** Zinc modulation enables pathway-specific routing of information.
 #+options : {'label':'Fig2', 'extent':'doublecolumn', 'hrule_bottom':True, 'page_position':'b!', 'file':'figures/fig-model-prediction.png'}
 (a) Lorem ipsumdolor sit amet in *B* and *C*, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris.
 (b) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. 
 (c) Nuncquis urna dictum turpis accumsan semper. Lorem ipsum dolor sit amet, consectetuer adipisc ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper,felis non sodales commodo, lectus velit ultrices augue, a dignissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.
 
+* Tables
+
+*** Parameters of the model.
+
+#+options : {'label':'Tab1', 'extent':'singlecolumn'}
+The synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2015) and the parameters of the Zinc-modulation of were fitted from experimental recordings (see Methods).
+\begin{tabular}{l|c|c}
+\textbf{Model parameter} & \textbf{Symbol} & \textbf{Value} \\ 
+ \hline \vspace{-.3cm} \\ 
+ Zinc-NMDA inhibition factor &  $\alpha_{Zn}$ & 0.4 \\
+ Zinc-NMDA rise time &  $\tau_{Zn}^{rise}$ & 17ms\\
+ Zinc-NMDA decay time &  $\tau_{decay}^{decay}$ & 17ms\\
+ \hline \vspace{-.3cm} \\ 
+ NMDA max. conductance &  $g_{NMDA}^{max}$ & 17\\
+ NMDA rise time &  $\tau_{NMDA}^{rise}$ & 17\\
+ NMDA decay time &  $\tau_{NMDA}^{decay}$ & 17\\
+ NMDA density &  $D_{NMDA}$ & 17 syn./cm$^2$\\
+ \hline \vspace{-.3cm} \\ 
+ AMPA max. conductance &  $g_{NMDA}^{max}$ & 17\\
+ AMPA rise time &  $\tau_{NMDA}^{rise}$ & 17\\
+ AMPA decay time &  $\tau_{NMDA}^{decay}$ & 17\\
+\hline
+Anna & 4321 & 25\\
+Patrick & 4321 & 25\\
+\hline
+\end{tabular}
+
 * References
+
+@Article{Destexhe_et_al_1998,
+  author    = {Destexhe, Alain and Mainen, Zachary F and Sejnowski, Terrence J},
+  journal   = {Methods in neuronal modeling},
+  title     = {Kinetic models of synaptic transmission},
+  year      = {1998},
+  pages     = {1--25},
+  volume    = {2},
+  file      = {:destexhe1998kinetic - Kinetic Models of Synaptic Transmission.pdf:PDF},
+  publisher = {Citeseer},
+}
+
 
 @Article{Farinella_et_al_2014,
   author          = {Farinella, Matteo and Ruedt, Daniel T. and Gleeson, Padraig and Lanore, Frederic and Silver, R. Angus},
@@ -146,25 +185,4 @@ Generate the figure with the file \texttt{surface\_plot.py} from the \texttt{gra
   pubstate        = {ppublish},
   revised         = {2020-04-08},
 }
-
-* Tables
-
-*** Model parameters
-#+options : {'label':'Tab1', 'extent':'singlecolumn'}
-Subcaption for the first table
-| Name    |    Phone | Age |
-|---------+----------+-----|
-| Peter   | {blabla} |  17 |
-| Anna    |     4321 |  25 |
-| Patrick |     4321 |  25 |
-\begin{tabular}{l|r|r}
-Name & Phone & Age\\
-\hline
-Peter & {blabla} & 17\\
-\hline
-Anna & 4321 & 25\\
-Patrick & 4321 & 25\\
-\hline
-\end{tabular}
-
 
