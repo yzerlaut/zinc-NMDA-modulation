@@ -19,11 +19,14 @@ gI : siemens
 '''
 # synaptic dynamics:
 # -- excitation (NMDA-dependent)
-EXC_SYNAPSES_EQUATIONS = '''dgAMPA/dt = -gAMPA/tauAMPA : siemens (clock-driven)
-                           dgRiseNMDA/dt = -gRiseNMDA/tauRiseNMDA : 1 (clock-driven)
-                           dgDecayNMDA/dt = -gDecayNMDA/tauDecayNMDA : 1 (clock-driven)
-                           gE_post = gAMPA+wNMDA*ANMDA*(gDecayNMDA-gRiseNMDA)/(1+0.3*exp(-v/V0NMDA)) : siemens (summed)''' 
-ON_EXC_EVENT = 'gAMPA += wAMPA; gDecayNMDA += 1; gRiseNMDA += 1'
+EXC_SYNAPSES_EQUATIONS = '''dx/dt = -x/tauDecayZinc : 1 (clock-driven)
+                            dbZn/dt = -bZn/tauRiseZinc + 1/(1+exp((x-x0)/deltax)) : 1 (clock-driven)
+                            dgRiseAMPA/dt = -gRiseAMPA/tauRiseAMPA : 1 (clock-driven)
+                            dgDecayAMPA/dt = -gDecayAMPA/tauDecayAMPA : 1 (clock-driven)
+                            dgRiseNMDA/dt = -gRiseNMDA/tauRiseNMDA : 1 (clock-driven)
+                            dgDecayNMDA/dt = -gDecayNMDA/tauDecayNMDA : 1 (clock-driven)
+                            gE_post = qAMPA*(gDecayAMPA-gRiseAMPA)+qNMDA*(gDecayNMDA-gRiseNMDA)/(1+0.3*exp(-v/V0NMDA))*(1-alphaZn*bZn) : siemens (summed)''' 
+ON_EXC_EVENT = 'gDecayAMPA += 1; gRiseAMPA += 1; gDecayNMDA += 1; gRiseNMDA += 1; x+=Deltax0*(1-x)'
 # -- inhibition (NMDA-dependent)
 INH_SYNAPSES_EQUATIONS = '''dgGABA/dt = -gGABA/tauGABA : siemens (clock-driven)
                             gI_post = gGABA : siemens (summed)''' 
@@ -61,7 +64,7 @@ def run_sim(args):
     DEND_COMP_LIST, DEND_INDICES = ntwk.morpho_analysis.get_compartment_list(morpho,
                                    inclusion_condition='comp.type in ["dend", "apic"]')
 
-    gL = args.gL*ntwk.siemens/ntwk.cm**2
+    gL = args.gL*ntwk.millisiemens/ntwk.cm**2
     EL = args.EL*ntwk.mV
     Ee, Ei = args.Ee*ntwk.mV, args.Ei*ntwk.mV
 

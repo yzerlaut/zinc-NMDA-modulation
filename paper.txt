@@ -1,13 +1,19 @@
-#+Title: Modeling Zinc-modulation of NMDAR signaling
+#+Title: Modeling Zinc-modulation of NMDAR signaling in L2/3 pyramidal cell
 
 * Key Points
 
-\item We derive a model for the modulation of synaptic transmission through NMDA channels due to Zinc-binding. 
+\item We derive a model for the modulation of synaptic transmission through NMDA channels due to the binding of endogeneous Zinc. 
 \item We analyze the functional impact of the pathway-specificity of the Zinc modulation for the computation performed by Layer 2/3 pyramidal cells. We find [...]
 
 * Results
 
 *** Modeling Zinc-modulation of NMDAR signaling
+
+We next derive a model of the Zinc modulation of NMDAR signaling based on previous studies (Vergnano et al., 2014, ...) and the above observations. Our modeling approach aimed at describing the modulation in the form of a minimal phenomenological description at the single synapse level. How such phemeomenon emerge from molecular dynamics has been studied theoretically in Vergnano et al. (2014). 
+
+ for rather than a detailed .
+The phenomenology guiding the 
+constraints to build such a model were therefore the following. 
 
 Reference to Farinella et al. (2014) and to Vergnano et al. (2014).
 
@@ -39,6 +45,33 @@ The function $\mathcal{S}$ is the sigmoid function defined by: $\mathcal{S} : X 
 * Methods
 
 [[Table {Tab1} around here]]
+
+*** Numerical simulations of morphologically detailed L2/3 pyramidal cells
+
+The two morphologies considered in the study were taken from the publicly available dataset of Jiang et al. (2015). 
+
+The simulations were implemented using the brian2 simulator (Stimberg et al. 2019). Numerical integration was performed with the default-forward Euler scheme and a time step of {dt}ms.
+
+*** Model of AMPA and GABA synapses
+
+The time evolution of the NMDA conductance is taken as the combination of four terms: 1) a synaptic waveform, 2) a conductance quantal setting the maximum conductance at full-activation level , 3) a voltage-dependent term (Mg block), 4) a Zn$^{2+}$-inhibition term set as $\big(1 - \alpha_{Zn} \, b_{Zn} \big)$ where $\alpha_{Zn}$ is the fraction of inhibited conductance at maximum Zinc-binding level ($b_{Zn}$=1). This is captured by the equation:
+
+\begin{equation}
+g_{ {\scriptscriptstyle \text{NMDA} } }(V_\text{m}, b_\text{Zn}, t) = N_\text{Mg}(V_\text{m}) \cdot \big(1 - \alpha_{Zn} \, b_{Zn} \big) \cdot Q_{{\scriptscriptstyle \text{NMDA} } }} \cdot F_{{\scriptscriptstyle  \text{NMDA} } }(t)
+\end{equation}
+
+Following previous modeling work (Ascher and Nowak, 1988; ... ; Farinella et al, 2015; ...; ), the voltage 
+
+Following previous modeling work (Farinella et al, 2015; ...; Ascher and Nowak, 1988), the 
+
+
+where $F_{NMDA}(t)$ is the temporal waveform of the synaptic event.
+
+, taken as the double exponential waveform: $F_{NMDA} : t \rightarrow A_{NMDA} \cdot (e^{-t/\tau^{decay}_{NMDA}} - e^{-t/\tau^{rise}_{NMDA}} ) $ normalized to its peak-level with the factor $A_{NMDA} = \frac{1}{(\tau^{decay}_{NMDA}/\tau^{rise}_{NMDA}-1} \cdot (\tau^{decay}_{NMDA}/\tau^{rise}_{NMDA})^{\frac{\tau^{decay}_{NMDA}}{\tau^{decay}_{NMDA}-\tau^{rise}_{NMDA}}} $.
+
+\begin{equation}
+g^{max}_{NMDA}(V_m, b_{Zn}, t) = Q_{NMDA} \cdot N_{Mg}(V_m) \cdot \big(1 - \alpha_{Zn} \, b_{Zn} \big)
+\end{equation}
 
 *** Synaptic model of NMDAR signaling
 
@@ -82,15 +115,22 @@ The maximum conductance following a synaptic event is set by the following produ
 * Tables
 
 *** Parameters of the model.
-
 #+options : {'label':'Tab1', 'extent':'singlecolumn'}
-The synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2015) and the parameters of the Zinc-modulation of were fitted from experimental recordings (see Methods).
+Values for the parameters used in the nuemrical simulations of single cell integration (unless otherwise stated, see annotations in Figure {Fig1} and  Figure {Fig2}). The synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2015) and the parameters of the Zinc-modulation of were fitted from experimental recordings (see Methods).
 \begin{tabular}{l|c|c}
 \textbf{Model parameter} & \textbf{Symbol} & \textbf{Value} \\ 
  \hline \vspace{-.3cm} \\ 
- Zinc-NMDA inhibition factor &  $\alpha_{Zn}$ & 0.4 \\
- Zinc-NMDA rise time &  $\tau_{Zn}^{rise}$ & 17ms\\
- Zinc-NMDA decay time &  $\tau_{decay}^{decay}$ & 17ms\\
+ membrane leak conductance & $g_L$ & {gL}mS/cm$^2$ \\
+ membrane capacitance & $c_m$ & {cm}$\mu$F/cm$^2$ \\
+ intracellular resistance & $c_m$ & {cm}$\Omega$.cm \\
+ leak reversal potential & $E_L$ & {EL}mV \\
+ \hline \vspace{-.3cm} \\ 
+ Zinc-NMDA inhibition factor &  $\alpha_{Zn}$ & {alphaZn} \\
+ Zinc-NMDA rise time &  $\tau_{Zn}^{rise}$ & {tauDecayZn}ms\\
+ Zinc-NMDA decay time &  $\tau_{decay}^{decay}$ & {tauRiseZn}ms\\
+ Zinc-NMDA sigmoid center &  $x_0$ & {x0} \\
+ Zinc-NMDA sigmoid width &  $\delta x & {deltax}\\
+ Zinc-NMDA base $x$-increment & $\Delta_x^0 & {Deltax0} \\
  \hline \vspace{-.3cm} \\ 
  NMDA max. conductance &  $g_{NMDA}^{max}$ & 17\\
  NMDA rise time &  $\tau_{NMDA}^{rise}$ & 17\\
@@ -106,7 +146,35 @@ Patrick & 4321 & 25\\
 \hline
 \end{tabular}
 
+* Discussion
+
+How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been studied theoretically in Vergnano et al. (2014), here we provide a complementary description. We derived a phenomenological model at the single synapse level that allow to study  (see Figure {Fig1})
+
 * References
+
+@Article{Stimberg_et_al_2019,
+  author          = {Stimberg, Marcel and Brette, Romain and Goodman, Dan Fm},
+  journal         = {eLife},
+  title           = {Brian 2, an intuitive and efficient neural simulator.},
+  year            = {2019},
+  issn            = {2050-084X},
+  month           = aug,
+  volume          = {8},
+  citation-subset = {IM},
+  completed       = {2020-02-13},
+  country         = {England},
+  doi             = {10.7554/eLife.47314},
+  issn-linking    = {2050-084X},
+  nlm-id          = {101579614},
+  owner           = {NLM},
+  pii             = {e47314},
+  pmc             = {PMC6786860},
+  pmid            = {31429824},
+  pubmodel        = {Electronic},
+  pubstate        = {epublish},
+  revised         = {2020-02-13},
+}
+
 
 @Article{Destexhe_et_al_1998,
   author    = {Destexhe, Alain and Mainen, Zachary F and Sejnowski, Terrence J},
