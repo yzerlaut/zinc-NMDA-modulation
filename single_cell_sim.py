@@ -145,11 +145,34 @@ def plot_signals(output, ge=None):
 if __name__=='__main__':
     
     from model import Model
-    Model['tsyn_stim'] = 170
+    # Model['tsyn_stim'] = 170
     t, neuron, SEGMENTS = initialize_sim(Model)
-    Estim, ES, Istim, IS = set_background_network_stim(t, neuron, SEGMENTS, Model)
-    output = run(neuron, Model, Estim, ES, Istim, IS)
     
-    from datavyz import ges as ge
-    plot_signals(output, ge=ge)
-    ge.show()
+    # Estim, ES, Istim, IS = set_background_network_stim(t, neuron, SEGMENTS, Model)
+    # output = run(neuron, Model, Estim, ES, Istim, IS)
+    
+    # from datavyz import ges as ge
+    # plot_signals(output, ge=ge)
+    # ge.show()
+
+    synapses_loc = np.arange(5)
+    spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
+    t0_stim, n_pulses, freq_pulses = 50, 3, 20
+    for i in range(n_pulses):
+        spike_times = np.concatenate([spike_times,
+                                      (t0_stim+i*1e3/freq_pulses)*np.ones(len(synapses_loc))])
+        spike_IDs = np.concatenate([spike_IDs,np.arange(len(synapses_loc))])
+    
+    Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
+                                                           spike_IDs, spike_times,
+                                                           synapses_loc,
+                                                           EXC_SYNAPSES_EQUATIONS.format(**Model),
+                                                           ON_EXC_EVENT.format(**Model))
+
+    # recording and running
+    M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
+    S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
+
+    # # Run simulation
+    ntwk.run(Model['tstop']*ntwk.ms)
+    
