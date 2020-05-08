@@ -31,7 +31,7 @@ EXC_SYNAPSES_EQUATIONS = '''dX/dt = -X/({tauDecayZn}*ms) : 1 (clock-driven)
                             dgRiseNMDA/dt = -gRiseNMDA/({tauRiseNMDA}*ms) : 1 (clock-driven)
                             dgDecayNMDA/dt = -gDecayNMDA/({tauDecayNMDA}*ms) : 1 (clock-driven)
                             gAMPA = ({qAMPA}*nS)*{nAMPA}*(gDecayAMPA-gRiseAMPA) : siemens
-                            gNMDA = ({qNMDA}*nS)*{nNMDA}*(gDecayNMDA-gRiseNMDA)/(1+0.3*exp(-v_post/({V0NMDA}*mV)))*(1-{alphaZn}*bZn) : siemens
+                            gNMDA = ({qNMDA}*nS)*{nNMDA}*(gDecayNMDA-gRiseNMDA)/(1+{etaMg}*{cMg}*exp(-v_post/({V0NMDA}*mV)))*(1-{alphaZn}*bZn) : siemens
                             gE_post = gAMPA+gNMDA : siemens (summed)'''
 ON_EXC_EVENT = 'gDecayAMPA += 1; gRiseAMPA += 1; gDecayNMDA += 1; gRiseNMDA += 1; X+={Deltax0}*(1-X)'
 
@@ -78,6 +78,7 @@ def initialize_sim(Model,
 
     return t, neuron, SEGMENTS
 
+
 def set_background_network_stim(t, neuron, SEGMENTS, Model):
     
     Nsyn_Exc, pre_to_iseg_Exc, Nsyn_per_seg_Exc = ntwk.spread_synapses_on_morpho(SEGMENTS,
@@ -108,6 +109,7 @@ def set_background_network_stim(t, neuron, SEGMENTS, Model):
 
     return Estim, ES, Istim, IS
 
+
 def run(neuron, Model, Estim, ES, Istim, IS):
 
     # recording and running
@@ -128,6 +130,7 @@ def run(neuron, Model, Estim, ES, Istim, IS):
 
     output['Ic'] = (output['Vm_soma']-Model['VC-cmd'])*Model['VC-gclamp'] # nA
     return output
+
 
 def plot_signals(output, ge=None):
     fig, AX = ge.figure(axes_extents=[[[3,1]],
