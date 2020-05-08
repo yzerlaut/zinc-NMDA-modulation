@@ -178,4 +178,8 @@ if __name__=='__main__':
 
     # # Run simulation
     ntwk.run(Model['tstop']*ntwk.ms)
+
+    from datavyz import ges as ge
+    ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:])
+    ge.show()
     
