@@ -22,19 +22,22 @@ def run_single_sim(Model, stim,
                                                   min_distance_to_soma=20e-6)
     Nsyn, pre_to_iseg,\
         Nsyn_per_seg = ntwk.spread_synapses_on_morpho(SEGMENTS,
-                                                      5, # density
+                                                      10, # density
                                                       cond=basal_cond,
                                                       density_factor=1./100./1e-12)
 
     if type(Npicked) is int:
         Npicked = Npicked*np.ones(14, dtype=int)
+        
     np.random.seed(seed)
+    
+    synapses_loc = np.random.choice(pre_to_iseg, np.max(Npicked))
+    
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
     for te, n in zip(stim['events'], Npicked):
-        synapses_loc = np.random.choice(pre_to_iseg, n)
         spike_times = np.concatenate([spike_times,
-                                      te*np.ones(len(synapses_loc))])
-        spike_IDs = np.concatenate([spike_IDs,np.arange(len(synapses_loc))])
+                                      te*np.ones(n)])
+        spike_IDs = np.concatenate([spike_IDs,np.arange(n)])
     
     Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
                                                            spike_IDs, spike_times,
@@ -51,6 +54,7 @@ def run_single_sim(Model, stim,
 
     output = {'t':np.array(M.t/ntwk.ms), 'Vcmd':Vcmd}
     output['synapses_loc'] = synapses_loc
+    output['Npicked'] = Npicked
     output['Vm_soma'] = np.array(M.v/ntwk.mV)[0,:]
     output['gAMPA_syn'] = np.array(S.gAMPA/ntwk.nS)[0,:]
     output['X_syn'] = np.array(S.X)[0,:]
@@ -84,23 +88,6 @@ def build_stimulation():
 
 calib_data = load_dict('data/exp_data_for_calibration.npz')
 
-def compute_residual(mdata):
-
-    Residual = 0
-    for cond in ['20Hz_condition', '3Hz_condition']:
-
-        tcond = (mdata['t']>(mdata['%s_tstart' % cond]-calib_data['DT0_%s' % cond])) &\
-            (mdata['t']<mdata['%s_tstart' % cond]-calib_data['DT0_%s' % cond]+\
-             calib_data['DTfull_%s' % cond])
-
-        trace_model = 1e3*(mdata['Ic'][tcond]-mdata['Ic'][tcond][0])
-
-        trace_exp = calib_data['Iexp_ctrl_%s' % cond]
-        new_t = calib_data['t_%s' % cond]
-        Residual += np.sum((trace_model-trace_exp)**2)/len(new_t) # normalized by sample size
-
-    return Residual
-    
 
 def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
                                               npulse1 = 5, freq1= 20.,
@@ -112,7 +99,7 @@ def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
     for i in range(npulse2):
         Npicked.append(Nsyn2+(Nsyn1-Nsyn2)*np.exp(-i*1e3/freq2/Tnsyn))
 
-    return Npicked
+    return np.array(Npicked, dtype=int)
     
 
     
@@ -120,10 +107,54 @@ def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
 
 if __name__=='__main__':
 
-    from model import Model
-    stim = build_stimulation()
 
-    print(compute_time_varying_synaptic_recruitment(100, 80, 400))
-    # output = run_single_sim(Model, stim, Npicked=100)
-    # print('Residual: ', compute_residual(output))
-    # np.savez(filename_with_datetime('ctrl', folder='data/calib', extension='.npz'), **output)
+    import sys
+    from model import Model
+
+    if sys.argv[1]=='chelated-calib':
+
+        Tnmda, Nsyn1, Nsyn2, Tnsyn = sys.argv[2:]
+        filename = 'chelated-%s-%s-%s-%s.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
+        
+        Model['alphaZn'] = 0
+        Model['Deltax0'] = 0
+
+        Model['tauDecayNMDA'] = float(Tnmda)
+        stim = build_stimulation()
+
+        Npicked = compute_time_varying_synaptic_recruitment(int(Nsyn1), int(Nsyn2), float(Tnsyn))
+        output = run_single_sim(Model, stim, Npicked=Npicked)
+        
+        np.savez(os.path.join('data', 'calib', filename), **output)
+
+    if sys.argv[1]=='Zinc-calib':
+
+
+        alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax = sys.argv[2:]
+        filename = 'Zinc-%s-%s-%s-%s-%s.npz' % (alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax)
+
+        # using the chelated zinc configuration
+        Tnmda, Nsyn1, Nsyn2, Tnsyn = 115.0, 60, 40, 500.0
+        Npicked = compute_time_varying_synaptic_recruitment(int(Nsyn1), int(Nsyn2), float(Tnsyn))
+        Model['tauDecayNMDA'] = float(Tnmda)
+
+        
+        Model['alphaZn'] = float(alphaZn)
+        Model['tauRiseZn'] = float(tauRiseZn)
+        Model['tauDecayZn'] = float(tauDecayZn)
+        Model['Deltax0'] = float(Deltax0)
+        Model['x0'] = float(Deltax0) # forced to the same value for now
+        Model['deltax'] = float(deltax)
+
+        stim = build_stimulation()
+        output = run_single_sim(Model, stim, Npicked=Npicked)
+        
+        np.savez(os.path.join('data', 'calib', filename), **output)
+        
+    else:
+        stim = build_stimulation()
+
+        output = run_single_sim(Model, stim,
+                                Npicked=compute_time_varying_synaptic_recruitment(90, 60, 600))
+        # print('Residual: ', compute_residual(output))
+        np.savez(filename_with_datetime('ctrl', folder='data/calib', extension='.npz'), **output)
