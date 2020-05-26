@@ -26,15 +26,15 @@ Model = {
     ###################################################
     'Ee':0,# [mV]
     'Ei':-80,# [mV]
-    'qAMPA':1.,# [nS] # Destexhe et al., 1998: "0.35 to 1.0 nS"
-    'qNMDA':0.6,# [nS] # Destexhe et al., 1998: "0.01 to 0.06 nS"
+    'qAMPA':0.7,# [nS] # Destexhe et al., 1998: "0.35 to 1.0 nS"
+    'qNMDA':0.6,# [nS] # Destexhe et al., 1998: "0.01 to 0.6 nS"
     'qGABA':1.2,# [nS] # Destexhe et al., 1998: "0.25 to 1.2 nS"
     'tauRiseAMPA':0.5,# [ms], Destexhe et al. 1998: 0.4 to 0.8 ms
     'tauDecayAMPA':5,# [ms], Destexhe et al. 1998: "the decay time constant is about 5 ms (e.g., Hestrin, 1993)"
     'tauRiseGABA':0.5,# [ms] Destexhe et al. 1998
     'tauDecayGABA':5,# [ms] Destexhe et al. 1998
     'tauRiseNMDA': 3,# [ms], Farinella et al., 2014
-    'tauDecayNMDA':70,# [ms], Farinella et al., 2014
+    'tauDecayNMDA': 100,# [ms], Destexhe et al.:. 25-125ms, Farinella et al., 2014: 70ms (but seems to short on the Vc data)
     'DensityGlut_L23': 7, # synapses / 100um2
     'DensityGlut_L4': 7, # synapses / 100um2
     'DensityAMPA': 25, # synapses / 100um2
