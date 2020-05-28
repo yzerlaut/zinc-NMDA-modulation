@@ -120,7 +120,7 @@ def find_best_membrane_params(Rm, Cm, debug=False):
 
 import itertools
 def grid_search(Rm, Cm, N=20,
-                gl0=0.1, gl1=10.,
+                gl0=0.05, gl1=10.,
                 cm0=0.5, cm1=2., debug=False):
 
     RMS, CMS, gLS, cMS = [], [], [], []
@@ -133,7 +133,7 @@ def grid_search(Rm, Cm, N=20,
         gLS.append(gl)
         cMS.append(cm)
 
-    imin = np.argmin(np.abs(np.array(RMS)-Rm)/Rm*np.abs(np.array(CMS)-Cm)/Cm)
+    imin = np.argmin((np.array(RMS)-Rm)**2/Rm**2*(np.array(CMS)-Cm)**2/Cm**2)
     return gLS[imin], cMS[imin]
     
     
@@ -142,15 +142,12 @@ if __name__=='__main__':
     import sys
     from model import Model
 
-
-
-        
     if sys.argv[1]=='calib':
 
         Rm=float(sys.argv[2])*1e6
         Cm=float(sys.argv[3])*1e-12
         N=int(sys.argv[4])
-        print(Rm, Cm, N)
+        print(1e-6*Rm, 1e12*Cm, N)
         gl_best, cm_best = grid_search(Rm, Cm, N=N)
         print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
         RmB, CmB = run_model(gl_best, cm_best)

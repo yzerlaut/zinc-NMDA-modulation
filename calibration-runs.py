@@ -108,11 +108,14 @@ def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
 if __name__=='__main__':
 
 
-    import sys
+    import sys, os
     from model import Model
 
+    if not os.path.isfile('data/passive-props.npz'):
+        print('provide the ')
+        
     Model['qAMPA'] = 0. # NBQX in experiments
-    
+
     if sys.argv[1]=='chelated-zinc-calib':
 
         Tnmda, Nsyn1, Nsyn2, Tnsyn = sys.argv[2:]
@@ -129,7 +132,7 @@ if __name__=='__main__':
         
         np.savez(os.path.join('data', 'calib', 'chelated-zinc', filename), **output)
 
-    if sys.argv[1]=='free-zinc-calib':
+    elif sys.argv[1]=='free-zinc-calib':
 
 
         alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax = sys.argv[2:]
