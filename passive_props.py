@@ -6,8 +6,8 @@ from datavyz import ge
 
 from scipy.optimize import minimize
 
-import sys
-sys.path.append('/home/yann/work/cortical-physio-icm') # append CPI to your path to be able to import
+import sys, pathlib
+sys.path.append(os.path.join(str(pathlib.Path(__file__).resolve().parents[1]), 'cortical-physio-icm'))
 from electrophy.intracellular.passive_props import perform_ICcharact
 
 

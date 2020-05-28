@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=debug
+#SBATCH --partition=bigmem
 #SBATCH --time=02:00:00
-#SBATCH --mem=5G
+#SBATCH --mem=10G
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 # - #SBATCH --gres=gpu:1
