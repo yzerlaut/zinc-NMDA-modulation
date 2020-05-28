@@ -34,7 +34,7 @@ Model = {
     'tauRiseGABA':0.5,# [ms] Destexhe et al. 1998
     'tauDecayGABA':5,# [ms] Destexhe et al. 1998
     'tauRiseNMDA': 3,# [ms], Farinella et al., 2014
-    'tauDecayNMDA': 100,# [ms], Destexhe et al.:. 25-125ms, Farinella et al., 2014: 70ms (but seems to short on the Vc data)
+    'tauDecayNMDA': 100,# [ms], FITTED --- Destexhe et al.:. 25-125ms, Farinella et al., 2014: 70ms
     'DensityGlut_L23': 7, # synapses / 100um2
     'DensityGlut_L4': 7, # synapses / 100um2
     'DensityAMPA': 25, # synapses / 100um2

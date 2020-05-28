@@ -6,6 +6,10 @@ from datavyz import ge
 
 from scipy.optimize import minimize
 
+import sys
+sys.path.append('/home/yann/work/cortical-physio-icm') # append CPI to your path to be able to import
+from electrophy.intracellular.passive_props import perform_ICcharact
+
 
 ##########################################################
 # -- EQUATIONS FOR THE SYNAPTIC AND CELLULAR BIOPHYSICS --
@@ -79,21 +83,49 @@ def run_voltage_clamp_protocol(Model,
     return output
 
 
-if __name__=='__main__':
+def run_model(gl, cm, debug=False):
 
-    from model import Model
-    
+    Model["gL"] = gl
+    Model["cm"] = cm
     output = run_voltage_clamp_protocol(Model,
                                         clamps = [{'value':0., 'duration':50},
                                                   {'value':200, 'duration':100},
-                                                  {'value':0., 'duration':50}])
-    import sys
-    sys.path.append('/home/yann/work/cortical-physio-icm') # append CPI to your path to be able to import
-    from electrophy.intracellular.passive_props import perform_ICcharact
+                                                  {'value':0., 'duration':50}],
+                                        with_plot=debug)
+    if debug:
+        from datavyz import ges as ge
+        fig, ax, Rm, Cm = perform_ICcharact(1e-3*output['t'], 1e-3*output['Vm_soma'],
+                                   t0=50e-3, t1=150e-3, with_plot=True, ge=ge)
+        ge.show()
+    else:
+        Rm, Cm = perform_ICcharact(1e-3*output['t'],
+                                   1e-3*output['Vm_soma'],
+                                   t0=50e-3, t1=150e-3)
+        
+    return Rm, Cm
 
-    # print(perform_ICcharact(1e-3*output['t'], 1e-3*output['Vm_soma'],
-    #                         t0=50e-3, t1=150e-3, with_plot=False))
+
+def find_best_membrane_params(Rm, Cm, debug=False):
+
+    def to_minimize(coefs):
+        RmT, CmT = run_model(*coefs,debug=debug)
+        return np.abs(Rm-RmT)/Rm*np.abs(Cm-CmT)/Cm
+        
+    res = minimize(to_minimize,
+                   [1., .8], method='SLSQP', bounds=[(0.1,10.),
+                                                     (0.5,2.)])
+    print(res)
     
-    perform_ICcharact(1e-3*output['t'], 1e-3*output['Vm_soma'],
-                      t0=50e-3, t1=150e-3, with_plot=True)
-    ge.show()
+    return res.x
+
+if __name__=='__main__':
+
+    from model import Model
+
+    Rm=45.89e6
+    Cm=284.29e-12
+    
+    gl_best, cm_best = find_best_membrane_params(Rm, Cm, debug=False)
+    print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
+    RmB, CmB = run_model(gl_best, cm_best)
+    print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))

@@ -111,6 +111,8 @@ if __name__=='__main__':
     import sys
     from model import Model
 
+    Model['qAMPA'] = 0. # NBQX in experiments
+    
     if sys.argv[1]=='chelated-calib':
 
         Tnmda, Nsyn1, Nsyn2, Tnsyn = sys.argv[2:]
