@@ -113,10 +113,10 @@ if __name__=='__main__':
 
     Model['qAMPA'] = 0. # NBQX in experiments
     
-    if sys.argv[1]=='chelated-calib':
+    if sys.argv[1]=='chelated-zinc-calib':
 
         Tnmda, Nsyn1, Nsyn2, Tnsyn = sys.argv[2:]
-        filename = 'chelated-%s-%s-%s-%s.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
+        filename = '%s-%s-%s-%s.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
         
         Model['alphaZn'] = 0
         Model['Deltax0'] = 0
@@ -127,13 +127,13 @@ if __name__=='__main__':
         Npicked = compute_time_varying_synaptic_recruitment(int(Nsyn1), int(Nsyn2), float(Tnsyn))
         output = run_single_sim(Model, stim, Npicked=Npicked)
         
-        np.savez(os.path.join('data', 'calib', filename), **output)
+        np.savez(os.path.join('data', 'calib', 'chelated-zinc', filename), **output)
 
-    if sys.argv[1]=='Zinc-calib':
+    if sys.argv[1]=='free-zinc-calib':
 
 
         alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax = sys.argv[2:]
-        filename = 'Zinc-%s-%s-%s-%s-%s.npz' % (alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax)
+        filename = '%s-%s-%s-%s-%s.npz' % (alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax)
 
         # using the chelated zinc configuration
         Tnmda, Nsyn1, Nsyn2, Tnsyn = 115.0, 60, 40, 500.0
@@ -151,7 +151,7 @@ if __name__=='__main__':
         stim = build_stimulation()
         output = run_single_sim(Model, stim, Npicked=Npicked)
         
-        np.savez(os.path.join('data', 'calib', filename), **output)
+        np.savez(os.path.join('data', 'calib', 'free-zinc', filename), **output)
         
     else:
         stim = build_stimulation()

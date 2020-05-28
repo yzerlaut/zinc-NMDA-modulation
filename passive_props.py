@@ -133,23 +133,33 @@ def grid_search(Rm, Cm, N=20,
         gLS.append(gl)
         cMS.append(cm)
 
-    imin = np.argmin((np.array(RMS)-Rm)/Rm*(np.array(CMS)-Cm)/Cm)
+    imin = np.argmin(np.abs(np.array(RMS)-Rm)/Rm*np.abs(np.array(CMS)-Cm)/Cm)
     return gLS[imin], cMS[imin]
     
     
 if __name__=='__main__':
 
+    import sys
     from model import Model
 
-    Rm=46e6
-    Cm=284e-12
-    
+
+
+        
+    if sys.argv[1]=='calib':
+
+        Rm=float(sys.argv[2])*1e6
+        Cm=float(sys.argv[3])*1e-12
+        N=int(sys.argv[4])
+        print(Rm, Cm, N)
+        gl_best, cm_best = grid_search(Rm, Cm, N=N)
+        print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
+        RmB, CmB = run_model(gl_best, cm_best)
+        print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))
+        np.savez('data/passive-props.npz', **{'gl':gl_best, 'cm':cm_best})
+
+        
     # gl_best, cm_best = find_best_membrane_params(Rm, Cm, debug=False)
     # print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
     # RmB, CmB = run_model(gl_best, cm_best)
     # print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))
 
-    gl_best, cm_best = grid_search(Rm, Cm, N=20)
-    print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
-    RmB, CmB = run_model(gl_best, cm_best)
-    print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))
