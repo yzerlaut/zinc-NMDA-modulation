@@ -118,14 +118,38 @@ def find_best_membrane_params(Rm, Cm, debug=False):
     
     return res.x
 
+import itertools
+def grid_search(Rm, Cm, N=20,
+                gl0=0.1, gl1=10.,
+                cm0=0.5, cm1=2., debug=False):
+
+    RMS, CMS, gLS, cMS = [], [], [], []
+    
+    for gl, cm in itertools.product(np.linspace(gl0, gl1, N),
+                                    np.linspace(cm0, cm1, N)):
+        RmT, CmT = run_model(gl, cm, debug=debug)
+        RMS.append(RmT)
+        CMS.append(CmT)
+        gLS.append(gl)
+        cMS.append(cm)
+
+    imin = np.argmin((np.array(RMS)-Rm)/Rm*(np.array(CMS)-Cm)/Cm)
+    return gLS[imin], cMS[imin]
+    
+    
 if __name__=='__main__':
 
     from model import Model
 
-    Rm=45.89e6
-    Cm=284.29e-12
+    Rm=46e6
+    Cm=284e-12
     
-    gl_best, cm_best = find_best_membrane_params(Rm, Cm, debug=False)
+    # gl_best, cm_best = find_best_membrane_params(Rm, Cm, debug=False)
+    # print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
+    # RmB, CmB = run_model(gl_best, cm_best)
+    # print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))
+
+    gl_best, cm_best = grid_search(Rm, Cm, N=20)
     print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
     RmB, CmB = run_model(gl_best, cm_best)
     print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))
