@@ -2,7 +2,7 @@
 #SBATCH --partition=bigmem
 #SBATCH --time=02:00:00
 #SBATCH --mem=5G
-#SBATCH --ntasks=625
+#SBATCH --ntasks=100
 #SBATCH --cpus-per-task=1
 # - #SBATCH --gres=gpu:1
 # - #SBATCH --nodes=1
