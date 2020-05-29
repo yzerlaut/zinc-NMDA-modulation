@@ -133,7 +133,7 @@ def grid_search(Rm, Cm, N=20,
         gLS.append(gl)
         cMS.append(cm)
 
-    imin = np.argmin((np.array(RMS)-Rm)**2/Rm**2*(np.array(CMS)-Cm)**2/Cm**2)
+    imin = np.argmin(((np.array(RMS)-Rm)**2/Rm**2+1)*(1+(np.array(CMS)-Cm)**2/Cm**2))
     return gLS[imin], cMS[imin]
     
     

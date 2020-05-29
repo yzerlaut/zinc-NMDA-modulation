@@ -76,7 +76,7 @@ def build_stimulation():
     t = np.arange(int(tstop/dt))*dt
     model = {'t':t}
     events = np.empty(0)
-    for cond, t0, freq_pulses, n_pulses in zip(['20Hz_condition', '3Hz_condition'],
+    for cond, t0, freq_pulses, n_pulses in zip(['20Hz_protocol', '3Hz_protocol'],
                                                [500,1700], [20., 3.], [5, 9]) :
 
         new_events = t0+np.arange(n_pulses)*1e3/freq_pulses
@@ -102,8 +102,6 @@ def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
     return np.array(Npicked, dtype=int)
     
 
-    
-    
 
 if __name__=='__main__':
 
@@ -116,8 +114,14 @@ if __name__=='__main__':
         
     Model['qAMPA'] = 0. # NBQX in experiments
 
+    # loading data from previous calib !
+    passive = np.load('data/passive-props.npz')
+    Model['gl'] = passive['gl']
+    Model['cm'] = passive['cm']
+    
     if sys.argv[1]=='chelated-zinc-calib':
 
+        
         Tnmda, Nsyn1, Nsyn2, Tnsyn = sys.argv[2:]
         filename = '%s-%s-%s-%s.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
         
@@ -132,17 +136,44 @@ if __name__=='__main__':
         
         np.savez(os.path.join('data', 'calib', 'chelated-zinc', filename), **output)
 
-    elif sys.argv[1]=='free-zinc-calib':
+    elif sys.argv[1]=='chelated-zinc-calib-wrapup-data':
+        import itertools
+        Ngrid, Tnmda0, Tnmda1, Nsyn10, Nsyn11, Nsyn20, Nsyn21, Tnsyn0, Tnsyn1 = sys.argv[2:]
 
+        full_data = {'Tnmda':[], 'Nsyn1':[], 'Nsyn2':[], 'Tnsyn':[], 'Ic':[]}
+        
+        for Tnmda, Nsyn1, Nsyn2, Tnsyn in itertools.product(np.linspace(Tnmda0, Tnmda1, Ngrid),
+                                                            np.linspace(Nsyn10, Nsyn11, Ngrid),
+                                                            np.linspace(Nsyn20, Nsyn21, Ngrid),
+                                                            np.linspace(Tnsyn0, Tnsyn1, Ngrid)):
+            fn = '%.1f-%i-%i-%.1f.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
+            filename = os.path.join('data', 'calib', 'chelated-zinc', fn)
+            if os.path.isfile(filename):
+                data = load_dict(filename)
+                full_data['Ic'].append(data['Ic'])
+                full_data['filename'].append(filename)
+                for key, val in zip(['Tnmda', 'Nsyn1', 'Nsyn2', 'Tnsyn'],
+                                    [Tnmda, Nsyn1, Nsyn2, Tnsyn]):
+                    full_data[key].append(val)
+            else:
+                print(filename, 'missing !')
+        for key in data:
+            if key not in full_data:
+                full_data[key] = data[key]
+                
+        np.savez('data/chelated-zinc-calib-full-data.npz', **full_data)
+        
+        
+    elif sys.argv[1]=='free-zinc-calib':
 
         alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax = sys.argv[2:]
         filename = '%s-%s-%s-%s-%s.npz' % (alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax)
 
-        # using the chelated zinc configuration
-        Tnmda, Nsyn1, Nsyn2, Tnsyn = 115.0, 60, 40, 500.0
-        Npicked = compute_time_varying_synaptic_recruitment(int(Nsyn1), int(Nsyn2), float(Tnsyn))
-        Model['tauDecayNMDA'] = float(Tnmda)
-
+        # loading the result of the above run
+        bcc = load_dict('data/best_chelated_config.npz')    
+        Npicked = compute_time_varying_synaptic_recruitment(int(bcc['Nsyn1']),
+                                                            int(bcc['Nsyn2']), float(bcc['Tnsyn']))
+        Model['tauDecayNMDA'] = float(bcc['Tnmda'])
         
         Model['alphaZn'] = float(alphaZn)
         Model['tauRiseZn'] = float(tauRiseZn)
