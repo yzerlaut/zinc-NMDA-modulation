@@ -115,13 +115,12 @@ if __name__=='__main__':
     Model['qAMPA'] = 0. # NBQX in experiments
 
     # loading data from previous calib !
-    passive = np.load('data/passive-props.npz')
+    passive = load_dict('data/passive-props.npz')
     Model['gl'] = passive['gl']
     Model['cm'] = passive['cm']
     
     if sys.argv[1]=='chelated-zinc-calib':
 
-        
         Tnmda, Nsyn1, Nsyn2, Tnsyn = sys.argv[2:]
         filename = '%s-%s-%s-%s.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
         
