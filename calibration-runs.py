@@ -140,12 +140,12 @@ if __name__=='__main__':
         import itertools
         Ngrid, Tnmda0, Tnmda1, Nsyn10, Nsyn11, Nsyn20, Nsyn21, Tnsyn0, Tnsyn1 = sys.argv[2:]
 
-        full_data = {'Tnmda':[], 'Nsyn1':[], 'Nsyn2':[], 'Tnsyn':[], 'Ic':[]}
+        full_data = {'Tnmda':[], 'Nsyn1':[], 'Nsyn2':[], 'Tnsyn':[], 'Ic':[], 'filename':[]}
         
-        for Tnmda, Nsyn1, Nsyn2, Tnsyn in itertools.product(np.linspace(Tnmda0, Tnmda1, Ngrid),
-                                                            np.linspace(Nsyn10, Nsyn11, Ngrid),
-                                                            np.linspace(Nsyn20, Nsyn21, Ngrid),
-                                                            np.linspace(Tnsyn0, Tnsyn1, Ngrid)):
+        for Tnmda, Nsyn1, Nsyn2, Tnsyn in itertools.product(np.linspace(float(Tnmda0), float(Tnmda1), int(Ngrid)),
+                                                            np.linspace(int(Nsyn10), int(Nsyn11), int(Ngrid)),
+                                                            np.linspace(int(Nsyn20), int(Nsyn21), int(Ngrid)),
+                                                            np.linspace(float(Tnsyn0), float(Tnsyn1), int(Ngrid))):
             fn = '%.1f-%i-%i-%.1f.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
             filename = os.path.join('data', 'calib', 'chelated-zinc', fn)
             if os.path.isfile(filename):
