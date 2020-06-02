@@ -83,80 +83,34 @@ def run_voltage_clamp_protocol(Model,
     return output
 
 
-def run_model(gl, cm, debug=False):
+def run_model(Model, debug=False):
 
-    Model["gL"] = gl
-    Model["cm"] = cm
     output = run_voltage_clamp_protocol(Model,
                                         clamps = [{'value':0., 'duration':50},
                                                   {'value':200, 'duration':100},
                                                   {'value':0., 'duration':50}],
                                         with_plot=debug)
-    if debug:
-        from datavyz import ges as ge
-        fig, ax, Rm, Cm = perform_ICcharact(1e-3*output['t'], 1e-3*output['Vm_soma'],
-                                   t0=50e-3, t1=150e-3, with_plot=True, ge=ge)
-        ge.show()
-    else:
-        Rm, Cm = perform_ICcharact(1e-3*output['t'],
-                                   1e-3*output['Vm_soma'],
-                                   t0=50e-3, t1=150e-3)
-        
-    return Rm, Cm
+    return output
 
-
-def find_best_membrane_params(Rm, Cm, debug=False):
-
-    def to_minimize(coefs):
-        RmT, CmT = run_model(*coefs,debug=debug)
-        return np.abs(Rm-RmT)/Rm*np.abs(Cm-CmT)/Cm
-        
-    res = minimize(to_minimize,
-                   [1., .8], method='SLSQP', bounds=[(0.1,10.),
-                                                     (0.5,2.)])
-    print(res)
-    
-    return res.x
-
-import itertools
-def grid_search(Rm, Cm, N=20,
-                gl0=0.05, gl1=10.,
-                cm0=0.5, cm1=2., debug=False):
-
-    RMS, CMS, gLS, cMS = [], [], [], []
-    
-    for gl, cm in itertools.product(np.linspace(gl0, gl1, N),
-                                    np.linspace(cm0, cm1, N)):
-        RmT, CmT = run_model(gl, cm, debug=debug)
-        RMS.append(RmT)
-        CMS.append(CmT)
-        gLS.append(gl)
-        cMS.append(cm)
-
-    imin = np.argmin(((np.array(RMS)-Rm)**2/Rm**2+1)*(1+(np.array(CMS)-Cm)**2/Cm**2))
-    return gLS[imin], cMS[imin]
     
     
 if __name__=='__main__':
 
+    from analyz.workflow.batch_run import GridSimulation
+    from analyz.IO.npz import load_dict
+    
     import sys
     from model import Model
 
     if sys.argv[1]=='calib':
 
-        Rm=float(sys.argv[2])*1e6
-        Cm=float(sys.argv[3])*1e-12
-        N=int(sys.argv[4])
-        print(1e-6*Rm, 1e12*Cm, N)
-        gl_best, cm_best = grid_search(Rm, Cm, N=N)
-        print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
-        RmB, CmB = run_model(gl_best, cm_best)
-        print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))
-        np.savez('data/passive-props.npz', **{'gl':gl_best, 'cm':cm_best})
-
         
-    # gl_best, cm_best = find_best_membrane_params(Rm, Cm, debug=False)
-    # print('gl_best=%.2f, cm_best=%.2f' % (gl_best, cm_best))
-    # RmB, CmB = run_model(gl_best, cm_best)
-    # print('gives Rm=%.2fMOhm, Cm=%.2fpF' % (1e-6*RmB, 1e12*CmB))
+        index = int(sys.argv[2])
+        sim = GridSimulation(os.path.join('data', 'calib', 'passive-grid.npz'))
 
+        sim.update_dict_from_GRID_and_index(index, Model) # update Model parameters
+
+        fn = sim.params_filename(index)
+        
+        output = run_model(Model)
+        np.savez(os.path.join('data', 'calib', fn+'.npz'), **output)
