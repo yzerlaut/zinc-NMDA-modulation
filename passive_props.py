@@ -60,9 +60,9 @@ def initialize_sim(Model,
     return t, neuron, SEGMENTS
 
 
-def run_voltage_clamp_protocol(Model,
-                               clamps = [{'value':0., 'duration':1000.}],
-                               with_plot=False, ge=None):
+def run_Ipulse_protocol(Model,
+                        clamps = [{'value':0., 'duration':1000.}],
+                        with_plot=False, ge=None):
 
     t, neuron, SEGMENTS = initialize_sim(Model)
     
@@ -85,11 +85,11 @@ def run_voltage_clamp_protocol(Model,
 
 def run_model(Model, debug=False):
 
-    output = run_voltage_clamp_protocol(Model,
-                                        clamps = [{'value':0., 'duration':50},
-                                                  {'value':200, 'duration':100},
-                                                  {'value':0., 'duration':50}],
-                                        with_plot=debug)
+    output = run_Ipulse_protocol(Model,
+                                 clamps = [{'value':0., 'duration':50},
+                                           {'value':200, 'duration':100},
+                                           {'value':0., 'duration':50}],
+                                 with_plot=debug)
     return output
 
     

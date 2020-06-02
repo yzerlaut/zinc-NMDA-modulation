@@ -7,10 +7,10 @@ from single_cell_sim import initialize_sim, EXC_SYNAPSES_EQUATIONS, ON_EXC_EVENT
 from analyz.IO.npz import load_dict
 
 def run_single_sim(Model, stim,
-                   Vcmd = 0,
+                   Vcmd = 30,
                    Npicked=100,
                    seed=0):
-
+    
     Model['VC-cmd'] = Vcmd
     Model['tstop'] = stim['t'][-1]
     
@@ -87,9 +87,6 @@ def build_stimulation():
     return model
 
 
-calib_data = load_dict('data/exp_data_for_calibration.npz')
-
-
 def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
                                               npulse1 = 5, freq1= 20.,
                                               npulse2 = 9, freq2= 3.):
@@ -103,60 +100,6 @@ def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
     return np.array(Npicked, dtype=int)
 
 
-def wrap_up_chelated_zinc_calib_data(Ngrid,\
-            Tnmda0, Tnmda1, Nsyn10, Nsyn11, Nsyn20, Nsyn21, Tnsyn0, Tnsyn1):
-    
-    full_data = {'Tnmda':[], 'Nsyn1':[], 'Nsyn2':[], 'Tnsyn':[], 'Ic':[], 'filename':[]}
-
-    for Tnmda, Nsyn1, Nsyn2, Tnsyn in itertools.product(np.linspace(float(Tnmda0), float(Tnmda1), int(Ngrid)),
-                                                        np.linspace(int(Nsyn10), int(Nsyn11), int(Ngrid)),
-                                                        np.linspace(int(Nsyn20), int(Nsyn21), int(Ngrid)),
-                                                        np.linspace(float(Tnsyn0), float(Tnsyn1), int(Ngrid))):
-        fn = '%.1f-%i-%i-%.1f.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
-        filename = os.path.join('data', 'calib', 'chelated-zinc', fn)
-        if os.path.isfile(filename):
-            data = load_dict(filename)
-            full_data['Ic'].append(data['Ic'])
-            full_data['filename'].append(filename)
-            for key, val in zip(['Tnmda', 'Nsyn1', 'Nsyn2', 'Tnsyn'],
-                                [Tnmda, Nsyn1, Nsyn2, Tnsyn]):
-                full_data[key].append(val)
-        else:
-            print(filename, 'missing !')
-    for key in data:
-        if key not in full_data:
-            full_data[key] = data[key]
-
-    np.savez('data/chelated-zinc-calib-full-data.npz', **full_data)
-
-
-def wrap_up_free_zinc_calib_data(Ngrid,\
-            Tnmda0, Tnmda1, Nsyn10, Nsyn11, Nsyn20, Nsyn21, Tnsyn0, Tnsyn1):
-    
-    full_data = {'Tnmda':[], 'Nsyn1':[], 'Nsyn2':[], 'Tnsyn':[], 'Ic':[], 'filename':[]}
-
-    for Tnmda, Nsyn1, Nsyn2, Tnsyn in itertools.product(np.linspace(float(Tnmda0), float(Tnmda1), int(Ngrid)),
-                                                        np.linspace(int(Nsyn10), int(Nsyn11), int(Ngrid)),
-                                                        np.linspace(int(Nsyn20), int(Nsyn21), int(Ngrid)),
-                                                        np.linspace(float(Tnsyn0), float(Tnsyn1), int(Ngrid))):
-        fn = '%.1f-%i-%i-%.1f.npz' % (Tnmda, Nsyn1, Nsyn2, Tnsyn)
-        filename = os.path.join('data', 'calib', 'free-zinc', fn)
-        if os.path.isfile(filename):
-            data = load_dict(filename)
-            full_data['Ic'].append(data['Ic'])
-            full_data['filename'].append(filename)
-            for key, val in zip(['Tnmda', 'Nsyn1', 'Nsyn2', 'Tnsyn'],
-                                [Tnmda, Nsyn1, Nsyn2, Tnsyn]):
-                full_data[key].append(val)
-        else:
-            print(filename, 'missing !')
-    for key in data:
-        if key not in full_data:
-            full_data[key] = data[key]
-
-    np.savez('data/free-zinc-calib-full-data.npz', **full_data)
-    
-
 if __name__=='__main__':
 
 
@@ -164,69 +107,53 @@ if __name__=='__main__':
     from model import Model
     from analyz.workflow.batch_run import GridSimulation
 
-    if not os.path.isfile('data/passive-props.npz'):
-        print('provide the ')
+    # if not os.path.isfile('data/passive-props.npz'):
+    #     print('provide the ')
         
     Model['qAMPA'] = 0. # NBQX in experiments
 
     # loading data from previous calib !
     passive = load_dict('data/passive-props.npz')
-    Model['gl'] = passive['gl']
-    Model['cm'] = passive['cm']
-    
+    for key, val in passive.items():
+        Model[key] = val
+
+    # build the stimulation
+    stim = build_stimulation()
+
     if sys.argv[1]=='chelated-zinc-calib':
 
         index = int(sys.argv[2])
-        GRID = load_dict(os.path.join('data', 'calib', 'chelated-zinc-calib-grid.npz'))
-        sim = GridSimulation(GRID)
+        sim = GridSimulation(os.path.join('data', 'calib', 'chelated-zinc-calib-grid.npz'))
 
-        sim.update_dict_from_GRID_and_index(index, Model)
+        sim.update_dict_from_GRID_and_index(index, Model) # update Model parameters
 
-        fn = sim.params_filename(i, formatting=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
-        filename = os.path.join('data', 'calib', fn)
-        
-        Model['alphaZn'], Model['Deltax0'] = 0, 0
-
-        Model['tauDecayNMDA'] = float(Tnmda)
-        stim = build_stimulation()
+        Model['alphaZn'], Model['Deltax0'] = 0, 0 # forcing "chelated-Zinc" condition
 
         Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'],
                                                             Model['Nsyn2'], Model['Tnsyn'])
         output = run_single_sim(Model, stim, Npicked=Npicked)
         
-        np.savez(os.path.join('data', 'calib', 'chelated-zinc', filename), **output)
+        np.savez(os.path.join('data', 'calib', sim.params_filename(index)), **output)
 
-    elif sys.argv[1]=='chelated-zinc-calib-wrapup-data':
-
-        wrap_up_chelated_zinc_calib_data(*sys.argv[2:])
-        
         
     elif sys.argv[1]=='free-zinc-calib':
 
-        alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax = sys.argv[2:]
-        filename = '%s-%s-%s-%s-%s.npz' % (alphaZn, tauRiseZn, tauDecayZn, Deltax0, deltax)
+        index = int(sys.argv[2])
+        sim = GridSimulation(os.path.join('data', 'calib', 'free-zinc-calib-grid.npz'))
 
-        # loading the result of the above run
-        bcc = load_dict('data/best_chelated_config.npz')    
-        Npicked = compute_time_varying_synaptic_recruitment(int(bcc['Nsyn1']),
-                                                            int(bcc['Nsyn2']), float(bcc['Tnsyn']))
-        Model['tauDecayNMDA'] = float(bcc['Tnmda'])
-        
-        Model['alphaZn'] = float(alphaZn)
-        Model['tauRiseZn'] = float(tauRiseZn)
-        Model['tauDecayZn'] = float(tauDecayZn)
-        Model['Deltax0'] = float(Deltax0)
-        Model['x0'] = float(Deltax0) # forced to the same value for now
-        Model['deltax'] = float(deltax)
-
+        # loading data from previous calib !
+        best_chelated_config = load_dict('data/best_chelated_config.npz') 
+        for key, val in best_chelated_config.items():
+            Model[key] = val
+        Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'],
+                                                            Model['Nsyn2'], Model['Tnsyn'])
         stim = build_stimulation()
+        
+        sim.update_dict_from_GRID_and_index(index, Model) # update Model parameters
+
         output = run_single_sim(Model, stim, Npicked=Npicked)
         
-        np.savez(os.path.join('data', 'calib', 'free-zinc', filename), **output)
-        
-    elif sys.argv[1]=='free-zinc-calib-wrapup-data':
-
-        wrap_up_free_zinc_calib_data(*sys.argv[2:])
+        np.savez(os.path.join('data', 'calib', sim.params_filename(index)), **output)
         
     else:
         stim = build_stimulation()
