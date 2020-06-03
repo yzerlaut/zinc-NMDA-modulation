@@ -65,6 +65,7 @@ Model = {
     'stim_apic_compartment_index':1000, # type=int, default=1652)
     'Nsyn_synch_stim':5,# 
     'tsyn_stim':10., # [ms]
+    'branch_index':0,
     # bg
     'Nsyn_Ebg':0,#
     'Nsyn_Ibg':0, #
