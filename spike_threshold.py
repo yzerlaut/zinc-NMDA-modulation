@@ -120,7 +120,7 @@ def run_single_trial_with_noise(NSYN, Model,
 
 
 def run_single_trial(Model, Nsyn_array, branch_index,
-                     DT=200, delay=70, seed=0):
+                     DT=200, delay=70, seed=0, recovery=200):
 
     np.random.seed(seed)
     
@@ -162,7 +162,7 @@ def run_single_trial(Model, Nsyn_array, branch_index,
     M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
     
     # # Run simulation
-    ntwk.run(DT*len(Nsyn_array)*ntwk.ms)
+    ntwk.run((delay+recovery+DT*len(Nsyn_array))*ntwk.ms)
 
     return np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:]
 
@@ -199,8 +199,23 @@ def run_single_trial(Model, Nsyn_array, branch_index,
 #                         'NSYN':np.array(NSYN)})
 
 if __name__=='__main__':
-    Nsyn_array = np.logspace(0, 3, 4)
-    t, v = run_single_trial(Model, Nsyn_array, 0)
-    from datavyz import ges as ge
-    ge.plot(t, v)
-    ge.show()
+
+    import sys
+
+    if sys.argv[1]=='syn-input':
+
+        index = int(sys.argv[6])
+        sim = GridSimulation(os.path.join('data', 'calib', 'chelated-zinc-calib-grid.npz'))
+
+        sim.update_dict_from_GRID_and_index(index, Model) # update Model parameters
+        
+        Nsyn_array = np.logspace(np.log10(int(sys.argv[2])), np.log10(int(sys.argv[3])), int(sys.argv[4]))
+        t, v = run_single_trial(Model, Nsyn_array, int(sys.argv[5]))
+        
+        
+    else:
+        Nsyn_array = np.logspace(0, 3, 4)
+        t, v = run_single_trial(Model, Nsyn_array, 0)
+        from datavyz import ges as ge
+        ge.plot(t, v)
+        ge.show()
