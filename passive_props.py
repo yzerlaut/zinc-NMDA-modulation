@@ -114,3 +114,30 @@ if __name__=='__main__':
         
         output = run_model(Model)
         np.savez(os.path.join('data', 'calib', fn+'.npz'), **output)
+        
+    elif sys.argv[1]=='calib-analysis':
+
+        # EXPERIMENTAL VALUES
+        expRm, expCm = 45.89e6, 311.89e-12
+
+        sim = GridSimulation(os.path.join('data', 'calib', 'passive-grid.npz'))
+        
+        sim_results = {'Rm':np.zeros(sim.N), 'Cm':np.zeros(sim.N)}
+
+        for index in range(int(sim.N)):
+            output = load_dict(os.path.join('data', 'calib', sim.params_filename(index)+'.npz'))
+            Rm, Cm = perform_ICcharact(1e-3*output['t'],
+                                       1e-3*output['Vm_soma'],
+                                       t0=50e-3, t1=150e-3)
+            sim_results['Rm'][index], sim_results['Cm'][index] = Rm, Cm
+
+        # perform minimization
+        to_minimize = (1+np.abs(sim_results['Rm']-expRm)/sim_results['Rm'])*\
+            (1+np.abs(sim_results['Cm']-expCm)/sim_results['Cm'])
+        ibest = np.argmin(to_minimize)
+
+        # save results as default passive props
+        passive_props = {'filename':os.path.join('data', 'calib', sim.params_filename(ibest)+'.npz')}
+        sim.update_dict_from_GRID_and_index(ibest, passive_props) # update Model parameters
+        np.savez(os.path.join('data','passive-props.npz'), **passive_props)
+        print(passive_props)

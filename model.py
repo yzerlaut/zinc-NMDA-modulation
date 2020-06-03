@@ -20,15 +20,15 @@ Model = {
     'VC-gL-reduction-factor':10, #
     'VC-discard-time':200, # [ms]
     'VC-gclamp':1,# [uS]
-    'VC-cmd':0,# [mV]
+    'VC-cmd':20,# [mV]
     ###################################################
     # ---------- SYNAPTIC PARAMS  ----------------- #
     ###################################################
     'Ee':0,# [mV]
     'Ei':-80,# [mV]
-    'qAMPA':0.7,# [nS] # Destexhe et al., 1998: "0.35 to 1.0 nS"
-    'qNMDA':0.6,# [nS] # Destexhe et al., 1998: "0.01 to 0.6 nS"
-    'qGABA':1.2,# [nS] # Destexhe et al., 1998: "0.25 to 1.2 nS"
+    'qAMPA':0.6,# [nS] # Destexhe et al., 1998: "0.35 to 1.0 nS"
+    'qNMDA':0.5,# [nS] # Destexhe et al., 1998: "0.01 to 0.6 nS"
+    'qGABA':0.6,# [nS] # Destexhe et al., 1998: "0.25 to 1.2 nS"
     'tauRiseAMPA':0.5,# [ms], Destexhe et al. 1998: 0.4 to 0.8 ms
     'tauDecayAMPA':5,# [ms], Destexhe et al. 1998: "the decay time constant is about 5 ms (e.g., Hestrin, 1993)"
     'tauRiseGABA':0.5,# [ms] Destexhe et al. 1998
@@ -52,12 +52,12 @@ Model = {
     #############################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
     #############################################################
-    'alphaZn':0.4,
-    'tauRiseZn':20,# [ms]
-    'tauDecayZn':300,# [ms]
-    'Deltax0':0.5,
-    'x0':0.5,
-    'deltax':0.1,
+    'alphaZn':0.4,# FITTED
+    'tauRiseZn':20,# [ms], # FITTED
+    'tauDecayZn':300,# [ms], # FITTED
+    'Deltax0':0.5, # FITTED
+    'x0':0.5, # FITTED
+    'deltax':0.1, # FITTED
     #############################################################
     # ---------- SYNAPTIC STIMULATION PARAMS  ----------------- #
     #############################################################

@@ -7,7 +7,7 @@ from single_cell_sim import initialize_sim, EXC_SYNAPSES_EQUATIONS, ON_EXC_EVENT
 from analyz.IO.npz import load_dict
 
 def run_single_sim(Model, stim,
-                   Vcmd = 30,
+                   Vcmd = 20,
                    Npicked=100,
                    seed=0):
     
@@ -68,6 +68,7 @@ def run_single_sim(Model, stim,
     for key in stim:
         if key not in output:
             output[key] = stim[key]
+            
     return output
 
 
@@ -98,6 +99,35 @@ def compute_time_varying_synaptic_recruitment(Nsyn1, Nsyn2, Tnsyn,
         Npicked.append(Nsyn2+(Nsyn1-Nsyn2)*np.exp(-i*1e3/freq2/Tnsyn))
 
     return np.array(Npicked, dtype=int)
+
+
+def compute_residual(sim, index, calib_data, condition='chelated'):
+
+    try:
+        sim_data = load_dict(os.path.join('data', 'calib', sim.params_filename(index)+'.npz'))
+        Residual = 1.
+        for cond in ['20Hz_protocol', '3Hz_protocol']:
+            tcond = (sim_data['t']>(sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond])) &\
+                (sim_data['t']<sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond]+\
+                 calib_data['DTfull_%s' % cond])
+            
+            trace_model = -1e3*(sim_data['Ic'][tcond]-sim_data['Ic'][tcond][0]) # - sign
+            trace_exp = calib_data['Iexp_%s_%s' % (condition, cond)]
+
+            if cond=='zinc':
+                
+                # normalizing to peak
+                first_peak_cond = (calib_data['t_%s' % cond]<calib_data['DT0_%s' % cond]+30)
+                trace_model /= np.max(trace_model[first_peak_cond])
+                trace_exp /= np.max(trace_exp[first_peak_cond])
+                Residual *= 1+np.sum((trace_model-trace_exp)**2)/np.sum(trace_exp**2)
+            else:
+                Residual *= 1+np.sum((trace_model-trace_exp)**2)/np.sum((trace_exp)**2)
+
+    except FileNotFoundError:
+        print(sim.params_filename(index)+'.npz', 'not found')
+        Residual = 1e10
+    return Residual
 
 
 if __name__=='__main__':
@@ -135,7 +165,20 @@ if __name__=='__main__':
         
         np.savez(os.path.join('data', 'calib', sim.params_filename(index)), **output)
 
-        
+
+    elif sys.argv[1]=='chelated-zinc-calib-analysis':
+
+        calib_data = load_dict('data/exp_data_for_calibration.npz')
+        sim = GridSimulation(os.path.join('data', 'calib', 'chelated-zinc-calib-grid.npz'))
+        Residuals = np.ones(int(sim.N))*np.inf
+        for i in range(int(sim.N)):
+            Residuals[i] = compute_residual(sim, i, calib_data, condition='chelated')
+        ibest = np.argmin(Residuals)
+        best_chelated_config={'filename':os.path.join('data','calib',sim.params_filename(ibest)+'.npz')}
+        sim.update_dict_from_GRID_and_index(ibest, best_chelated_config) # update Model parameters
+        np.savez('data/best_chelated_config.npz', **best_chelated_config)
+        print(best_chelated_config)            
+
     elif sys.argv[1]=='free-zinc-calib':
 
         index = int(sys.argv[2])
@@ -154,6 +197,19 @@ if __name__=='__main__':
         output = run_single_sim(Model, stim, Npicked=Npicked)
         
         np.savez(os.path.join('data', 'calib', sim.params_filename(index)), **output)
+        
+    elif sys.argv[1]=='free-zinc-calib-analysis':
+
+        calib_data = load_dict('data/exp_data_for_calibration.npz')
+        sim = GridSimulation(os.path.join('data', 'calib', 'free-zinc-calib-grid.npz'))
+        Residuals = np.ones(int(sim.N))*np.inf
+        for i in range(int(sim.N)):
+            Residuals[i] = compute_residual(sim, i, calib_data, condition='zinc')
+        ibest = np.argmin(Residuals)
+        best_free_zinc_config={'filename':os.path.join('data','calib',sim.params_filename(ibest)+'.npz')}
+        sim.update_dict_from_GRID_and_index(ibest, best_free_zinc_config) # update Model parameters
+        np.savez('data/best_free_zinc_config.npz', **best_free_zinc_config)
+        print(best_free_zinc_config)            
         
     else:
         stim = build_stimulation()
