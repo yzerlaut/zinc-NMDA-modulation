@@ -13,7 +13,7 @@ def distance(x, y, z): # soma is at (0, 0, 0)
 
 def compute_branches_for_stimuli(SEGMENTS,
                                  AREA_THRESHOLD = 100e-12,
-                                 DISTANCE_THRESHOLD = 50e-6):
+                                 DISTANCE_THRESHOLD = 40e-6):
     
     segments_of_branches = []
 
@@ -26,39 +26,70 @@ def compute_branches_for_stimuli(SEGMENTS,
                 
     return segments_of_branches
 
-def run_single_trial(Model, Nsyn_array,
-                     DT=200, delay=70, seed=0, recovery=200):
-
-    np.random.seed(seed)
+def run_single_trial(Model):
     
+    np.random.seed(Model['seed']+Model['branch_index'])
+
+    # computing Nsyn_array 
+    if Model['ISIB_log_Nsyn']:
+        Nsyn_array = np.logspace(np.log10(Model['ISIB_Nsyn1']), np.log10(Model['ISIB_Nsyn2']),
+                                 Model['ISIB_Nsyn_N'], dtype=int)
+    else:
+        Nsyn_array = np.linspace(np.log10(Model['ISIB_Nsyn1']), np.log10(Model['ISIB_Nsyn2']),
+                                 Model['ISIB_Nsyn_N'], dtype=int)
+        
+
+    # morphology analysis
     morpho = ntwk.Morphology.from_swc_file(Model['morpho_file'])
     SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
     nseg = len(SEGMENTS['x'])
     segments_of_branches = compute_branches_for_stimuli(SEGMENTS)
     isegs_branch = segments_of_branches[Model['branch_index']]
 
-    Model['tstop'] = delay+len(Nsyn_array)*DT
+
+    basal_cond = ntwk.morpho_analysis.find_conditions(SEGMENTS,
+                                                      comp_type='dend',
+                                                      min_distance_to_soma=20e-6)
+
+    # spreading synapses for bg noise
+    Nsyn_Glut, pre_to_iseg_Glut,\
+        Nsyn_per_seg_Glut = ntwk.spread_synapses_on_morpho(SEGMENTS,
+                                                           Model['DensityGlut_L23'],
+                                                           cond=basal_cond,
+                                                           density_factor=1./100./1e-12)
+    
+
+    # simulation
+    Model['tstop'] = Model['ISIB_delay']+len(Nsyn_array)*Model['ISIB_window']
     
     t, neuron, SEGMENTS = initialize_sim(Model)
     
-    spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
+    if Model['Fexc_bg']>0:
+        spike_IDs, spike_times = ntwk.spikes_from_time_varying_rate(t,
+                                                                    0*t+Model['Fexc_bg'],
+                                                                    N=len(isegs_branch),
+                                                                    SEED=Model['seed']+1)
+    else:
+        spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
 
+        
     for i, n in enumerate(Nsyn_array):
 
         nsyn = int(min([len(isegs_branch), n]))
         synapses_loc = np.random.choice(isegs_branch, nsyn, replace=False)
-        spike_times = np.concatenate([spike_times, delay+i*DT*np.ones(len(synapses_loc))])
+        spike_times = np.concatenate([spike_times, Model['ISIB_delay']+i*Model['ISIB_window']*np.ones(len(synapses_loc))])
         spike_IDs = np.concatenate([spike_IDs, np.arange(len(synapses_loc))])
         it = 0
         while nsyn<n:
             nsyn2 = int(min([len(isegs_branch), n-nsyn]))
             synapses_loc = np.random.choice(isegs_branch, nsyn2, replace=False)
             spike_times = np.concatenate([spike_times,
-                                          delay+i*DT*np.ones(len(synapses_loc))+(it+1)*Model['dt']])
+                                          Model['ISIB_delay']+i*Model['ISIB_window']*np.ones(len(synapses_loc))+(it+1)*Model['dt']])
             spike_IDs = np.concatenate([spike_IDs, np.arange(len(synapses_loc))])
             nsyn += nsyn2
             it+=1
 
+    spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t)
     Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
                                                            spike_IDs, spike_times,
                                                            isegs_branch,
@@ -69,10 +100,9 @@ def run_single_trial(Model, Nsyn_array,
     M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
     
     # # Run simulation
-    ntwk.run((delay+recovery+DT*len(Nsyn_array))*ntwk.ms)
+    ntwk.run(Model['tstop']*ntwk.ms)
 
     return np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:]
-
 
 
 
@@ -200,25 +230,29 @@ def run_single_trial(Model, Nsyn_array,
 
 if __name__=='__main__':
 
-    import sys
+    import sys, os
     from model import Model
     from analyz.workflow.batch_run import GridSimulation
     
-    if sys.argv[1]=='syn-input':
+    if (len(sys.argv)>1) and (sys.argv[1]=='syn-input'):
         
-        index = int(sys.argv[5])
+        index = int(sys.argv[2])
         sim = GridSimulation(os.path.join('data', 'syn-input', 'spike-threshold-grid.npz'))
         sim.update_dict_from_GRID_and_index(index, Model) # update Model parameters
-        
-        Nsyn_array = np.logspace(np.log10(int(sys.argv[2])), np.log10(int(sys.argv[3])),
-                                 int(sys.argv[4]), dtype=int)
-        t, v = run_single_trial(Model, Nsyn_array)
-        np.savez(os.path.join('data', 'syn-input', sim.params_filename(index)), **{'t':t, 'v':v})
+
+        if (Model['Fexc_bg']==0) and (Model['seed']>0):
+            pass
+        elif (Model['qNMDA']==0) and (Model['Deltax0']>0):
+            pass # no NMDA and Zinc-modulation, meaningless ...
+        else:
+            print('Running:', sim.params_filename(index))
+            t, v = run_single_trial(Model)
+            np.savez(os.path.join('data', 'syn-input', sim.params_filename(index)), **{'t':t, 'v':v})
         
         
     else:
-        Nsyn_array = np.logspace(0, 3, 4)
-        t, v = run_single_trial(Model, Nsyn_array, 0)
+        Model['Fexc_bg'] = 10.
+        t, v = run_single_trial(Model)
         from datavyz import ges as ge
         ge.plot(t, v)
         ge.show()

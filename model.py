@@ -10,7 +10,7 @@ Model = {
     "gL": 1., # [pS/um2] = 10*[S/m2] # Farinella et al. 0.5pS/um2 = 0.5*1e-12*1e12 S/m2, NEURON default: 1mS/cm2 -> 10pS/um2
     "cm": 1., # [uF/cm2]
     "Ri": 100., # [Ohm*cm]'
-    "EL": -75, # mV
+    "EL": -70, # mV
     ##################################################
     # ---------- SIMULATION PARAMS  ----------------- #
     ###################################################
@@ -65,12 +65,19 @@ Model = {
     'stim_apic_compartment_index':1000, # type=int, default=1652)
     'Nsyn_synch_stim':5,# 
     'tsyn_stim':10., # [ms]
-    'branch_index':0,
     # bg
     'Nsyn_Ebg':0,#
     'Nsyn_Ibg':0, #
-    'Fexc_bg':0.05,# [Hz]
-    'Finh_bg':0.5, # [Hz]
+    'Fexc_bg':0.,# [Hz]
+    'Finh_bg':0., # [Hz]
+    # Increasing Synaptic Input on Branches
+    'ISIB_Nsyn1':1,
+    'ISIB_Nsyn2':200,
+    'ISIB_Nsyn_N':10,
+    'ISIB_log_Nsyn':True,
+    'ISIB_delay':350, # [ms]
+    'ISIB_window':350, # [ms]
+    'branch_index':0,
 }    
 
 def double_exp_normalization(T1, T2):
