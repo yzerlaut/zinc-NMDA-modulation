@@ -113,7 +113,6 @@ to each $V_m$ response and reported the area of the fitted function
 (see Figure XX). Note that this function $f$ has the ability to
 capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP responses with transient plateau depolarizations (see "chelated-Zinc" case in Figure XX).
 
-
 * Figures
 
 *** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
@@ -122,7 +121,7 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 
 *** Zinc modulation under synaptic bombardment decrease the temporal extent of NMDA events / shifts the threshold for NMDA-spike.
 #+options : {'label':'model-prediction', 'extent':'doublecolumn', 'file':'figures/fig-model-prediction.png'}
-(a) Locations for the synapsesof of the bakcground and stimulus synapses. (b) $V_m$ response at the soma.
+(a) Locations for the synapses of of the background and stimulus synapses. (b) $V_m$ response at the soma for stimulations of increasing synchronized synapses (from left to right) and increasing background activity (from top to bottom). The plain line shows a single-trial $V_m$ response and the thin dashed line is the fitted waveform after trial average over XX seeds (see Methods).
 
 * Tables
 
