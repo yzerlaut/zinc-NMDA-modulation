@@ -77,6 +77,7 @@ Model = {
     'ISIB_log_Nsyn':True,
     'ISIB_delay':350, # [ms]
     'ISIB_window':350, # [ms]
+    'ISIB_before':100, # [ms]
     'branch_index':0,
 }    
 
