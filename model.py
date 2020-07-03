@@ -26,9 +26,9 @@ Model = {
     ###################################################
     'Ee':0,# [mV]
     'Ei':-80,# [mV]
-    'qAMPA':0.6,# [nS] # Destexhe et al., 1998: "0.35 to 1.0 nS"
-    'qNMDA':0.5,# [nS] # Destexhe et al., 1998: "0.01 to 0.6 nS"
-    'qGABA':0.6,# [nS] # Destexhe et al., 1998: "0.25 to 1.2 nS"
+    'qAMPA':0.8,# [nS] # Destexhe et al., 1998: "0.35 to 1.0 nS"
+    'qNMDA':0.8*2.7,# [nS] # NMDA-AMPA ratio=2.7
+    'qGABA':1.,# [nS] # Destexhe et al., 1998: "0.25 to 1.2 nS"
     'tauRiseAMPA':0.5,# [ms], Destexhe et al. 1998: 0.4 to 0.8 ms
     'tauDecayAMPA':5,# [ms], Destexhe et al. 1998: "the decay time constant is about 5 ms (e.g., Hestrin, 1993)"
     'tauRiseGABA':0.5,# [ms] Destexhe et al. 1998

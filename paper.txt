@@ -2,6 +2,7 @@
 
 * Key Points
 
+
 [[Figure {model-description} around here]]
 
 \item We derive a model for the modulation of synaptic transmission through NMDA channels due to the binding of endogeneous Zinc. 
@@ -66,9 +67,11 @@ For a GABA or AMPA synapse activated by a set of events $\{t^k\}$ located at pos
 I^i_{syn}(t, V_m^i) = q_{syn} \cdot (E_{syn} - V_m^i) \cdot \sum_{ \{t_k\} } \mathcal{H}(t-t_k) \, F_{syn}(t-t_k)
 \end{equation}
 
-where $q_{syn}$ is the conductance quantal of the synaptic release (setting the peak conductance level) and $\mathcal{H}(t)$ is the Heaviside (step) function.
+where $q_{syn}$ is the conductance quantal of the synaptic release (setting the peak conductance level) and $\mathcal{H}(t)$ is the Heaviside (step) function. We measured AMPA and NMDA peak currents to determine the ratio of NMDA to AMPA conductances (see Figure {nmda-ampa}), this ratio was used to set the NMDA conductance quantal from the AMPA conductance quantal (see Table {model-params}).
 
-For NMDA synapses, we add a a Zinc-binding dependency (detailed in the next section) and a voltage-dependency due to the Magnesium block captured by an exponential function (Ascher and Nowak, 1988; Jahr and Stevens, 1990; Koch, 2004):
+For NMDA synapses, we add a Zinc-binding dependency (detailed in the next section) and a voltage-dependency due to the Magnesium block captured by an exponential function (Ascher and Nowak, 1988; Jahr and Stevens, 1990; Koch, 2004):
+
+[[Figure {nmda-ampa} around here]]
 
 \begin{equation}
 \begin{split}
@@ -78,7 +81,9 @@ For NMDA synapses, we add a a Zinc-binding dependency (detailed in the next sect
 \end{split}
 \end{equation}
 
-The voltage-dependency parameters were fixed to $\eta$={etaMg}mM$^{-1}$, $V_0$={V0NMDA}mV and the Magnesium concentration as $[\text{Mg}^{2+}]$={cMg}mM (Farinella et al., 2014). All synaptic parameters are listed on Table {model-params}.
+The voltage-dependency parameters were fixed to $\eta$={etaMg}mM$^{-1}$, $V_0$={V0NMDA}mV and the Magnesium concentration as $[\text{Mg}^{2+}]$={cMg}mM (Farinella et al., 2014). 
+
+All synaptic parameters are summarized on Table {model-params}.
 
 *** Zinc modulation model
 
@@ -116,24 +121,28 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 * Figures
 
 *** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
-#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':25, 'file':'figures/fig-model-description.png', 'hrule_bottom':True}
+#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':40, 'file':'figures/fig-model-description.png'}
 (a) Biophysical model of NMDAR Zinc modulation at the single synapse level. Glutamate release is translated into a state-dependent integration variable $x$ (the $x$-dependency of the $\Delta x$ increments is shown in the inset, grey line). The $x$ variable is then non-linearly transformed and low-pass filtered to give the Zinc-binding variable $b_{Zn}$ (see the sigmoid in the inset, black line). Zinc binding reduces the NMDA synaptic conductance ($g_{NMDA}$, top plot), at full-binding $b_{Zn}=1$, the conductance is reduced by a factor $\alpha_{Zn}$. The increment parameter of the model $\Delta x^0$ is set to 0 when there is no available Zinc ("chelated-Zinc", green lines). (b) Morphological reconstruction of a Layer 2/3 pyramidal in the primary sensory cortex of the mouse (Jiang et al. (2015)). We highlight the soma (red circle) and the 5 glutamergic synapses on the basal dendite (orange dots) of panel *c*. (c) Voltage-clamp recordings in the model (see Methods) at four holding potentials following the synchronous stimulation of 5 glutamatergic synapses at 20Hz. We show the membrane potential (top plot, at the soma in red and at one synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom). The green curves show the "chelated-Zinc" case ($\Delta_x^0$=0). 
 
 *** Zinc modulation under synaptic bombardment decrease the temporal extent of NMDA events / shifts the threshold for NMDA-spike.
 #+options : {'label':'model-prediction', 'extent':'doublecolumn', 'file':'figures/fig-model-prediction.png'}
 (a) Locations for the synapses of of the background and stimulus synapses. (b) $V_m$ response at the soma for stimulations of increasing synchronized synapses (from left to right) and increasing background activity (from top to bottom). The plain line shows a single-trial $V_m$ response and the thin dashed line is the fitted waveform after trial average over XX seeds (see Methods).
 
+*** Estimating the ratio of NMDA to AMPA synaptic conductances.
+#+options : {'label':'nmda-ampa', 'extent':'single-column', 'height':25, 'file':'figures/ampa-nmda-ratio.png'}
+(a) Peak amplitudes of AMPA and NMDA currents at -80mV and +20mV respectively (after liquid junction potential correction) over n=10 cells. (b) Estimated conductances from which the ratio of NMDA to AMPA condutances is extracted. 
+
 * Tables
 
 *** Parameters of the L2/3 pyramidal cell model.
 #+options : {'label':'model-params', 'extent':'singlecolumn'}
-Values for the parameters used in the numerical simulations of single cell integration (unless otherwise stated, see annotations in Figure {model-description} and Figure {model-prediction}). The synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2015) and the parameters of the Zinc-modulation of were fitted from experimental recordings (see Methods).
+Values for the parameters used in the numerical simulations of single cell integration (unless otherwise stated, see annotations in Figure {model-description} and Figure {model-prediction}). The parameters highlighted with a star(*) were fitted from experimental recordings (see Methods), the other synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2015).
 \begin{tabular}{l|c|c}
 \textbf{Model parameter} & \textbf{Symbol} & \textbf{Value} \\ 
  \hline \vspace{-.3cm} \\ 
- membrane leak conductance & $G_L$ & {gL}pS/$\mu$m$^2$ \\
- membrane capacitance & $C_m$ & {cm}$\mu$F/cm$^2$ \\
- intracellular resistance & $R_i$ & {cm}$\Omega$.cm \\
+ membrane leak conductance* & $G_L$ & {gL}pS/$\mu$m$^2$ \\
+ membrane capacitance* & $C_m$ & {cm}$\mu$F/cm$^2$ \\
+ intracellular resistance* & $R_i$ & {cm}$\Omega$.cm \\
  leak reversal potential & $E_L$ & {EL}mV \\[.05cm]
  \hline \vspace{-.3cm} \\ 
  L2/3-Glut. density &  $D_{exc}$ & {DensityGlut_L23} syn./100$\mu$m$^2$\\
@@ -151,7 +160,7 @@ Values for the parameters used in the numerical simulations of single cell integ
  GABA rise time &  $\tau_{GABA}^{rise}$ & {tauRiseGABA}ms\\
  GABA decay time &  $\tau_{GABA}^{decay}$ & {tauDecayGABA}ms  \\[.05cm]
  \hline \vspace{-.3cm} \\ 
- NMDA conductance quantal & $q_{NMDA}$ & {qNMDA}nS \\
+ NMDA conductance quantal* & $q_{NMDA}$ & {qNMDA}nS \\
  NMDA reversal potential & $E_{NMDA}$ & {Ee}mV \\
  NMDA rise time &  $\tau_{NMDA}^{rise}$ & {tauRiseNMDA}ms\\
  NMDA decay time &  $\tau_{NMDA}^{decay}$ & {tauDecayNMDA}ms\\
@@ -161,12 +170,12 @@ Values for the parameters used in the numerical simulations of single cell integ
   Mg-NMDA sensitivity  &  $\eta_{Mg}$ & {etaMg}mM$^{-1}$ \\
   Mg-NMDA voltage slope &  $V^0_{Mg}$ & {V0NMDA}mV \\
  \hline \vspace{-.3cm} \\ 
- Zinc-NMDA inhibition factor &  $\alpha_{Zn}$ & {alphaZn} \\
- Zinc-NMDA rise time &  $\tau_{Zn}^{rise}$ & {tauRiseZn}ms\\
- Zinc-NMDA decay time &  $\tau_{decay}^{Zn}$ & {tauDecayZn}ms\\
- Zinc-NMDA base $x$-increment & $\Delta_x^0 & {Deltax0} \\
- Zinc-NMDA sigmoid center &  $x_0$ & {x0} \\
- Zinc-NMDA sigmoid width &  $\delta x & {deltax}  \\[.05cm]
+ Zinc-NMDA inhibition factor* &  $\alpha_{Zn}$ & {alphaZn} \\
+ Zinc-NMDA rise time* &  $\tau_{Zn}^{rise}$ & {tauRiseZn}ms\\
+ Zinc-NMDA decay time* &  $\tau_{decay}^{Zn}$ & {tauDecayZn}ms\\
+ Zinc-NMDA base $x$-increment* & $\Delta_x^0 & {Deltax0} \\
+ Zinc-NMDA sigmoid center* &  $x_0$ & {x0} \\
+ Zinc-NMDA sigmoid width* &  $\delta x & {deltax}  \\[.05cm]
 \hline
 \end{tabular}
 
