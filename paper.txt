@@ -45,6 +45,10 @@ Single cell integration was simulated using the cable equation (Rall, 1962; Koch
 
 where the membrane current $i_m$ and the input currents $i_I$ are linear density of currents. The cable equation parameters are derived from the membrane parameters of Table {model-params} by applying the radial symmetry (for a segment of diameter $D$: $r_m=\frac{1}{\pi D G_L}$, $c_m=\pi D C_m$, , $r_i=\frac{4 R_i}{\pi D^2}$). Additional point currents (synaptic inputs and/or "voltage-clamping"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current of amplitude $I$ and a segment of length $l_S$).
 
+
+[[Figure {passive-props} around here]]
+
+
 For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a factor {VC-gL-reduction-factor} (to reproduce the Cesium block), an additional point current $I_{clamp} = g_{clamp} \cdot (V_{cmd} - V_m)$ of clamping conductance {VC-gclamp}$\mu$S was inserted at the soma, an additional {VC-discard-time}ms were added prior to stimulation to reach stationary "clamping" conditions (initialized at $V_{cmd}$) and we report the $I_{amp}$ quantity after those {VC-discard-time}ms (see Figure {model-description}).
 
 The simulations were implemented using the \textit{Brian2} simulator (Stimberg et al., 2019). Numerical integration was performed with a forward Euler integration scheme and a time step of {dt}ms.
@@ -132,6 +136,10 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 #+options : {'label':'nmda-ampa', 'extent':'single-column', 'height':25, 'file':'figures/ampa-nmda-ratio.png'}
 (a) Peak amplitudes of AMPA and NMDA currents at -80mV and +20mV respectively (after liquid junction potential correction) over n=10 cells. (b) Estimated conductances from which the ratio of NMDA to AMPA condutances is extracted. 
 
+*** Estimating the passive properties of Layer 2/3 pyramidal cells.
+#+options : {'label':'passive-props', 'extent':'single-column', 'height':25, 'file':'figures/passive-props.png'}
+(a) Peak amplitudes of AMPA and NMDA currents at -80mV and +20mV respectively (after liquid junction potential correction) over n=10 cells. (b) Estimated conductances from which the ratio of NMDA to AMPA condutances is extracted. 
+
 * Tables
 
 *** Parameters of the L2/3 pyramidal cell model.
@@ -142,7 +150,7 @@ Values for the parameters used in the numerical simulations of single cell integ
  \hline \vspace{-.3cm} \\ 
  membrane leak conductance* & $G_L$ & {gL}pS/$\mu$m$^2$ \\
  membrane capacitance* & $C_m$ & {cm}$\mu$F/cm$^2$ \\
- intracellular resistance* & $R_i$ & {cm}$\Omega$.cm \\
+ intracellular resistance* & $R_i$ & {Ri} $\Omega$.cm \\
  leak reversal potential & $E_L$ & {EL}mV \\[.05cm]
  \hline \vspace{-.3cm} \\ 
  L2/3-Glut. density &  $D_{exc}$ & {DensityGlut_L23} syn./100$\mu$m$^2$\\
