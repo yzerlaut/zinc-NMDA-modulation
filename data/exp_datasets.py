@@ -1,3 +1,5 @@
+import numpy as np
+
 VC_STEPS_DATASET = {'20Hz_protocol':[\
                                      {'Control':['nm02Mar2018c0_000.h5'],
                                       'Tricine':['nm02Mar2018c0_001.h5']},
@@ -71,6 +73,16 @@ IC_STEPS_DATASET = [
     'nm08May2019c5_000.h5',
 ]
 
+# start and duration times associated to the data
+IC_t0s = np.ones(len(IC_STEPS_DATASET))*100
+IC_dts = np.ones(len(IC_STEPS_DATASET))*200
+for ii in [5,6]:
+    IC_dts[ii] = 250
+for ii in [15]:
+    IC_t0s[ii] = 50
+    IC_dts[ii] = 300
+
+    
 # recorded at -80mV (AMPA), and +20mV (NMDA) after correction for liquid junction potential
 SYN_CONDUCTANCE_MEASUREMENTS = {
     'ampa':[13.1912292756667, 29.0285543214286, 61.968189, 39.406903, 31.566795, 15.072064, 15.581487, 31.230927, 22.789165437931, 11.16136],

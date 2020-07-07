@@ -4,7 +4,7 @@ import numpy as np
 from analyz.IO.igor import load_hdf5_exported_from_Igor as load_data
 from analyz.processing.filters import butter_lowpass_filter
 
-from .exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET
+from .exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts
 
 def abbrev_to_month(abbrev):
     M = ['January', 'February', 'March', 'April', 'May',\
@@ -87,17 +87,10 @@ def remove_VC_stimulation_artefact(D,
     return D
 
 
-t0s = np.ones(len(IC_STEPS_DATASET))*100
-dts = np.ones(len(IC_STEPS_DATASET))*200
-for ii in [5,6]:
-    dts[ii] = 250
-for ii in [15]:
-    t0s[ii] = 50
-    dts[ii] = 300
 
 def LoadICData(index=0,
-               t0s=t0s,
-               dts=dts,
+               t0s=IC_t0s,
+               dts=IC_dts,
                dt_subampling=0,
                Fcutoff = 2000., # for low pass filtering
                verbose=False):
