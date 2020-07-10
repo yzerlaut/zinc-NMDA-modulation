@@ -112,13 +112,14 @@ def compute_chelated_residual(sim, index, calib_data, condition='chelated'):
                  calib_data['DTfull_%s' % cond])
             
             trace_model = -1e3*(sim_data['Ic'][tcond]-sim_data['Ic'][tcond][0]) # - sign
-            trace_exp = calib_data['Iexp_chelated_%s' % cond]
+            trace_exp = calib_data['Iexp_chelatedZn_%s' % cond]
             Residual *= 1+np.sum((trace_model-trace_exp)**2)/np.sum((trace_exp)**2)
 
     except FileNotFoundError:
         print(sim.params_filename(index)+'.npz', 'not found')
         Residual = 1e10
     return Residual
+
 
 def compute_free_residual(sim, index, calib_data, condition='chelated'):
 
@@ -136,7 +137,7 @@ def compute_free_residual(sim, index, calib_data, condition='chelated'):
             trace_model = -1e3*(sim_data['Ic'][tcond]-sim_data['Ic'][tcond][0]) # - sign
             # trace_model0 = -1e3*(Cdata['Ic'][tcond]-Cdata['Ic'][tcond][0])
             
-            trace_exp = calib_data['Iexp_zinc_%s' % cond]
+            trace_exp = calib_data['Iexp_freeZn_%s' % cond]
             # trace_exp0 = calib_data['Iexp_chelated_%s' % cond]
 
             # normalizing to peak in the exp
@@ -216,7 +217,7 @@ if __name__=='__main__':
         ibest = np.argmin(Residuals)
         best_chelated_config={'filename':os.path.join('data','calib',sim.params_filename(ibest)+'.npz')}
         sim.update_dict_from_GRID_and_index(ibest, best_chelated_config) # update Model parameters
-        np.savez('data/best_chelated_config.npz', **best_chelated_config)
+        np.savez('data/best_chelatedZn_config.npz', **best_chelated_config)
         print(best_chelated_config)            
 
     elif sys.argv[1]=='free-zinc-calib':
@@ -225,7 +226,7 @@ if __name__=='__main__':
         sim = GridSimulation(os.path.join('data', 'calib', 'free-zinc-calib-grid.npz'))
 
         # loading data from previous calib !
-        best_chelated_config = load_dict('data/best_chelated_config.npz') 
+        best_chelated_config = load_dict('data/best_chelatedZn_config.npz') 
         for key, val in best_chelated_config.items():
             Model[key] = val
         Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'], Model['Nsyn2'],
@@ -248,7 +249,7 @@ if __name__=='__main__':
         ibest = np.argmin(Residuals)
         best_free_zinc_config={'filename':os.path.join('data','calib',sim.params_filename(ibest)+'.npz')}
         sim.update_dict_from_GRID_and_index(ibest, best_free_zinc_config) # update Model parameters
-        np.savez('data/best_free_zinc_config.npz', **best_free_zinc_config)
+        np.savez('data/best_freeZn_config.npz', **best_free_zinc_config)
         print(best_free_zinc_config)
         
     else:
