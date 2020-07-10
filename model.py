@@ -72,11 +72,11 @@ Model = {
     'Finh_bg':0., # [Hz]
     # Increasing Synaptic Input on Branches
     'ISIB_Nsyn1':1,
-    'ISIB_Nsyn2':200,
+    'ISIB_Nsyn2':80,
     'ISIB_Nsyn_N':10,
     'ISIB_log_Nsyn':True,
     'ISIB_delay':350, # [ms]
-    'ISIB_window':350, # [ms]
+    'ISIB_window':500, # [ms]
     'ISIB_before':100, # [ms]
     'branch_index':0,
 }    

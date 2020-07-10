@@ -233,6 +233,14 @@ if __name__=='__main__':
     import sys, os
     from model import Model
     from analyz.workflow.batch_run import GridSimulation
+    from analyz.IO.npz import load_dict
+
+    # updating model with fit results !!
+    for key, val in load_dict('data/best_chelatedZn_config.npz').items():
+        Model[key] = val
+    for key, val in load_dict('data/best_freeZn_config.npz').items():
+        Model[key] = val
+    
     
     if (len(sys.argv)>1) and (sys.argv[1]=='syn-input'):
         
@@ -251,7 +259,7 @@ if __name__=='__main__':
         
         
     else:
-        Model['Fexc_bg'] = 10.
+        Model['Fexc_bg'] = 1.
         t, v = run_single_trial(Model)
         from datavyz import ges as ge
         ge.plot(t, v)
