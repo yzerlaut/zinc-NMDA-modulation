@@ -259,7 +259,7 @@ if __name__=='__main__':
         
         
     else:
-        Model['Fexc_bg'] = 1.
+        Model['Fexc_bg'] = 2.
         t, v = run_single_trial(Model)
         from datavyz import ges as ge
         ge.plot(t, v)
