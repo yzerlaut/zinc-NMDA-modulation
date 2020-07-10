@@ -9,8 +9,8 @@ VC_STEPS_DATASET = {'20Hz_protocol':[\
                                       'Tricine':['nm02Mar2018c2_002.h5']},
                                      {'Control':['nm30Mar2018c1_000.h5'],
                                       'Tricine':['nm30Mar2018c1_004.h5']},
-                                     # {'Control':['nm17Apr2019c1_000.h5'],
-                                     # 'Tricine':['nm17Apr2019c1_001.h5']},
+                                     {'Control':['nm17Apr2019c1_000.h5'],
+                                      'Tricine':['nm17Apr2019c1_001.h5']},
                             ],
                     '3Hz_protocol':[\
                                     {'Control':['nm18Sep2019c1_000.h5'],
