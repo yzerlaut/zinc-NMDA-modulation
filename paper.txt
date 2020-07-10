@@ -37,17 +37,17 @@ We then embed this model in a background of synaptic activity and examined how t
 
 *** Numerical simulations of morphologically-detailed L2/3 pyramidal cells
 
+[[Figure {passive-props} around here]]
+
 Single cell integration was simulated using the cable equation (Rall, 1962; Koch, 2004):
 
 \begin{equation}
 \frac{1}{r_i} \frac{\partial^2 V_m}{\partial x^2} = i_m = c_m \frac{\partial V_m}{\partial t} + \frac{V_m-E_L}{r_m} - i_{I}
 \end{equation}
 
-where the membrane current $i_m$ and the input currents $i_I$ are linear density of currents. The cable equation parameters are derived from the membrane parameters of Table {model-params} by applying the radial symmetry (for a segment of diameter $D$: $r_m=\frac{1}{\pi D G_L}$, $c_m=\pi D C_m$, , $r_i=\frac{4 R_i}{\pi D^2}$). Additional point currents (synaptic inputs and/or "voltage-clamping"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current of amplitude $I$ and a segment of length $l_S$).
+where the membrane current $i_m$ and the input currents $i_I$ are linear density of currents. The cable equation parameters are derived from the membrane parameters of Table {model-params} by applying the radial symmetry (for a segment of diameter $D$: $r_m=\frac{1}{\pi D G_L}$, $c_m=\pi D C_m$, , $r_i=\frac{4 R_i}{\pi D^2}$). The passive properties of the model were determined using our current-clamp experimental recordings (see Figure {passive-props}). We varied the passive properties on a grid (see Figure {passive-props}), we characterized both the somatic input resistance and membrane capacitance for each parameter and we minimized those values with respect to the experimental estimate (n=27 cells). Such procedure yielded values of $g_l$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$,  similar to previous characterizations of Layer 2/3 pyramidal cell properties (Branco et al., 2010).
 
-
-[[Figure {passive-props} around here]]
-
+Additional point currents (synaptic inputs and/or "voltage-clamping"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current of amplitude $I$ and a segment of length $l_S$).
 
 For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a factor {VC-gL-reduction-factor} (to reproduce the Cesium block), an additional point current $I_{clamp} = g_{clamp} \cdot (V_{cmd} - V_m)$ of clamping conductance {VC-gclamp}$\mu$S was inserted at the soma, an additional {VC-discard-time}ms were added prior to stimulation to reach stationary "clamping" conditions (initialized at $V_{cmd}$) and we report the $I_{amp}$ quantity after those {VC-discard-time}ms (see Figure {model-description}).
 
