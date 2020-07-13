@@ -136,9 +136,9 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 #+options : {'label':'nmda-ampa', 'extent':'single-column', 'height':25, 'file':'figures/ampa-nmda-ratio.png'}
 (a) Peak amplitudes of AMPA and NMDA currents at -80mV and +20mV respectively (after liquid junction potential correction) over n=10 cells. (b) Estimated conductances from which the ratio of NMDA to AMPA condutances is extracted. 
 
-*** Estimating the passive properties of Layer 2/3 pyramidal cells.
+*** Calibrating the model parameters on experimental recordings.
 #+options : {'label':'passive-props', 'extent':'single-column', 'height':25, 'file':'figures/passive-props.png'}
-(a) Peak amplitudes of AMPA and NMDA currents at -80mV and +20mV respectively (after liquid junction potential correction) over n=10 cells. (b) Estimated conductances from which the ratio of NMDA to AMPA condutances is extracted. 
+(a) Fitting the passive properties of the Layer2/3 model, in (i) we show the residual (color-coded) of the square difference between experimentally-recorded and model value for different configurations of the passice conductance and specific membrane capacitance, in (ii) we show the somatic input resistance and capacitance in the data and in the model after minization (black dot in *i*). (b) Fitting the input properties of the electrical stimulation and NMDA kinetics in the "chelated-Zinc" condition , in *i* we show a parallel plot of a random subsample   . (c) Fitting the Zinc modulation properties .
 
 * Tables
 
