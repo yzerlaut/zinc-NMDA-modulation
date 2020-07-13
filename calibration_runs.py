@@ -123,7 +123,7 @@ def compute_chelated_residual(sim, index, calib_data, condition='chelated'):
 
 def compute_free_residual(sim, index, calib_data, condition='chelated'):
 
-    # Cdata = load_dict(load_dict('data/best_chelated_config.npz')['filename'])
+    Cdata = load_dict(load_dict('data/best_chelatedZn_config.npz')['filename'])
     
     try:
         sim_data = load_dict(os.path.join('data', 'calib', sim.params_filename(index)+'.npz'))
@@ -135,29 +135,30 @@ def compute_free_residual(sim, index, calib_data, condition='chelated'):
                  calib_data['DTfull_%s' % cond])
             
             trace_model = -1e3*(sim_data['Ic'][tcond]-sim_data['Ic'][tcond][0]) # - sign
-            # trace_model0 = -1e3*(Cdata['Ic'][tcond]-Cdata['Ic'][tcond][0])
+            trace_model0 = -1e3*(Cdata['Ic'][tcond]-Cdata['Ic'][tcond][0])
             
             trace_exp = calib_data['Iexp_freeZn_%s' % cond]
-            # trace_exp0 = calib_data['Iexp_chelated_%s' % cond]
+            trace_exp0 = calib_data['Iexp_chelatedZn_%s' % cond]
 
             # normalizing to peak in the exp
             first_peak_cond = (calib_data['t_%s' % cond]<calib_data['DT0_%s' % cond]+30)
 
             factor_exp = np.max(trace_exp[first_peak_cond])
             trace_exp /= factor_exp
-            # trace_exp0 *= factor_exp/np.max(trace_exp0[first_peak_cond]) # to have a unit (the model is)
+            factor_exp0 = np.max(trace_exp0[first_peak_cond])
+            trace_exp0 /= factor_exp0
 
-            # normalizing to peak in the model ### (otherwise allows very fast effects)
+            # normalizing to peak in the model
             factor_model = np.max(trace_model[first_peak_cond])
             trace_model /= factor_model
-            # trace_model0 *= factor_model/np.max(trace_model0[first_peak_cond])
+            factor_model0 = np.max(trace_model0[first_peak_cond])
+            trace_model0 /= factor_model0
             
-            # diff_model = trace_model-trace_model0
-            # diff_exp = trace_exp-trace_exp0
+            diff_model = trace_model-trace_model0
+            diff_exp = trace_exp-trace_exp0
             
-            # Residual *= 1+(np.max(trace_model[first_peak_cond])-factor_model)**2/factor_model**2
             Residual *= 1+np.sum((trace_model-trace_exp)**2)/np.sum(trace_exp**2)
-            # Residual *= 1+np.sum((diff_model-diff_exp)**2)/np.sum(diff_exp**2)
+            Residual *= 1+np.sum((diff_model-diff_exp)**2)/np.sum(diff_exp**2)
 
     except FileNotFoundError:
         print(sim.params_filename(index)+'.npz', 'not found')
@@ -186,10 +187,33 @@ if __name__=='__main__':
     stim = build_stimulation()
 
     if len(sys.argv)==1:
+
+        best_chelated_config = load_dict('data/best_chelatedZn_config.npz') 
+        for key, val in best_chelated_config.items():
+            Model[key] = val
+
+        Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'], Model['Nsyn2'],
+                                                            Model['Tnsyn20Hz'], Model['Tnsyn3Hz'])
         stim = build_stimulation()
-        output = run_single_sim(Model, stim,
-                                Npicked=compute_time_varying_synaptic_recruitment(20, 10, 600, 50))
-        np.savez(filename_with_datetime('ctrl', folder='data/calib', extension='.npz'), **output)
+
+        # 1
+        # Model['alphaZn'], Model['Deltax0'] = 0, 0 # forcing "chelated-Zinc" condition
+        # output = run_single_sim(Model, stim, Npicked=Npicked)
+        # np.savez(os.path.join('data','calib', 'Best_chelatedZn.npz'), **output)
+        
+        # 2
+
+        best_freeZn_config = load_dict('data/best_freeZn_config.npz') 
+        for key, val in best_freeZn_config.items():
+            Model[key] = val
+        # Model['alphaZn'], Model['Deltax0'] = 0, 0 # forcing "chelated-Zinc" condition
+        Model['tauRiseZn'] = 100.
+        print(Model)
+            
+        stim = build_stimulation()
+        output = run_single_sim(Model, stim, Npicked=Npicked)
+        np.savez(os.path.join('data','calib', 'Best_freeZn.npz'), **output)
+        
         
     elif sys.argv[1]=='chelated-zinc-calib':
 
@@ -253,9 +277,17 @@ if __name__=='__main__':
         print(best_free_zinc_config)
         
     else:
-        stim = build_stimulation()
+        # stim = build_stimulation()
 
-        output = run_single_sim(Model, stim,
-                                Npicked=compute_time_varying_synaptic_recruitment(90, 60, 600, 50))
-        # print('Residual: ', compute_residual(output))
-        np.savez(filename_with_datetime('ctrl', folder='data/calib', extension='.npz'), **output)
+        # output = run_single_sim(Model, stim,
+        #                         Npicked=compute_time_varying_synaptic_recruitment(90, 60, 600, 50))
+        # # print('Residual: ', compute_residual(output))
+        # np.savez(filename_with_datetime('ctrl', folder='data/calib', extension='.npz'), **output)
+
+        best_chelated_config = load_dict('data/best_chelatedZn_config.npz') 
+        for key, val in best_chelated_config.items():
+            Model[key] = val
+        Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'], Model['Nsyn2'],
+                                                            Model['Tnsyn20Hz'], Model['Tnsyn3Hz'])
+        stim = build_stimulation()
+        
