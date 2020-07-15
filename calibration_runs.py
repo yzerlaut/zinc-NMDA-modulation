@@ -238,7 +238,9 @@ if __name__=='__main__':
         Residuals = np.ones(int(sim.N))*np.inf
         for i in range(int(sim.N)):
             Residuals[i] = compute_chelated_residual(sim, i, calib_data)
+        np.save(os.path.join('data', 'calib', 'chelatedZn-residuals.npy'), Residuals)
         ibest = np.argmin(Residuals)
+        print(ibest)
         best_chelated_config={'grid_index':ibest, 'filename':os.path.join('data','calib',sim.params_filename(ibest)+'.npz')}
         sim.update_dict_from_GRID_and_index(ibest, best_chelated_config) # update Model parameters
         np.savez('data/best_chelatedZn_config.npz', **best_chelated_config)
@@ -270,6 +272,7 @@ if __name__=='__main__':
         Residuals = np.ones(int(sim.N))*np.inf
         for i in range(int(sim.N)):
             Residuals[i] = compute_free_residual(sim, i, calib_data)
+        np.save(os.path.join('data', 'calib', 'freeZn-residuals.npy'), Residuals)
         ibest = np.argmin(Residuals)
         best_free_zinc_config={'grid_index':ibest, 'filename':os.path.join('data','calib',sim.params_filename(ibest)+'.npz')}
         sim.update_dict_from_GRID_and_index(ibest, best_free_zinc_config) # update Model parameters

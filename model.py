@@ -59,6 +59,22 @@ Model = {
     'x0':0.5, # FITTED
     'deltax':0.1, # FITTED
     #############################################################
+    #############################################################
+    # ----------- MODEL CALIBRATION GRIDS  ----------------- ####
+    #### --- defining the grid extents for parameter searches ###
+    'gL_min':0.02, 'gL_max':2., 'N_gL':30,
+    'cm_min':0.5, 'cm_max':2., 'N_cm':30,
+    'tauDecayNMDA_min':60, 'tauDecayNMDA_max':120, 'N_tauDecayNMDA':7,
+    'Nsyn1_min':2, 'Nsyn1_max':12, 'N_Nsyn1':6,
+    'Nsyn2_min':2, 'Nsyn2_max':12, 'N_Nsyn2':6,
+    'Tnsyn20Hz_min':30, 'Tnsyn20Hz_max':70, 'N_Tnsyn20Hz':4,
+    'Tnsyn3Hz_min':30, 'Tnsyn3Hz_max':70, 'N_Tnsyn3Hz':4,
+    'alphaZn_min':0.15, 'alphaZn_max':0.5, 'N_alphaZn':7,
+    'tauRiseZn_min':5, 'tauRiseZn_max':50, 'N_tauRiseZn':6,
+    'tauDecayZn_min':50, 'tauDecayZn_max':500, 'N_tauDecayZn':6,
+    'Deltax0_min':0.3, 'Deltax0_max':0.7, 'N_Deltax0':5,
+    'deltax_min':0.05, 'deltax_max':0.3, 'N_deltax':5,
+    #############################################################
     # ---------- SYNAPTIC STIMULATION PARAMS  ----------------- #
     #############################################################
     # evoked

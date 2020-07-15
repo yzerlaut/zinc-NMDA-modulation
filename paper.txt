@@ -11,8 +11,6 @@
 
 * Results
 
-[...]
-
 *** Modeling Zinc-modulation of NMDAR signaling
 
 We now derive a model of the Zinc modulation of NMDAR signaling based on the above observations and previous studies (Vergnano et al., 2014, ...). Our modeling approach aimed at describing the modulation in the form of a minimal phenomenological description at the single synapse level (see Discussion). 
@@ -23,7 +21,7 @@ To examine the validity of this theoretical description against our experimental
 
 *** Calibrating the Zinc-modulation model
 
-We calibrated the model paramters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz. We varied the parameters of the Zinc-modulation model on a regular grid and computed the square residual of the model predictions for all parameters. The best fit model was found for: $\alpha_{Zn}$=..., $\tau_{Zn}^{rise}$=..., [...]
+We calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz. We varied the parameters of the Zinc-modulation model on a regular grid and computed the square residual of the model predictions for all parameters. The best fit model was found for: $\alpha_{Zn}$=..., $\tau_{Zn}^{rise}$=..., [...]
 
 *** Zinc modulation restrict the temporal window of NMDA events / shifts NMDA spike threshold.
 
@@ -31,13 +29,14 @@ We then embed this model in a background of synaptic activity and examined how t
 
 [[Figure {model-prediction} around here]]
 
+
 * Methods
 
 [[Table {model-params} around here]]
 
 *** Numerical simulations of morphologically-detailed L2/3 pyramidal cells
 
-[[Figure {passive-props} around here]]
+[[Figure {optimization} around here]]
 
 Single cell integration was simulated using the cable equation (Rall, 1962; Koch, 2004):
 
@@ -136,9 +135,9 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 #+options : {'label':'nmda-ampa', 'extent':'single-column', 'height':25, 'file':'figures/ampa-nmda-ratio.png'}
 (a) Peak amplitudes of AMPA and NMDA currents at -80mV and +20mV respectively (after liquid junction potential correction) over n=10 cells. (b) Estimated conductances from which the ratio of NMDA to AMPA condutances is extracted. 
 
-*** Calibrating the model parameters on experimental recordings.
-#+options : {'label':'passive-props', 'extent':'single-column', 'height':25, 'file':'figures/passive-props.png'}
-(a) Fitting the passive properties of the Layer2/3 model, in (i) we show the residual (color-coded) of the square difference between experimentally-recorded and model value for different configurations of the passice conductance and specific membrane capacitance, in (ii) we show the somatic input resistance and capacitance in the data and in the model after minization (black dot in *i*). (b) Fitting the input properties of the electrical stimulation and NMDA kinetics in the "chelated-Zinc" condition , in *i* we show a parallel plot of a random subsample   . (c) Fitting the Zinc modulation properties .
+*** Calibrating the parameters of the Layer 2/3 model on experimental recordings: optimizing parameters through searches on regular grids.
+#+options : {'label':'optimization', 'extent':'one-and-a-half-column', 'height':50, 'file':'figures/optimization.png'}
+(a) Fitting the passive properties of the Layer2/3 model, in (i) we show the residual (color-coded) of the square difference between experimentally-recorded and model value for different configurations of the passice conductance and specific membrane capacitance, in (ii) we show the somatic input resistance and capacitance in the data and in the model after minization (black dot in *i*). (b) Fitting the input properties of the electrical stimulation and NMDA kinetics in the "chelated-Zinc" condition (green curves in see Figure {model-description}c), in *i* we show a parallel coordinate plot of 100 (99 randomly-picked + the optimal one) configurations picked from the 5-dimensional grid parameters (see Methods), the color code accounts for the residual value after fitting (as in *a(i)*, the dark line is the optimal configuration). In *ii*, we show the relation between $\chi^2$-residual and normalized distance with respect to the best-fit configuration of parameters. (c) Fitting the parameters of the Zinc modulation mechanism in the "free-Zinc" condition (black curves in Figure {model-description}c), plots as in *b*.
 
 * Tables
 
