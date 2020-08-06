@@ -158,9 +158,10 @@ if __name__=='__main__':
     # plot_signals(output, ge=ge)
     # ge.show()
 
-    synapses_loc = np.arange(5)
+    synapses_loc = 2000+np.arange(5)
+    # synapses_loc = 0+np.arange(5)
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
-    t0_stim, n_pulses, freq_pulses = 50, 3, 20
+    t0_stim, n_pulses, freq_pulses = 50, 5, 300
     for i in range(n_pulses):
         spike_times = np.concatenate([spike_times,
                                       (t0_stim+i*1e3/freq_pulses)*np.ones(len(synapses_loc))])
@@ -180,6 +181,9 @@ if __name__=='__main__':
     ntwk.run(Model['tstop']*ntwk.ms)
 
     from datavyz import ges as ge
-    ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:])
+    fig, ax = ge.figure(figsize=(2,1))
+    ax.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:], label='soma')
+    ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[1,:], label='dend', ax=ax)
+    ge.legend(ax)
     ge.show()
     

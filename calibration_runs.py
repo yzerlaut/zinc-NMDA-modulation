@@ -248,8 +248,14 @@ if __name__=='__main__':
 
     elif sys.argv[1]=='free-zinc-calib':
 
-        index = int(sys.argv[2])
-        sim = GridSimulation(os.path.join('data', 'calib', 'free-zinc-calib-grid.npz'))
+        if len(sys.argv)==3:
+            gridfile = os.path.join('data', 'calib', 'free-zinc-calib-grid.npz')
+            index = int(sys.argv[2])
+        else:
+            gridfile = sys.argv[2]
+            index = int(sys.argv[3])
+
+        sim = GridSimulation(gridfile)
 
         # loading data from previous calib !
         best_chelated_config = load_dict('data/best_chelatedZn_config.npz') 
@@ -257,29 +263,37 @@ if __name__=='__main__':
             Model[key] = val
         Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'], Model['Nsyn2'],
                                                             Model['Tnsyn20Hz'], Model['Tnsyn3Hz'])
-        stim = build_stimulation()
         
         sim.update_dict_from_GRID_and_index(index, Model) # update Model parameters
 
+        stim = build_stimulation()
         output = run_single_sim(Model, stim, Npicked=Npicked)
-        
         np.savez(os.path.join('data', 'calib', sim.params_filename(index)), **output)
         
     elif sys.argv[1]=='free-zinc-calib-analysis':
 
         calib_data = load_dict('data/exp_data_for_calibration.npz')
-        sim = GridSimulation(os.path.join('data', 'calib', 'free-zinc-calib-grid.npz'))
+        if len(sys.argv)==2:
+            gridfile = os.path.join('data', 'calib', 'free-zinc-calib-grid.npz')
+        else:
+            gridfile = sys.argv[2]
+            
+        residualfile = gridfile.replace('free-zinc-calib-grid', 'freeZn-residuals').replace('.npz', '.npy')
+        bestconfigfile = gridfile.replace('free-zinc-calib-grid', 'best-freeZn-config')
+        
+        sim = GridSimulation(gridfile)
         Residuals = np.ones(int(sim.N))*np.inf
         for i in range(int(sim.N)):
             Residuals[i] = compute_free_residual(sim, i, calib_data)
-        np.save(os.path.join('data', 'calib', 'freeZn-residuals.npy'), Residuals)
+        np.save(residualfile, Residuals)
         ibest = np.argmin(Residuals)
         best_free_zinc_config={'grid_index':ibest, 'filename':os.path.join('data','calib',sim.params_filename(ibest)+'.npz')}
         sim.update_dict_from_GRID_and_index(ibest, best_free_zinc_config) # update Model parameters
-        np.savez('data/best_freeZn_config.npz', **best_free_zinc_config)
+        np.savez(bestconfigfile, **best_free_zinc_config)
         print(best_free_zinc_config)
         
     else:
+        
         # stim = build_stimulation()
 
         # output = run_single_sim(Model, stim,
