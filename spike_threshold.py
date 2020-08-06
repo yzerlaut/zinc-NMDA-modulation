@@ -13,7 +13,7 @@ def distance(x, y, z): # soma is at (0, 0, 0)
 
 def compute_branches_for_stimuli(SEGMENTS,
                                  AREA_THRESHOLD = 100e-12,
-                                 DISTANCE_THRESHOLD = 40e-6):
+                                 DISTANCE_THRESHOLD = 100e-6):
     
     segments_of_branches = []
 
@@ -240,7 +240,6 @@ if __name__=='__main__':
         Model[key] = val
     for key, val in load_dict('data/best_freeZn_config.npz').items():
         Model[key] = val
-    
     
     if (len(sys.argv)>1) and (sys.argv[1]=='syn-input'):
         
