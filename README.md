@@ -25,6 +25,8 @@ Trying to reproduce Figure 5 of [Branco et al. (2011)](https://www.sciencedirect
 
 ![](figures/Branco_et_al_2011.png)
 
+see the [branco-et-al-2011.py](./branco-et-al-2011.py) script.
+
 
 ## cellular biophysics: implementation
 
