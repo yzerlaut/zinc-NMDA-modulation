@@ -14,9 +14,16 @@ We make use of the publicly available dataset of cellular morphologies taken fro
 
 Jiang et al., _Science_ (2015): Principles of connectivity among morphologically defined cell types in adult neocortex https://science.sciencemag.org/content/350/6264/aac9462
 
-Set of morphologies (dendritic arborization in red, axonal projections in green):
+<!-- Set of morphologies (dendritic arborization in red, axonal projections in green): -->
+<!-- ![](figures/all_cells.png) -->
 
-![](figures/all_cells.png)
+## Model capabilities
+
+### Branco et al., *Neuron* 2011
+
+Reproducing Figure 5 of Branco et al. (2011), see https://www.sciencedirect.com/science/article/pii/S0896627311001036.
+
+![](figures/Branco_et_al_2011.png)
 
 ## cellular biophysics: implementation
 
