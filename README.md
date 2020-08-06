@@ -19,11 +19,12 @@ Jiang et al., _Science_ (2015): Principles of connectivity among morphologically
 
 ## Model capabilities
 
-### Branco et al., *Neuron* 2011
+### - Branco et al., *Neuron* 2011
 
-Reproducing Figure 5 of Branco et al. (2011), see https://www.sciencedirect.com/science/article/pii/S0896627311001036.
+Trying to reproduce Figure 5 of [Branco et al. (2011)](https://www.sciencedirect.com/science/article/pii/S0896627311001036) in our model with the considered morphology:
 
 ![](figures/Branco_et_al_2011.png)
+
 
 ## cellular biophysics: implementation
 
