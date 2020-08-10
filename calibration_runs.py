@@ -280,7 +280,7 @@ if __name__=='__main__':
             
         residualfile = gridfile.replace('free-zinc-calib-grid', 'freeZn-residuals').replace('.npz', '.npy')
         bestconfigfile = gridfile.replace('free-zinc-calib-grid', 'best-freeZn-config')
-        
+        print(bestconfigfile)
         sim = GridSimulation(gridfile)
         Residuals = np.ones(int(sim.N))*np.inf
         for i in range(int(sim.N)):
