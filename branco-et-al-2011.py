@@ -72,7 +72,7 @@ elif sys.argv[-1]=='syn-timing':
 
     tstop, t0_stim = 300, 20
 
-    ge.title(AX[0], '%i to %ims interval (by 2)' % (DELAYS[0], DELAYS[-1]))
+    ge.title(AX[0], '%i to %ims interval' % (DELAYS[0], DELAYS[-1]))
 
     n_pulses = 15
     for synapses_loc, label, ax in zip([PROX,DIST], ['prox','dist'], AX):
