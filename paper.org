@@ -29,7 +29,6 @@ We then embed this model in a background of synaptic activity and examined how t
 
 [[Figure {model-prediction} around here]]
 
-
 * Methods
 
 [[Table {model-params} around here]]
