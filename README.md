@@ -1,19 +1,26 @@
 # Modeling Zinc-mediated modulation of synaptic transmission through NMDA receptors in cortical neurons
 
-Source code for the theoretical model of zinc modulation of NMDA-dependent synaptic transmission in neocortical neurons. Implementing stochastic synaptic activity emulating _in-vivo_-like ongoing dynamics in neocortical networks. Analyzing the impact on cellular computation under 
+> Source code for the theoretical model of zinc modulation of synaptic transmission through NMDA receptors (NMDAR) in neocortical neurons
+
+- we derive a model for the Zinc modulation of NMDAR
+- we embed the implementation into a morphologically-detailed model of a mouse layer 2/3 pyramidal cell
+- we study the response to synaptic stimulation
+- we analyze the import of *in-vivo*-like ongoing dynamics on the modulation of Zinc
 
 ## Scientific content
 
-Availble as the [pdf](./paper.pdf)
+Available as a [pdf report](./paper.pdf) (source file available as a [text file](./paper.txt)).
 
-Available as a [text file](./paper.org)
+## Software requirements
 
+- A `python` distribution for scientific computing (e.g. Anaconda)
 
-## Requirements
+- `brian2`: a simulator of single cell and network dynamics, see the [Brian2 documentation](https://brian2.readthedocs.io/en/stable/), get it with `pip install brian2`.
 
-- `python` (use a python distribution for scientific computing, e.g. Anaconda)
-
-- `brian2`: a simulator of single cell computation and network dynamics, get it with `pip install brian2`
+All other dependencies are listed in [requirements.txt](./requirements.txt), install them with:
+```
+pip install -r requirements.txt
+```
 
 ## Cellular morphology dataset
 

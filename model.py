@@ -24,7 +24,7 @@ Model = {
     'tauRiseGABA':0.5,# [ms] Destexhe et al. 1998
     'tauDecayGABA':5,# [ms] Destexhe et al. 1998
     'tauRiseNMDA': 3,# [ms], Farinella et al., 2014
-    'tauDecayNMDA': 100,# [ms], FITTED --- Destexhe et al.:. 25-125ms, Farinella et al., 2014: 70ms
+    'tauDecayNMDA': 70,# [ms], FITTED --- Destexhe et al.:. 25-125ms, Farinella et al., 2014: 70ms
     'DensityGlut_L23': 7, # synapses / 100um2
     'DensityGlut_L4': 7, # synapses / 100um2
     'DensityAMPA': 25, # synapses / 100um2
@@ -52,9 +52,9 @@ Model = {
     #############################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
     #############################################################
-    'alphaZn':0.4,# FITTED
-    'tauRiseZn':20,# [ms], # FITTED
-    'tauDecayZn':500,# [ms], # FITTED
+    'alphaZn':0.44,# FITTED
+    'tauRiseZn':14.,# [ms], # FITTED
+    'tauDecayZn':500.,# [ms], # FITTED
     'Deltax0':0.7, # FITTED
     'x0':0.7, # FITTED
     'deltax':0.3, # FITTED
