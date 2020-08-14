@@ -1,4 +1,4 @@
-# Modeling Zinc-mediated modulation of synaptic transmission through NMDA receptors in cortical neurons
+# Modeling Zinc modulation NMDA receptor signalling in neocortical neurons
 
 > Source code for the theoretical model of zinc modulation of synaptic transmission through NMDA receptors (NMDAR) in neocortical neurons
 

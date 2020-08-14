@@ -36,8 +36,6 @@ We then embed this model in a background of synaptic activity and examined how t
 
 *** Numerical simulations of morphologically-detailed L2/3 pyramidal cells
 
-[[Figure {optimization} around here]]
-
 Single cell integration was simulated using the cable equation (Rall, 1962; Koch, 2004):
 
 \begin{equation}
@@ -102,7 +100,28 @@ The system of equation setting the dynamics of the binding variable $b_{Zn}$ rea
 \right.
 \end{equation}
 
-where $\Delta_x (x)$ is the ($x$-dependent) increment defined by  $\Delta_x : x \rightarrow \Delta_x^0 \cdot \big(1- x \big)$. The function $\mathcal{S}$ is the sigmoid function defined by: $\mathcal{S} : X \rightarrow \frac{1}{1+e^{-X}}$, the parameters $x_0$ and $\delta x$ therefore define the center and slope of the sigmoid.
+where $\Delta_x (x)$ is the ($x$-dependent) increment defined by  $\Delta_x : x \rightarrow \Delta_x^0 \cdot \big(1- x \big)$. The function $\mathcal{S}$ is the sigmoid function defined by: $\mathcal{S} : X \rightarrow \frac{1}{1+e^{-X}}$, the parameters $x_0$ and $\delta x$ therefore define the center and slope of the sigmoid. To limit the number of free parameters, the parameter $x_0$ was constrained to $x_0$=$\Delta_x^0$, meaning that the sigmoid of the Zinc-modulation activation was centered around one the increment corresponding to one synaptic event (see Figure {model-description}a). Such constraint did not prevent an accurate quantitative description of the effect (see Figure {optimization}d).
+
+*** Parameter fitting
+
+[[Figure {optimization} around here]]
+
+The parameter of the model were fitted in three steps (respectively shown in *a*, *b* and *c* in Figure {optimization}) yielding the constrained model shown in Figure {optimization}d). 
+
+First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells. The range for the parameter grid was [{gL_min}-{gL_max}]pS/$\mu$m$^2$ and [{cm_min}-{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a). The joint minimization (via the product of the square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice cortex (Branco et al., 2011, LARKUM ref).
+
+We then used our set of voltage-clamp recordings with extracellular stimulation at 20Hz and 3Hz to constraint the Zinc-dependent NMDAR model. 
+
+As a second step, we used the "chelated-Zinc" condition to evaluate the NMDAR kinetics ($\tau_{decay}^{NMDA}$) and to find the correlate in the model of the extracellular stimulation protocol. We described the electrical stimulation as a number of activated synapses $N_{syn}$ decreasing with stimulation time (to capture the decreasing efficacy of the electrical stimulation, see Figure {optimization}d): $N_{syn}: t \rightarrow (N_{syn}^0-N_{syn}^\infty) \cdot e^{-t/\tau_{Nsyn}} + N_{syn}^\infty$. We varied the parameters in the range $\tau_{decay}^{NMDA}$ in [{tauDecayNMDA_min}-{tauDecayNMDA_max}]ms,  $N_{syn}^{0}$ $\in$ $[{Nsyn1_min}-{Nsyn1_max}]$ synapses $N_{syn}^{\infty}$ $\in$ $[{Nsyn2_min}-{Nsyn2_max}]$ synapses
+and $\tau_{Nsyn}$ $\in$ [{Tnsyn20Hz_min}-{Tnsyn20Hz_max}]ms on a [{N_tauDecayNMDA}x{N_Nsyn1}x{N_Nsyn2}x{N_Tnsyn20Hz}] linear grid. This minimization is shown in Figure {optimization}b,d.
+
+As a third step, we used the "free-Zinc condition" to determine the Zinc-modulation parameters of the NMDAR model introduced above ($\alpha_{Zn}$, $\tau_{Zn}^{rise}$, $\tau_{Zn}^{decay}$, $\Delta_x^0$, $\delta_x$). We varied the Zinc parameters in the range $\alpha_{Zn}$ $\in$ [{alphaZn_min}-{alphaZn_max}], $\tau_{Zn}^{rise}$ $\in$ [{tauRiseZn_min}-{tauRiseZn_max}]ms, $\tau_{Zn}^{rise}$ $\in$ [{tauDecayZn_min}-{tauDecayZn_max}]ms, $\Delta_x^0$ $\in$ [{Deltax0_min}-{Deltax0_max}] and $\delta x$ $\in$ [{deltax_min}-{deltax_max}] on a [{N_alphaZn}x{N_tauRiseZn}x{N_tauDecayZn}x{N_Deltax0}x{N_deltax}] linear grid. This minimization is shown in Figure {optimization}c,d.
+
+
+We calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz. We varied the parameters of the Zinc-modulation model on a regular grid and computed the square residual of the model predictions for all parameters. The best fit model was found for: $\alpha_{Zn}$=..., $\tau_{Zn}^{rise}$=..., [...]
+
+
+
 
 *** Background synaptic noise and response estimate
 
