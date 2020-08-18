@@ -15,13 +15,15 @@
 
 We now derive a model of the Zinc modulation of NMDAR signaling based on the above observations and previous studies (Vergnano et al., 2014, ...). Our modeling approach aimed at describing the modulation in the form of a minimal phenomenological description at the single synapse level (see Discussion). 
 
-The phenomenology and the reasoning guiding the derivation of the model were the following (illustrated in Figure {model-description}a). Glutamatergic events are associated to Zinc release in the synaptic cleft. Zinc has a high affinity for binding and does not accumulate in the cleft (the cleft is free of Zinc in less than 2ms, REF), so the dynamics is led by the binding-unbinding phenomenon. Zinc binding is modelled by a variable $b_{Zn}$ varying betweeen 0 (no binding) and 1 (full binding). A parameter $\alpha_{Zn}$ captures the inhibitory efficacy of Zinc binding on NMDAR conductance. At full binding ($b_{Zn}$=1), the NMDA conductance has a factor 1-$\alpha_{Zn}$. Zinc binding as an inertia captured by a time constant $\tau^{rise}_{Zn}$. Zinc unbinding has a decay time constant $\tau^{decay}_{Zn}$. Zinc binding is a non-linear phenomenon, from Vergnano et al. (2014), we extrapolate that the relation between available Zinc (upon synaptic release) and Zinc binding should be captured by a sigmoid function. This non-linearity is implemented in two-steps. First the relation between Glutamate release and the increments of Zinc binding are state-dependent and bounded to 1, we therefore introduce an intermediate variable $x$ that is incremented at synaptic events (see Figure {model-description}a). Second, we apply the sigmoid function on that variable to enforce the non-linear behavior of Zinc-binding (to display full binding level for sustained inputs, see Figure {model-description}a). Finally, we low-pass filter this signal to add the binding dynamics. The two-dimensional system of equations implementing those steps is Equation {Zn-modul} and its parameters can be found in Table {model-params}.
+The phenomenology and the reasoning guiding the derivation of the model were the following (illustrated in Figure {model-description}a). Glutamatergic events are associated to Zinc release in the synaptic cleft. Zinc has a high affinity for binding and does not accumulate in the cleft (the cleft is free of Zinc in less than 2ms, REF), so the dynamics is led by the binding-unbinding phenomenon. Zinc binding is modelled by a variable $b_{Zn}$ varying betweeen 0 (no binding) and 1 (full binding). A parameter $\alpha_{Zn}$ captures the inhibitory efficacy of Zinc binding on NMDAR conductance. At full binding ($b_{Zn}$=1), the NMDA conductance has a factor 1-$\alpha_{Zn}$. Zinc binding as an inertia captured by a time constant $\tau^{rise}_{Zn}$. Zinc unbinding has a decay time constant $\tau^{decay}_{Zn}$. Zinc binding is a non-linear phenomenon, from Vergnano et al. (2014), we extrapolate that the relation between available Zinc (upon synaptic release) and Zinc binding should be captured by a sigmoid function. This non-linearity is implemented in two-steps. First the relation between Glutamate release and the increments of Zinc binding are state-dependent and bounded to 1, we therefore introduce an intermediate variable $x$ that is incremented at synaptic events (see Figure {model-description}a). Second, we apply the sigmoid function on that variable to enforce the non-linear behavior of Zinc-binding (to display full binding level for sustained inputs, see Figure {model-description}a). Finally, we low-pass filter this signal to add the binding dynamics. The two-dimensional system of equations implementing those steps is Equation {Zn-modul}.
 
-To examine the validity of this theoretical description against our experimental observations, we incorporated the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). We used a publicly available set of Layer 2/3 pyramidal neurons in mice sensory cortex (Jiang et al., 2015) and we fixed biophysical parameters (beside Zinc-modulation parameters) to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014). This model allowed to implement synaptic stimulation coupled withcurrent-clamp and voltage-clamp recording protocols (see Methods) similar to our experimental recordings. 
+We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015) and we fixed biophysical parameters (beside NMDA and Zinc-modulation parameters) to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014). 
 
-*** Calibrating the Zinc-modulation model
+This model allowed to implement synaptic stimulation coupled with current-clamp and voltage-clamp recording protocols similar to our experimental recordings (see Methods). We therefore calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz (see Methods, Figure {optimization}a,b,c and Table {model-params}). After parameter optimization, the error between model and experiment for the "chelation"-effect (defined by the residual trace: chelated - control) only represented {MAPE_chelation_model_exp} of the experimentally recorded variations (see Figure {optimization}d), we therefore conclude that our theoretical description successfully captured the experimentally observed modulation of NMDAR signalling by endogeneous Zinc.
 
-We calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz. We varied the parameters of the Zinc-modulation model on a regular grid and computed the square residual of the model predictions for all parameters. The best fit model was found for: $\alpha_{Zn}$=..., $\tau_{Zn}^{rise}$=..., [...]
+To examine the validity of this theoretical description against our experimental observations, we incorporated 
+
+
 
 *** Zinc modulation restrict the temporal window of NMDA events / shifts NMDA spike threshold.
 
@@ -42,11 +44,11 @@ Single cell integration was simulated using the cable equation (Rall, 1962; Koch
 \frac{1}{r_i} \frac{\partial^2 V_m}{\partial x^2} = i_m = c_m \frac{\partial V_m}{\partial t} + \frac{V_m-E_L}{r_m} - i_{I}
 \end{equation}
 
-where the membrane current $i_m$ and the input currents $i_I$ are linear density of currents. The cable equation parameters are derived from the membrane parameters of Table {model-params} by applying the radial symmetry (for a segment of diameter $D$: $r_m=\frac{1}{\pi D G_L}$, $c_m=\pi D C_m$, , $r_i=\frac{4 R_i}{\pi D^2}$). The passive properties of the model were determined using our current-clamp experimental recordings (see Figure {passive-props}). We varied the passive properties on a grid (see Figure {passive-props}), we characterized both the somatic input resistance and membrane capacitance for each parameter and we minimized those values with respect to the experimental estimate (n=27 cells). Such procedure yielded values of $g_l$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$,  similar to previous characterizations of Layer 2/3 pyramidal cell properties (Branco et al., 2010).
+where the membrane current $i_m$ and the input currents $i_I$ are linear density of currents. The cable equation parameters are derived from the membrane parameters of Table {model-params} by applying the radial symmetry (for a segment of diameter $D$: $r_m=\frac{1}{\pi D G_L}$, $c_m=\pi D C_m$, , $r_i=\frac{4 R_i}{\pi D^2}$). 
 
-Additional point currents (synaptic inputs and/or "voltage-clamping"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current of amplitude $I$ and a segment of length $l_S$).
+Additional point currents (synaptic inputs and/or "voltage-clamp"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current of amplitude $I$ and a segment of length $l_S$).
 
-For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a factor {VC-gL-reduction-factor} (to reproduce the Cesium block), an additional point current $I_{clamp} = g_{clamp} \cdot (V_{cmd} - V_m)$ of clamping conductance {VC-gclamp}$\mu$S was inserted at the soma, an additional {VC-discard-time}ms were added prior to stimulation to reach stationary "clamping" conditions (initialized at $V_{cmd}$) and we report the $I_{amp}$ quantity after those {VC-discard-time}ms (see Figure {model-description}).
+For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a factor {VC-gL-reduction-factor} (to reproduce the Cesium block), an additional point current $I_{clamp} = g_{clamp} \cdot (V_{cmd} - V_m)$ of clamping conductance {VC-gclamp}$\mu$S was inserted at the soma, an additional {VC-discard-time}ms were added prior to stimulation to reach stationary "clamp" conditions (initialized at $V_{cmd}$) and we report the $I_{amp}$ quantity after those {VC-discard-time}ms (see Figure {model-description}).
 
 The simulations were implemented using the \textit{Brian2} simulator (Stimberg et al., 2019). Numerical integration was performed with a forward Euler integration scheme and a time step of {dt}ms.
 
@@ -60,7 +62,8 @@ F_{syn} : t \rightarrow A_{syn} \cdot (e^{-t/\tau^{decay}_{syn}} - e^{-t/\tau^{r
 \end{equation}
 where $\tau^{rise}_{syn}$ and  $\tau^{decay}_{syn}$ are the rise and a decay time constant respectively. The waveform was normalized to peak leevel with the factor: 
 \begin{equation}
-A_{syn} = \frac{\tau^{rise}_{syn}}{\tau^{decay}_{syn}-\tau^{rise}_{syn}} \cdot (\tau^{decay}_{syn}/\tau^{rise}_{syn})^{\frac{\tau^{decay}_{syn}}{\tau^{decay}_{syn}-\tau^{rise}_{syn}}}\end{equation}
+A_{syn} = \frac{\tau^{rise}_{syn}}{\tau^{decay}_{syn}-\tau^{rise}_{syn}} \cdot (\tau^{decay}_{syn}/\tau^{rise}_{syn})^{\frac{\tau^{decay}_{syn}}{\tau^{decay}_{syn}-\tau^{rise}_{syn}}}
+\end{equation}
 
 For a GABA or AMPA synapse activated by a set of events $\{t^k\}$ located at position $i$ (of membrane potential $V_m^i$), the synaptic current I^i_{syn} reads:
 
@@ -75,6 +78,7 @@ For NMDA synapses, we add a Zinc-binding dependency (detailed in the next sectio
 [[Figure {nmda-ampa} around here]]
 
 \begin{equation}
+\label{eq:nmda}
 \begin{split}
 & I^i_{NMDA} (t, V_m^i, b^i_{Zn}) = \big(1 - \alpha_{Zn} \, b_{Zn} \big) 
 \cdot \frac{1}{1+ \eta \, [\text{Mg}^{2+}] e^{- V_m^i / V_0 }}  \\ 
@@ -88,7 +92,7 @@ All synaptic parameters are summarized on Table {model-params}.
 
 *** Zinc modulation model
 
-The system of equation setting the dynamics of the binding variable $b_{Zn}$ reads:
+The system of equation setting the dynamics of the binding variable $b_{Zn}$ in the NMDA conductance (Equation {eq:nmda}) reads:
     
 \begin{equation}
 \label{eq:Zn-modul}
@@ -102,25 +106,22 @@ The system of equation setting the dynamics of the binding variable $b_{Zn}$ rea
 
 where $\Delta_x (x)$ is the ($x$-dependent) increment defined by  $\Delta_x : x \rightarrow \Delta_x^0 \cdot \big(1- x \big)$. The function $\mathcal{S}$ is the sigmoid function defined by: $\mathcal{S} : X \rightarrow \frac{1}{1+e^{-X}}$, the parameters $x_0$ and $\delta x$ therefore define the center and slope of the sigmoid. To limit the number of free parameters, the parameter $x_0$ was constrained to $x_0$=$\Delta_x^0$, meaning that the sigmoid of the Zinc-modulation activation was centered around one the increment corresponding to one synaptic event (see Figure {model-description}a). Such constraint did not prevent an accurate quantitative description of the effect (see Figure {optimization}d).
 
-*** Parameter fitting
+*** Model calibration: parameter fitting
 
 [[Figure {optimization} around here]]
 
 The parameter of the model were fitted in three steps (respectively shown in *a*, *b* and *c* in Figure {optimization}) yielding the constrained model shown in Figure {optimization}d). 
 
-First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells. The range for the parameter grid was [{gL_min}-{gL_max}]pS/$\mu$m$^2$ and [{cm_min}-{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a). The joint minimization (via the product of the square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice cortex (Branco et al., 2011, LARKUM ref).
+First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: $R_m$={Rm_exp}, $C_m$={Cm_exp} (n={ncell_RmCm} cells). The range for the parameter grid was [{gL_min},{gL_max}]pS/$\mu$m$^2$ and [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and Häusser, 2011; Palmer et al., 2014).
 
-We then used our set of voltage-clamp recordings with extracellular stimulation at 20Hz and 3Hz to constraint the Zinc-dependent NMDAR model. 
+We then used our set of voltage-clamp recordings with extracellular stimulation at 20Hz and 3Hz to constraint the Zinc-dependent NMDAR model (optimizing the product of the normalized residual traces at 20Hz and 3Hz between model and experiment). 
 
-As a second step, we used the "chelated-Zinc" condition to evaluate the NMDAR kinetics ($\tau_{decay}^{NMDA}$) and to find the correlate in the model of the extracellular stimulation protocol. We described the electrical stimulation as a number of activated synapses $N_{syn}$ decreasing with stimulation time (to capture the decreasing efficacy of the electrical stimulation, see Figure {optimization}d): $N_{syn}: t \rightarrow (N_{syn}^0-N_{syn}^\infty) \cdot e^{-t/\tau_{Nsyn}} + N_{syn}^\infty$. We varied the parameters in the range $\tau_{decay}^{NMDA}$ in [{tauDecayNMDA_min}-{tauDecayNMDA_max}]ms,  $N_{syn}^{0}$ $\in$ $[{Nsyn1_min}-{Nsyn1_max}]$ synapses $N_{syn}^{\infty}$ $\in$ $[{Nsyn2_min}-{Nsyn2_max}]$ synapses
-and $\tau_{Nsyn}$ $\in$ [{Tnsyn20Hz_min}-{Tnsyn20Hz_max}]ms on a [{N_tauDecayNMDA}x{N_Nsyn1}x{N_Nsyn2}x{N_Tnsyn20Hz}] linear grid. This minimization is shown in Figure {optimization}b,d.
+The second step consisted in using the "chelated-Zinc" condition to evaluate the NMDAR kinetics ($\tau_{decay}^{NMDA}$) and to find the correlate in the model of the extracellular stimulation protocol. We described the electrical stimulation as a number of activated synapses $N_{syn}$ decreasing with stimulation time (to capture the decreasing efficacy of the electrical stimulation, see Figure {optimization}d): $N_{syn}: t \rightarrow (N_{syn}^0-N_{syn}^\infty) \cdot e^{-t/\tau_{Nsyn}} + N_{syn}^\infty$. We varied the parameters in the range $\tau_{decay}^{NMDA}$ in [{tauDecayNMDA_min},{tauDecayNMDA_max}]ms,  $N_{syn}^{0}$ $\in$ $[{Nsyn1_min},{Nsyn1_max}]$ synapses $N_{syn}^{\infty}$ $\in$ $[{Nsyn2_min},{Nsyn2_max}]$ synapses
+and $\tau_{Nsyn}$ $\in$ [{Tnsyn20Hz_min},{Tnsyn20Hz_max}]ms on a [{N_tauDecayNMDA}x{N_Nsyn1}x{N_Nsyn2}x{N_Tnsyn20Hz}] linear grid. This minimization is shown in Figure {optimization}b,d and the best fit model was found for: 
 
-As a third step, we used the "free-Zinc condition" to determine the Zinc-modulation parameters of the NMDAR model introduced above ($\alpha_{Zn}$, $\tau_{Zn}^{rise}$, $\tau_{Zn}^{decay}$, $\Delta_x^0$, $\delta_x$). We varied the Zinc parameters in the range $\alpha_{Zn}$ $\in$ [{alphaZn_min}-{alphaZn_max}], $\tau_{Zn}^{rise}$ $\in$ [{tauRiseZn_min}-{tauRiseZn_max}]ms, $\tau_{Zn}^{rise}$ $\in$ [{tauDecayZn_min}-{tauDecayZn_max}]ms, $\Delta_x^0$ $\in$ [{Deltax0_min}-{Deltax0_max}] and $\delta x$ $\in$ [{deltax_min}-{deltax_max}] on a [{N_alphaZn}x{N_tauRiseZn}x{N_tauDecayZn}x{N_Deltax0}x{N_deltax}] linear grid. This minimization is shown in Figure {optimization}c,d.
+As a third step, we used the "free-Zinc condition" to determine the Zinc-modulation parameters of the NMDAR model introduced above ($\alpha_{Zn}$, $\tau_{Zn}^{rise}$, $\tau_{Zn}^{decay}$, $\Delta_x^0$, $\delta_x$). We varied the Zinc parameters in the range $\alpha_{Zn}$ $\in$ [{alphaZn_min},{alphaZn_max}], $\tau_{Zn}^{rise}$ $\in$ [{tauRiseZn_min},{tauRiseZn_max}]ms, $\tau_{Zn}^{rise}$ $\in$ [{tauDecayZn_min},{tauDecayZn_max}]ms, $\Delta_x^0$ $\in$ [{Deltax0_min},{Deltax0_max}] and $\delta x$ $\in$ [{deltax_min},{deltax_max}] on a [{N_alphaZn}x{N_tauRiseZn}x{N_tauDecayZn}x{N_Deltax0}x{N_deltax}] linear grid. This minimization is shown in Figure {optimization}c,d. The best fit model was found for: $\alpha_{Zn}$={alphaZn}, $\tau_{Zn}^{rise}$={tauRiseZn}, $\tau_{Zn}^{decay}$={tauDecayZn}, $\Delta_x^0$={Deltax0} and $\delta x$={deltax}.
 
-
-We calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz. We varied the parameters of the Zinc-modulation model on a regular grid and computed the square residual of the model predictions for all parameters. The best fit model was found for: $\alpha_{Zn}$=..., $\tau_{Zn}^{rise}$=..., [...]
-
-
+We calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz. We varied the parameters of the Zinc-modulation model on a regular grid and computed the square residual of the model predictions for all parameters. 
 
 
 *** Background synaptic noise and response estimate
@@ -194,7 +195,7 @@ Values for the parameters used in the numerical simulations of single cell integ
  \hline \vspace{-.3cm} \\ 
   Mg$^{2+}$ concentration & $[\text{Mg}^{2+}]$ & {cMg}mM \\
   Mg-NMDA sensitivity  &  $\eta_{Mg}$ & {etaMg}mM$^{-1}$ \\
-  Mg-NMDA voltage slope &  $V^0_{Mg}$ & {V0NMDA}mV \\
+  Mg-NMDA voltage slope factor &  $V^0_{Mg}$ & {V0NMDA}mV \\
  \hline \vspace{-.3cm} \\ 
  Zinc-NMDA inhibition factor* &  $\alpha_{Zn}$ & {alphaZn} \\
  Zinc-NMDA rise time* &  $\tau_{Zn}^{rise}$ & {tauRiseZn}ms\\
@@ -210,6 +211,92 @@ Values for the parameters used in the numerical simulations of single cell integ
 How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been studied theoretically in Vergnano et al. (2014), here we provide a complementary description, we derived and calibrated a phenomenological model at the single synapse level. Such model allow to study cellular integration at the whole cell level (see Figure {model-description}, Figure {}).
 
 * References
+
+
+@Article{Palmer_et_al_2014,
+  author          = {Palmer, Lucy M. and Shai, Adam S. and Reeve, James E. and Anderson, Harry L. and Paulsen, Ole and Larkum, Matthew E.},
+  journal         = {Nature neuroscience},
+  title           = {NMDA spikes enhance action potential generation during sensory input.},
+  year            = {2014},
+  issn            = {1546-1726},
+  month           = mar,
+  pages           = {383--390},
+  volume          = {17},
+  chemicals       = {Receptors, N-Methyl-D-Aspartate},
+  citation-subset = {IM},
+  completed       = {2014-05-16},
+  country         = {United States},
+  doi             = {10.1038/nn.3646},
+  file            = {:41593_2014_BFnn3646_MOESM29_ESM.pdf:PDF},
+  issn-linking    = {1097-6256},
+  issue           = {3},
+  nlm-id          = {9809671},
+  owner           = {NLM},
+  pii             = {nn.3646},
+  pmid            = {24487231},
+  pubmodel        = {Print-Electronic},
+  pubstate        = {ppublish},
+  revised         = {2018-11-13},
+}
+
+
+@Article{Branco_and_Häusser_2011,
+  author          = {Branco, Tiago and Häusser, Michael},
+  journal         = {Neuron},
+  title           = {Synaptic integration gradients in single cortical pyramidal cell dendrites.},
+  year            = {2011},
+  issn            = {1097-4199},
+  month           = mar,
+  pages           = {885--892},
+  volume          = {69},
+  citation-subset = {IM},
+  completed       = {2011-05-11},
+  country         = {United States},
+  doi             = {10.1016/j.neuron.2011.02.006},
+  file            = {:Branco2011a - Synaptic Integration Gradients in Single Cortical Pyramidal Cell Dendrites..pdf:PDF},
+  issn-linking    = {0896-6273},
+  issue           = {5},
+  mid             = {EMS81416},
+  nlm-id          = {8809320},
+  owner           = {NLM},
+  pii             = {S0896-6273(11)00103-6},
+  pmc             = {PMC6420135},
+  pmid            = {21382549},
+  pubmodel        = {Print},
+  pubstate        = {ppublish},
+  revised         = {2020-02-25},
+}
+
+
+@Article{Branco_et_al_2010,
+  author          = {Branco, Tiago and Clark, Beverley A. and Häusser, Michael},
+  journal         = {Science (New York, N.Y.)},
+  title           = {Dendritic discrimination of temporal input sequences in cortical neurons.},
+  year            = {2010},
+  issn            = {1095-9203},
+  month           = sep,
+  pages           = {1671--1675},
+  volume          = {329},
+  abstract        = {The detection and discrimination of temporal sequences is fundamental to brain function and underlies perception, cognition, and motor output. By applying patterned, two-photon glutamate uncaging, we found that single dendrites of cortical pyramidal neurons exhibit sensitivity to the sequence of synaptic activation. This sensitivity is encoded by both local dendritic calcium signals and somatic depolarization, leading to sequence-selective spike output. The mechanism involves dendritic impedance gradients and nonlinear synaptic N-methyl-D-aspartate receptor activation and is generalizable to dendrites in different neuronal types. This enables discrimination of patterns delivered to a single dendrite, as well as patterns distributed randomly across the dendritic tree. Pyramidal cell dendrites can thus act as processing compartments for the detection of synaptic sequences, thereby implementing a fundamental cortical computation.},
+  chemicals       = {Receptors, N-Methyl-D-Aspartate, Calcium},
+  citation-subset = {IM},
+  completed       = {2010-11-04},
+  country         = {United States},
+  doi             = {10.1126/science.1189664},
+  file            = {:Branco2010b - Dendritic Discrimination of Temporal Input Sequences in Cortical Neurons..pdf:PDF;:NIHMS81415-supplement-supp_data.pdf:PDF},
+  issn-linking    = {0036-8075},
+  issue           = {5999},
+  keywords        = {Action Potentials; Animals; Calcium, metabolism; Calcium Signaling; Dendrites, physiology, ultrastructure; Dendritic Spines, physiology, ultrastructure; Excitatory Postsynaptic Potentials; Models, Neurological; Pyramidal Cells, physiology, ultrastructure; Rats; Rats, Sprague-Dawley; Receptors, N-Methyl-D-Aspartate, metabolism; Somatosensory Cortex, cytology, physiology; Synapses, physiology; Time Factors; Visual Cortex, cytology, physiology},
+  mid             = {EMS81415},
+  nlm-id          = {0404511},
+  owner           = {NLM},
+  pii             = {science.1189664},
+  pmc             = {PMC6354899},
+  pmid            = {20705816},
+  pubmodel        = {Print-Electronic},
+  pubstate        = {ppublish},
+  revised         = {2020-02-25},
+}
 
 @Article{Rall_1962,
   author    = {Rall, Wilfrid},

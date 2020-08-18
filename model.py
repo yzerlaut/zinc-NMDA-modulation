@@ -1,5 +1,12 @@
 import numpy as np
 
+from analyz.IO.npz import load_dict
+def add_value_to_study_data(key, value, study='study.npz'):
+    Model2 = load_dict(study)
+    Model2[key] = value
+    np.savez(study, **Model2)
+    
+
 Model = {
     'morpho_file':'neural_network_dynamics/single_cell_integration/morphologies/Jiang_et_al_2015/L23pyr-j150407a.CNG.swc',  
     'morpho_file_1':'neural_network_dynamics/single_cell_integration/morphologies/Jiang_et_al_2015/L23pyr-j150407a.CNG.swc',
