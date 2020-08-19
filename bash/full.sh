@@ -7,4 +7,4 @@ python calibration_runs.py chelated-zinc-calib-analysis # ANALYSIS
 bash bash/calib-free-zinc.sh # RUN
 python calibration_runs.py free-zinc-calib-analysis # ANALYSIS
 ## NEURON RESPONSE TO SYNAPTIC STIMULATION
-bash bash/syn-input-threshold.sh
+# bash bash/syn-input-threshold.sh
