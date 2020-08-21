@@ -8,6 +8,7 @@ def add_value_to_study_data(key, value, study='study.npz'):
     
 
 Model = {
+    ############ - morpho - ##########################
     'morpho_file':'neural_network_dynamics/single_cell_integration/morphologies/Jiang_et_al_2015/L23pyr-j150407a.CNG.swc',  
     'morpho_file_1':'neural_network_dynamics/single_cell_integration/morphologies/Jiang_et_al_2015/L23pyr-j150407a.CNG.swc',
     'morpho_file_2':'neural_network_dynamics/single_cell_integration/morphologies/Jiang_et_al_2015/L23pyr-j150811a.CNG.swc',
@@ -17,10 +18,10 @@ Model = {
     "gL": 0.29, # [pS/um2] = 10*[S/m2] # FITTED --- Farinella et al. 0.5pS/um2 = 0.5*1e-12*1e12 S/m2, NEURON default: 1mS/cm2 -> 10pS/um2
     "cm": 0.91, # [uF/cm2] FITTED
     "Ri": 100., # [Ohm*cm]'
-    "EL": -75, # mV
-    ###################################################
+    "EL": -75, # [mV]
+    #################################################
     # ---------- SYNAPTIC PARAMS  ----------------- #
-    ###################################################
+    #################################################
     'Ee':0,# [mV]
     'Ei':-80,# [mV]
     'qAMPA':1.,# [nS] # Destexhe et al., 1998: "0.35 to 1.0 nS"
@@ -39,26 +40,26 @@ Model = {
     'DensityGABA_dend': 5, # synapses / 100um2
     'DensityGABA_soma': 15, # synapses / 100um2
     'DensityGABA': 15, # synapses / 100um2
-    ##################################################
+    ###################################################
     # ---------- SIMULATION PARAMS  ----------------- #
     ###################################################
     'tstop':600, # [ms]
     'dt':0.1,# [ms]
     'seed':1, #
-    'VC-gL-reduction-factor':5, #
+    'VC-gL-reduction-factor':5, # 
     'VC-discard-time':200, # [ms]
     'VC-gclamp':1,# [uS]
     'VC-cmd':20,# [mV]
-    #############################################################
+    #################################################
     # ---------- MG-BLOCK PARAMS  ----------------- #
+    #################################################
     'cMg': 1., # mM
     'etaMg': 0.33, # 1/mM
     'V0NMDA':1./0.08,# [mV]
     'Mg_NMDA':1.,# mM
-    #############################################################
-    #############################################################
+    ########################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
-    #############################################################
+    ########################################################
     'alphaZn':0.44,# FITTED
     'tauRiseZn':14.,# [ms], # FITTED
     'tauDecayZn':500.,# [ms], # FITTED
@@ -66,14 +67,14 @@ Model = {
     'x0':0.7, # FITTED
     'deltax':0.3, # FITTED
     #############################################################
-    #############################################################
     # ----------- MODEL CALIBRATION GRIDS  ----------------- ####
+    #############################################################
     #### --- defining the grid extents for parameter searches ###
     'gL_min':0.02, 'gL_max':2., 'N_gL':30,
     'cm_min':0.5, 'cm_max':2., 'N_cm':30,
     'tauDecayNMDA_min':60, 'tauDecayNMDA_max':120, 'N_tauDecayNMDA':7,
-    'Nsyn1_min':2, 'Nsyn1_max':24, 'N_Nsyn1':6,
-    'Nsyn2_min':2, 'Nsyn2_max':24, 'N_Nsyn2':6,
+    'Nsyn1_min':3, 'Nsyn1_max':11, 'N_Nsyn1':5,
+    'Nsyn2_min':2, 'Nsyn2_max':10, 'N_Nsyn2':5,
     'Tnsyn20Hz_min':30, 'Tnsyn20Hz_max':70, 'N_Tnsyn20Hz':4,
     'Tnsyn3Hz_min':70, 'Tnsyn3Hz_max':1500, 'N_Tnsyn3Hz':4,
     'alphaZn_min':0.15, 'alphaZn_max':0.57, 'N_alphaZn':7,
@@ -89,7 +90,7 @@ Model = {
     'Nsyn_synch_stim':5,# 
     'tsyn_stim':10., # [ms]
     # bg
-    'Nsyn_Ebg':0,#
+    'Nsyn_Ebg':0, # syn.
     'Nsyn_Ibg':0, #
     'Fexc_bg':0.,# [Hz]
     'Finh_bg':0., # [Hz]
