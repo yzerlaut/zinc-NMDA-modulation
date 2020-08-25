@@ -60,12 +60,12 @@ Model = {
     ########################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
     ########################################################
-    'alphaZn':0.44,# FITTED
-    'tauRiseZn':14.,# [ms], # FITTED
-    'tauDecayZn':500.,# [ms], # FITTED
-    'Deltax0':0.7, # FITTED
-    'x0':0.7, # FITTED
-    'deltax':0.3, # FITTED
+    'alphaZn':0.5,# FITTED
+    'tauRiseZn':5.,# [ms], # FITTED
+    'tauDecayZn':590.,# [ms], # FITTED
+    'Deltax0':0.8, # FITTED
+    'x0':0.8, # FITTED
+    'deltax':0.15, # FITTED
     #############################################################
     # ----------- MODEL CALIBRATION GRIDS  ----------------- ####
     #############################################################
