@@ -63,9 +63,9 @@ Model = {
     'alphaZn':0.5,# FITTED
     'tauRiseZn':5.,# [ms], # FITTED
     'tauDecayZn':590.,# [ms], # FITTED
-    'Deltax0':0.8, # FITTED
-    'x0':0.8, # FITTED
-    'deltax':0.15, # FITTED
+    'Deltax0':0.5, # FITTED
+    'x0':0.5, # FITTED
+    'deltax':0.1, # FITTED
     #############################################################
     # ----------- MODEL CALIBRATION GRIDS  ----------------- ####
     #############################################################
@@ -81,6 +81,7 @@ Model = {
     'tauRiseZn_min':5, 'tauRiseZn_max':59, 'N_tauRiseZn':7,
     'tauDecayZn_min':50, 'tauDecayZn_max':590, 'N_tauDecayZn':7,
     'Deltax0_min':0.3, 'Deltax0_max':0.8, 'N_Deltax0':6,
+    'x0_min':0.3, 'x0_max':0.8, 'N_x0':6,
     'deltax_min':0.05, 'deltax_max':0.15, 'N_deltax':3,
     #############################################################
     # ---------- SYNAPTIC STIMULATION PARAMS  ----------------- #

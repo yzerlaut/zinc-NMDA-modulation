@@ -145,22 +145,23 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
             first_peak_cond = (calib_data['t_%s' % cond]<calib_data['DT0_%s' % cond]+30)
 
             factor_exp = np.max(trace_exp[first_peak_cond])
-            trace_exp /= factor_exp
+            # trace_exp /= factor_exp
             factor_exp0 = np.max(trace_exp0[first_peak_cond])
-            trace_exp0 /= factor_exp0
+            # trace_exp0 /= factor_exp0
 
             # normalizing to peak in the model
             factor_model = np.max(trace_model[first_peak_cond])
-            trace_model /= factor_model
+            # trace_model /= factor_model
             factor_model0 = np.max(trace_model0[first_peak_cond])
-            trace_model0 /= factor_model0
+            # trace_model0 /= factor_model0
             
             diff_model = trace_model0-trace_model
             diff_exp = trace_exp0-trace_exp
 
-            Residual *= 1./np.corrcoef(trace_model,trace_exp)[0][1]
-            print(Residual, np.corrcoef(trace_model,trace_exp)[0][1])
-            # Residual *= 1+np.sum((trace_model-trace_exp)**2)/np.sum(trace_exp**2)
+            # Residual *= 1./np.corrcoef(trace_model,trace_exp)[0][1]
+            # print(Residual, np.corrcoef(trace_model,trace_exp)[0][1])
+            Residual *= 1+np.sum((trace_model-trace_exp)**2)/np.sum(trace_exp**2)
+            Residual *= 1+np.abs(1./np.corrcoef(diff_model,diff_exp)[0][1])
             # Residual *= 1+np.sum((diff_model-diff_exp)**2)/np.sum(diff_exp**2)
 
     except FileNotFoundError:
