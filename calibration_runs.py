@@ -129,26 +129,20 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
         sim_data = load_dict(os.path.join('data', 'calib', sim.params_filename(index)+'.npz'))
         Residual = 1.
         
-        for cond, isampling in zip(['20Hz_protocol', '3Hz_protocol'], [1, 1]):
-            # we vary isampling because 3Hz protocols is 5 times longer, so to have the same contribution
-            
-            # tcond = (sim_data['t']>(sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond])) &\
-            #     (sim_data['t']<sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond]+\
-            #      calib_data['DTfull_%s' % cond])
-            
+        # for cond, isampling in zip(['20Hz_protocol', '3Hz_protocol'], [1, 1]):
+        for cond in ['20Hz_protocol']:
             tcond = (sim_data['t']>(sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond])) &\
                 (sim_data['t']<sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond]+\
-                 calib_data['DTfull_%s' % cond]) & (np.arange(len(sim_data['t']))%isampling==0)
-            
+                 calib_data['DTfull_%s' % cond])
 
             trace_model = -1e3*(sim_data['Ic'][tcond]-sim_data['Ic'][tcond][0]) # - sign
             trace_model0 = -1e3*(Cdata['Ic'][tcond]-Cdata['Ic'][tcond][0])
 
-            trace_exp = calib_data['Iexp_freeZn_%s' % cond][::isampling]
-            trace_exp0 = calib_data['Iexp_chelatedZn_%s' % cond][::isampling]
+            trace_exp = calib_data['Iexp_freeZn_%s' % cond]
+            trace_exp0 = calib_data['Iexp_chelatedZn_%s' % cond]
             
             # normalizing to peak in the exp
-            first_peak_cond = (calib_data['t_%s' % cond][::isampling]<calib_data['DT0_%s' % cond]+50)
+            first_peak_cond = (calib_data['t_%s' % cond]<calib_data['DT0_%s' % cond]+50)
 
             factor_exp = np.max(trace_exp[first_peak_cond])
             factor_exp0 = np.max(trace_exp0[first_peak_cond])
@@ -157,16 +151,18 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
             # trace_exp0 /= factor_exp0
 
             diff_model = trace_model0-trace_model
-            diff_exp = trace_exp0[:len(diff_model)]-trace_exp[:len(diff_model)]
+            diff_exp = trace_exp0-trace_exp
 
             # Residual *= 1./np.corrcoef(trace_model,trace_exp)[0][1]
             # print(Residual, np.corrcoef(trace_model,trace_exp)[0][1])
-            # Residual *= 1+np.sum((trace_model-trace_exp)**2)/np.sum(trace_exp**2)
+            # Residual *= np.std((diff_model-diff_exp)**2)/np.std(diff_exp)**2
             # Residual *= 1+np.abs(1./np.corrcoef(diff_model,diff_exp)[0][1])
-            Residual *= np.sum((diff_model-diff_exp)**2)/np.sum(diff_exp**2)
+            # Residual *= np.mean(np.abs(diff_exp-diff_model))
             # Residual *= np.std(trace_exp-trace_model)/np.std(trace_exp)
-            Residual *= 1./np.corrcoef(diff_model,diff_exp)[0][1]
             # Residual *= 1+np.std(np.abs(diff_model-diff_exp))/np.std(diff_exp)
+            
+            Residual *= np.std((diff_model-diff_exp)**2)/np.std(diff_exp)**2
+            Residual *= 1./np.corrcoef(diff_model,diff_exp)[0][1]
 
     except FileNotFoundError:
         print(sim.params_filename(index)+'.npz', 'not found')
