@@ -161,8 +161,8 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
             # Residual *= np.std(trace_exp-trace_model)/np.std(trace_exp)
             # Residual *= 1+np.std(np.abs(diff_model-diff_exp))/np.std(diff_exp)
             
-            Residual *= np.std((diff_model-diff_exp)**2)/np.std(diff_exp)**2
-            Residual *= 1./np.corrcoef(diff_model,diff_exp)[0][1]
+            Residual *= 1+np.std((diff_model-diff_exp)**2)/np.std(diff_exp)**2
+            Residual *= 1+1./np.corrcoef(diff_model,diff_exp)[0][1]
 
     except FileNotFoundError:
         print(sim.params_filename(index)+'.npz', 'not found')
