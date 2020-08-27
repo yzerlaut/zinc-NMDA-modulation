@@ -60,9 +60,9 @@ Model = {
     ########################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
     ########################################################
-    'alphaZn':0.5,# FITTED
-    'tauRiseZn':5.,# [ms], # FITTED
-    'tauDecayZn':590.,# [ms], # FITTED
+    'alphaZn':0.3,# FITTED
+    'tauRiseZn':40.,# [ms], # FITTED
+    'tauDecayZn':600.,# [ms], # FITTED
     'Deltax0':1., # FITTED
     # 'x0':0.5, # FITTED
     # 'deltax':0.1, # FITTED
@@ -77,12 +77,12 @@ Model = {
     'Nsyn2_min':2, 'Nsyn2_max':10, 'N_Nsyn2':5,
     'Tnsyn20Hz_min':30, 'Tnsyn20Hz_max':70, 'N_Tnsyn20Hz':4,
     'Tnsyn3Hz_min':70, 'Tnsyn3Hz_max':1500, 'N_Tnsyn3Hz':4,
-    'alphaZn_min':0.15, 'alphaZn_max':0.57, 'N_alphaZn':7,
-    'tauRiseZn_min':5, 'tauRiseZn_max':59, 'N_tauRiseZn':7,
-    'tauDecayZn_min':50, 'tauDecayZn_max':590, 'N_tauDecayZn':7,
-    'Deltax0_min':0.3, 'Deltax0_max':0.8, 'N_Deltax0':6,
-    'x0_min':0.3, 'x0_max':0.8, 'N_x0':6,
-    'deltax_min':0.05, 'deltax_max':0.15, 'N_deltax':3,
+    'alphaZn_min':0.05, 'alphaZn_max':0.7, 'N_alphaZn':15,
+    'tauRiseZn_min':5, 'tauRiseZn_max':300, 'N_tauRiseZn':15,
+    'tauDecayZn_min':100, 'tauDecayZn_max':1300, 'N_tauDecayZn':15,
+    # 'Deltax0_min':0.3, 'Deltax0_max':0.8, 'N_Deltax0':6,
+    # 'x0_min':0.3, 'x0_max':0.8, 'N_x0':6,
+    # 'deltax_min':0.05, 'deltax_max':0.15, 'N_deltax':3,
     #############################################################
     # ---------- SYNAPTIC STIMULATION PARAMS  ----------------- #
     #############################################################

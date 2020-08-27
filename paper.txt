@@ -49,9 +49,9 @@ Additional point currents (synaptic inputs and/or "voltage-clamp"-currents) are 
 
 For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a factor {VC-gL-reduction-factor} (to reproduce the Cesium block), an additional point current $I_{clamp} = g_{clamp} \cdot (V_{cmd} - V_m)$ of clamping conductance {VC-gclamp}$\mu$S was inserted at the soma, an additional {VC-discard-time}ms were added prior to stimulation to reach stationary "clamp" conditions (initialized at $V_{cmd}$) and we report the $I_{amp}$ quantity after those {VC-discard-time}ms (see Figure {model-description}).
 
-The simulations were implemented using the \textit{Brian2} simulator (Stimberg et al., 2019). Numerical integration was performed with a forward Euler integration scheme and a time step of {dt}ms.
+The simulations were implemented using the \textit{Brian2} simulator (Stimberg et al., 2019). Numerical integration was performed with an "exponential Euler" integration scheme and a time step of {dt}ms.
 
-The morphology of layer 2/3 pyramidal cells analyzed in this study ("L23pyr-j150407a") was taken from the publicly available dataset of Jiang et al. (2015). 
+The morphology of the layer 2/3 pyramidal cell used in this study ("L23pyr-j150407a", see Figure {model-description}b) was taken from the publicly available dataset of Jiang et al. (2015). 
 
 *** Synaptic current models
 

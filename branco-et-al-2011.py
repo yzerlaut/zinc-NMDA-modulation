@@ -34,6 +34,7 @@ if __name__=='__main__':
     - 'syn-timing'
     """, default='morpho')
     parser.add_argument("-cZn", "--chelated_zinc",  action="store_true")
+    parser.add_argument("-a", "--active",  action="store_true")
     parser.add_argument("--plot",  action="store_true")
     args = parser.parse_args()
 
@@ -76,6 +77,7 @@ if __name__=='__main__':
                                    loc='top-right')
 
             ge.show()
+            
         else:
                 
             from single_cell_sim import *
