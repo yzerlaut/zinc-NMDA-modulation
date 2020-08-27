@@ -63,9 +63,9 @@ Model = {
     'alphaZn':0.5,# FITTED
     'tauRiseZn':5.,# [ms], # FITTED
     'tauDecayZn':590.,# [ms], # FITTED
-    'Deltax0':0.5, # FITTED
-    'x0':0.5, # FITTED
-    'deltax':0.1, # FITTED
+    'Deltax0':1., # FITTED
+    # 'x0':0.5, # FITTED
+    # 'deltax':0.1, # FITTED
     #############################################################
     # ----------- MODEL CALIBRATION GRIDS  ----------------- ####
     #############################################################
