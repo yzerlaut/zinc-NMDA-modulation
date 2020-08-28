@@ -8,7 +8,7 @@ morpho = ntwk.Morphology.from_swc_file(Model['morpho_file_1'])
 SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
 
 Nsyn = 4
-PROX = 210+np.arange(Nsyn)
+PROX = 220+np.arange(Nsyn)
 DIST = 400+np.arange(Nsyn)
 
 N_PULSES = np.arange(1, 16, 2)
@@ -34,14 +34,17 @@ if __name__=='__main__':
     - 'syn-timing'
     """, default='morpho')
     parser.add_argument("-cZn", "--chelated_zinc",  action="store_true")
+    parser.add_argument("-a", "--active",  action="store_true")
     parser.add_argument("--plot",  action="store_true")
     args = parser.parse_args()
 
     if args.chelated_zinc:
-        Model['alphaZn'] = 0. # removing Zinc modulation !!
+        Model['Deltax0'] = 0. # removing Zinc modulation !!
         suffix = 'chelatedZn'
     else:
         suffix = 'freeZn'
+    if args.active:
+        suffix += '-active'
 
     tstop, t0_stim = 300, 20
     
@@ -74,16 +77,18 @@ if __name__=='__main__':
                                    Xbar=50., Xbar_label='50ms',
                                    Ybar=5., Ybar_label='5mV',
                                    loc='top-right')
-
             ge.show()
+            
         else:
                 
             from single_cell_sim import *
+            if args.chelated_zinc:
+                Model['Deltax0'] = 0. # removing Zinc modulation !!
             
             data = {'t':[], 'v-prox':[], 'v-dist':[]}
             for synapses_loc, label in zip([PROX,DIST], ['prox','dist']):
                 for n_pulses in N_PULSES:
-                    t, neuron, SEGMENTS = initialize_sim(Model)
+                    t, neuron, SEGMENTS = initialize_sim(Model, active=args.active)
                     spike_times = t0_stim + np.arange(n_pulses)*0.1
                     spike_IDs = np.arange(n_pulses)%Nsyn
                     Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
@@ -126,18 +131,20 @@ if __name__=='__main__':
                                Xbar=50., Xbar_label='50ms',
                                Ybar=5., Ybar_label='5mV',
                                loc='top-right')
-
             ge.show()
             
         else:
             
             from single_cell_sim import *
+            if args.chelated_zinc:
+                Model['Deltax0'] = 0. # removing Zinc modulation !!
+                
             data = {'t':[], 'v-prox':[], 'v-dist':[]}
             
             for synapses_loc, label in zip([PROX,DIST], ['prox','dist']):
                 for delay in DELAYS:
 
-                    t, neuron, SEGMENTS = initialize_sim(Model)
+                    t, neuron, SEGMENTS = initialize_sim(Model, active=args.active)
                     spike_times = t0_stim + 10*delay + np.arange(1, n_pulses+1)*delay
                     spike_IDs = np.arange(n_pulses)%Nsyn
 
@@ -160,18 +167,19 @@ if __name__=='__main__':
             
 
     else:
-            
-        fig, AXboth = ge.figure(axes=(2,2), figsize=(.7,1), right=4., hspace=0.1, bottom=0.1)
-        for AX, color, suffix in zip([[AXboth[0][0], AXboth[1][0]], [AXboth[0][1], AXboth[1][1]]], [ge.green, 'k'], ['chelatedZn', 'freeZn']):
-            data = load_dict(os.path.join('data', 'branco-syn-timing-%s.npz' % suffix))
-            ge.title(AX[0], suffix.replace('Zn', ' Zinc'), color=color)
-            for synapses_loc, label, ax in zip([PROX,DIST], ['prox','dist'], AX):
-                for i in range(len(data['v-%s' % label])):
-                    ax.plot(data['t'], data['v-%s' % label][i], label=label, color=color, lw=1)
-                ge.set_plot(ax, [], ylim=[-76, -45], xlim=[0, tstop])
 
-            ge.draw_bar_scales(AX[1],
-                               Xbar=50., Xbar_label='50ms',
-                               Ybar=5., Ybar_label='5mV',
-                               loc='top-right')
-        ge.show()
+        pass
+        # fig, AXboth = ge.figure(axes=(2,2), figsize=(.7,1), right=4., hspace=0.1, bottom=0.1)
+        # for AX, color, suffix in zip([[AXboth[0][0], AXboth[1][0]], [AXboth[0][1], AXboth[1][1]]], [ge.green, 'k'], ['chelatedZn', 'freeZn']):
+        #     data = load_dict(os.path.join('data', 'branco-syn-timing-%s.npz' % suffix))
+        #     ge.title(AX[0], suffix.replace('Zn', ' Zinc'), color=color)
+        #     for synapses_loc, label, ax in zip([PROX,DIST], ['prox','dist'], AX):
+        #         for i in range(len(data['v-%s' % label])):
+        #             ax.plot(data['t'], data['v-%s' % label][i], label=label, color=color, lw=1)
+        #         ge.set_plot(ax, [], ylim=[-76, -45], xlim=[0, tstop])
+
+        #     ge.draw_bar_scales(AX[1],
+        #                        Xbar=50., Xbar_label='50ms',
+        #                        Ybar=5., Ybar_label='5mV',
+        #                        loc='top-right')
+        # ge.show()

@@ -11,6 +11,7 @@ from single_cell_sim import initialize_sim,\
 def distance(x, y, z): # soma is at (0, 0, 0)
     return np.sqrt(x**2+y**2+z**2)
 
+
 def compute_branches_for_stimuli(SEGMENTS,
                                  AREA_THRESHOLD = 100e-12,
                                  DISTANCE_THRESHOLD = 100e-6):
@@ -25,6 +26,7 @@ def compute_branches_for_stimuli(SEGMENTS,
                 segments_of_branches.append(SEGMENTS['index'][dend_condition & basal_condition])
                 
     return segments_of_branches
+
 
 def run_single_trial(Model):
     
@@ -234,12 +236,6 @@ if __name__=='__main__':
     from model import Model
     from analyz.workflow.batch_run import GridSimulation
     from analyz.IO.npz import load_dict
-
-    # updating model with fit results !!
-    for key, val in load_dict('data/best_chelatedZn_config.npz').items():
-        Model[key] = val
-    for key, val in load_dict('data/best_freeZn_config.npz').items():
-        Model[key] = val
     
     if (len(sys.argv)>1) and (sys.argv[1]=='syn-input'):
         
@@ -255,7 +251,6 @@ if __name__=='__main__':
             print('Running:', sim.params_filename(index))
             t, v = run_single_trial(Model)
             np.savez(os.path.join('data', 'syn-input', sim.params_filename(index)), **{'t':t, 'v':v})
-        
         
     else:
         Model['Fexc_bg'] = 2.

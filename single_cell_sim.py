@@ -6,26 +6,24 @@ from datavyz import ge
 
 from datavyz import nrnvyz
 
-
 ##########################################################
 # -- EQUATIONS FOR THE SYNAPTIC AND CELLULAR BIOPHYSICS --
 ##########################################################
 # cable theory:
-eqs='''
-Im = ({gL}*siemens/meter**2) * (({EL}*mV) - v) : amp/meter**2
+Equation_String = '''
+Im = + ({gL}*siemens/meter**2) * (({EL}*mV) - v) : amp/meter**2
 Is = gE * (({Ee}*mV) - v) + gI * (({Ei}*mV) - v) + gclamp*(vc - v) : amp (point current)
 gE : siemens
 gI : siemens
 gclamp : siemens
-vc : volt # Voltage-clamp command
-'''
+vc : volt # Voltage-clamp command'''
 
 # synaptic dynamics:
 
 # -- excitation (NMDA-dependent)
 from model import Model
 EXC_SYNAPSES_EQUATIONS = '''dX/dt = -X/({tauDecayZn}*ms) : 1 (clock-driven)
-                            dbZn/dt = (-bZn+ 1/(1+exp(-(X-{x0})/{deltax})))/({tauRiseZn}*ms) : 1 (clock-driven)
+                            dbZn/dt = (-bZn+X)/({tauRiseZn}*ms) : 1 (clock-driven)
                             dgRiseAMPA/dt = -gRiseAMPA/({tauRiseAMPA}*ms) : 1 (clock-driven)
                             dgDecayAMPA/dt = -gDecayAMPA/({tauDecayAMPA}*ms) : 1 (clock-driven)
                             dgRiseNMDA/dt = -gRiseNMDA/({tauRiseNMDA}*ms) : 1 (clock-driven)
@@ -49,6 +47,8 @@ ON_INH_EVENT = 'gRiseGABA += 1; gDecayGABA += 1'
 def initialize_sim(Model,
                    method='current-clamp',
                    Vclamp=0.,
+                   active=False,
+                   Equation_String=Equation_String,
                    verbose=False):
 
     # simulation params
@@ -59,11 +59,61 @@ def initialize_sim(Model,
     # loading a morphology:
     morpho = ntwk.Morphology.from_swc_file(Model['morpho_file'])
     SEGMENTS = ntwk.morpho_analysis.compute_segments(morpho)
-        
+
+    if active:
+        # calcium dynamics following: HighVoltageActivationCalciumCurrent + LowThresholdCalciumCurrent
+        Equation_String = ntwk.CalciumConcentrationDynamics(contributing_currents='IT+IHVACa',
+                                                            name='CaDynamics').insert(Equation_String)
+    
+        # intrinsic currents
+        CURRENTS = [ntwk.PotassiumChannelCurrent(name='K'),
+                    ntwk.SodiumChannelCurrent(name='Na'),
+                    ntwk.HighVoltageActivationCalciumCurrent(name='HVACa'),
+                    ntwk.LowThresholdCalciumCurrent(name='T'),
+                    ntwk.MuscarinicPotassiumCurrent(name='Musc'),
+                    ntwk.CalciumDependentPotassiumCurrent(name='KCa')]
+        for current in CURRENTS:
+            Equation_String = current.insert(Equation_String)
+
     neuron = ntwk.SpatialNeuron(morphology=morpho,
-                                model=eqs.format(**Model),
+                                model=Equation_String.format(**Model),
+                                method='exponential_euler',
                                 Cm=Model['cm'] * ntwk.uF / ntwk.cm ** 2,
                                 Ri=Model['Ri'] * ntwk.ohm * ntwk.cm)
+    
+    if active:
+
+        # initial conditions:
+        neuron.InternalCalcium = 100*ntwk.nM
+
+        for current in CURRENTS:
+            current.init_sim(neuron)
+
+        ## -- SPIKE PROPS (Na & Kv) -- ##
+        # soma
+        neuron.gbar_Na = 1500*1e-12*ntwk.siemens/ntwk.um**2
+        neuron.gbar_K = 200*1e-12*ntwk.siemens/ntwk.um**2
+        # dendrites
+        neuron.dend.gbar_Na = 40*1e-12*ntwk.siemens/ntwk.um**2
+        neuron.dend.gbar_K = 30*1e-12*ntwk.siemens/ntwk.um**2
+
+        ## -- HIGH-VOLTAGE-ACTIVATION CALCIUM CURRENT -- ##
+        neuron.gbar_HVACa = 0.5*1e-12*ntwk.siemens/ntwk.um**2
+
+        ## -- CALCIUM-DEPENDENT POTASSIUM CURRENT -- ##
+        neuron.gbar_KCa = 2.5*1e-12*ntwk.siemens/ntwk.um**2
+
+        ## -- T-CURRENT (Calcium) -- ##
+        neuron.gbar_T = 0.0003*1e-12*ntwk.siemens/ntwk.um**2
+        neuron.dend.gbar_T = 0.0006*1e-12*ntwk.siemens/ntwk.um**2
+
+        ## -- M-CURRENT (Potassium) -- ##
+        neuron.gbar_Musc = 2.2*1e-12*ntwk.siemens/ntwk.um**2
+        neuron.dend.gbar_Musc = 0.05*1e-12*ntwk.siemens/ntwk.um**2
+
+        # ## -- H-CURRENT (non-specific) -- ##
+        # neuron.gbar_H = 0*1e-12*ntwk.siemens/ntwk.um**2 # set to zero !!
+    
     
     neuron.gclamp = 0 # everywhere
     
@@ -92,7 +142,7 @@ def set_background_network_stim(t, neuron, SEGMENTS, Model):
                                                            pre_to_iseg_Exc,
                                                            EXC_SYNAPSES_EQUATIONS.format(**Model),
                                                            ON_EXC_EVENT.format(**Model))
-
+    
     Nsyn_Inh, pre_to_iseg_Inh, Nsyn_per_seg_Inh = ntwk.spread_synapses_on_morpho(SEGMENTS,
                                                                          Model['DensityGABA'],
                                                                 cond=SEGMENTS['comp_type']!='apic',
@@ -104,7 +154,7 @@ def set_background_network_stim(t, neuron, SEGMENTS, Model):
                                                            pre_to_iseg_Inh,
                                                            INH_SYNAPSES_EQUATIONS.format(**Model),
                                                            ON_INH_EVENT.format(**Model))
-    
+
     ES.X, ES.bZn = 0, 0
 
     return Estim, ES, Istim, IS
@@ -149,9 +199,9 @@ if __name__=='__main__':
     
     from model import Model
     # Model['tsyn_stim'] = 170
-    t, neuron, SEGMENTS = initialize_sim(Model)
+    t, neuron, SEGMENTS = initialize_sim(Model, active=True)
     
-    # Estim, ES, Istim, IS = set_background_network_stim(t, neuron, SEGMENTS, Model)
+    EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
     # output = run(neuron, Model, Estim, ES, Istim, IS)
     
     # from datavyz import ges as ge
