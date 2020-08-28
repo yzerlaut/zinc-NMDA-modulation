@@ -23,7 +23,7 @@ vc : volt # Voltage-clamp command'''
 # -- excitation (NMDA-dependent)
 from model import Model
 EXC_SYNAPSES_EQUATIONS = '''dX/dt = -X/({tauDecayZn}*ms) : 1 (clock-driven)
-                            dbZn/dt = (-bZn+X)/({tauRiseZn}*ms) : 1 (clock-driven)
+                            bZn : 1
                             dgRiseAMPA/dt = -gRiseAMPA/({tauRiseAMPA}*ms) : 1 (clock-driven)
                             dgDecayAMPA/dt = -gDecayAMPA/({tauDecayAMPA}*ms) : 1 (clock-driven)
                             dgRiseNMDA/dt = -gRiseNMDA/({tauRiseNMDA}*ms) : 1 (clock-driven)
@@ -31,7 +31,7 @@ EXC_SYNAPSES_EQUATIONS = '''dX/dt = -X/({tauDecayZn}*ms) : 1 (clock-driven)
                             gAMPA = ({qAMPA}*nS)*{nAMPA}*(gDecayAMPA-gRiseAMPA) : siemens
                             gNMDA = ({qNMDA}*nS)*{nNMDA}*(gDecayNMDA-gRiseNMDA)/(1+{etaMg}*{cMg}*exp(-v_post/({V0NMDA}*mV)))*(1-{alphaZn}*bZn) : siemens
                             gE_post = gAMPA+gNMDA : siemens (summed)'''
-ON_EXC_EVENT = 'gDecayAMPA += 1; gRiseAMPA += 1; gDecayNMDA += 1; gRiseNMDA += 1; X+={Deltax0}*(1-X)'
+ON_EXC_EVENT = 'gDecayAMPA += 1; gRiseAMPA += 1; gDecayNMDA += 1; gRiseNMDA += 1; bZn=X; X+={Deltax0}*(1-X)'
 
 # -- inhibition (NMDA-dependent)
 INH_SYNAPSES_EQUATIONS = '''dgRiseGABA/dt = -gRiseGABA/({tauRiseGABA}*ms) : 1 (clock-driven)

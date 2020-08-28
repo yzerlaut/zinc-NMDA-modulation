@@ -12,7 +12,9 @@ PROX = 220+np.arange(Nsyn)
 DIST = 400+np.arange(Nsyn)
 
 N_PULSES = np.arange(1, 16, 2)
+
 DELAYS = np.arange(1, 9)
+Nsyn_timing = 15
 
 from datavyz import ges as ge
 
@@ -108,7 +110,7 @@ if __name__=='__main__':
     
     elif args.protocol=='syn-timing':
 
-        n_pulses = 15
+        n_pulses = Nsyn_timing
         
         if args.plot:
             data = load_dict(os.path.join('data', 'branco-syn-timing-%s.npz' % suffix))

@@ -129,8 +129,8 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
         sim_data = load_dict(os.path.join('data', 'calib', sim.params_filename(index)+'.npz'))
         Residual = 1.
         
-        # for cond, isampling in zip(['20Hz_protocol', '3Hz_protocol'], [1, 1]):
-        for cond in ['20Hz_protocol']:
+        for cond, isampling in zip(['20Hz_protocol', '3Hz_protocol'], [1, 1]):
+            
             tcond = (sim_data['t']>(sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond])) &\
                 (sim_data['t']<sim_data['%s_tstart' % cond]-calib_data['DT0_%s' % cond]+\
                  calib_data['DTfull_%s' % cond])
@@ -161,8 +161,8 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
             # Residual *= np.std(trace_exp-trace_model)/np.std(trace_exp)
             # Residual *= 1+np.std(np.abs(diff_model-diff_exp))/np.std(diff_exp)
             
-            Residual *= 1+np.std((diff_model-diff_exp)**2)/np.std(diff_exp)**2
-            Residual *= 1+1./np.corrcoef(diff_model,diff_exp)[0][1]
+            Residual *= 1+np.sum((diff_model-diff_exp)**2)/np.sum(diff_exp)**2
+            # Residual *= 1+1./np.corrcoef(diff_model,diff_exp)[0][1]
 
     except FileNotFoundError:
         print(sim.params_filename(index)+'.npz', 'not found')
