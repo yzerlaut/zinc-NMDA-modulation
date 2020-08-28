@@ -62,8 +62,8 @@ def initialize_sim(Model,
 
     if active:
         # calcium dynamics following: HighVoltageActivationCalciumCurrent + LowThresholdCalciumCurrent
-        Equation_String = ntwk.CalciumConcentrationDynamics(contributing_currents='IT+IHVACa',
-                                                            name='CaDynamics').insert(Equation_String)
+        # Equation_String = ntwk.CalciumConcentrationDynamics(contributing_currents='IT+IHVACa',
+        #                                                     name='CaDynamics').insert(Equation_String)
     
         # intrinsic currents
         CURRENTS = [ntwk.PotassiumChannelCurrent(name='K'),
@@ -72,6 +72,8 @@ def initialize_sim(Model,
                     ntwk.LowThresholdCalciumCurrent(name='T'),
                     ntwk.MuscarinicPotassiumCurrent(name='Musc'),
                     ntwk.CalciumDependentPotassiumCurrent(name='KCa')]
+        CURRENTS = [ntwk.PotassiumChannelCurrent(name='K'),
+                    ntwk.SodiumChannelCurrent(name='Na')]
         for current in CURRENTS:
             Equation_String = current.insert(Equation_String)
 
@@ -84,35 +86,39 @@ def initialize_sim(Model,
     if active:
 
         # initial conditions:
-        neuron.InternalCalcium = 100*ntwk.nM
+        # neuron.InternalCalcium = 100*ntwk.nM
 
         for current in CURRENTS:
             current.init_sim(neuron)
 
         ## -- SPIKE PROPS (Na & Kv) -- ##
+        neuron.gbar_Na = 0*1e-12*ntwk.siemens/ntwk.um**2
+        neuron.gbar_K = 0*1e-12*ntwk.siemens/ntwk.um**2
         # soma
-        neuron.gbar_Na = 1500*1e-12*ntwk.siemens/ntwk.um**2
-        neuron.gbar_K = 200*1e-12*ntwk.siemens/ntwk.um**2
-        # dendrites
-        neuron.dend.gbar_Na = 40*1e-12*ntwk.siemens/ntwk.um**2
-        neuron.dend.gbar_K = 30*1e-12*ntwk.siemens/ntwk.um**2
+        neuron.gbar_Na[0] = 1500*1e-12*ntwk.siemens/ntwk.um**2
+        neuron.gbar_K[0] = 200*1e-12*ntwk.siemens/ntwk.um**2
+        # # dendrites
+        # neuron.dend.gbar_Na = 0*40*1e-12*ntwk.siemens/ntwk.um**2
+        # neuron.dend.gbar_K = 0*30*1e-12*ntwk.siemens/ntwk.um**2
+        # neuron.gbar_Na = 0*1e-12*ntwk.siemens/ntwk.um**2
+        # neuron.gbar_K = 0*1e-12*ntwk.siemens/ntwk.um**2
 
-        ## -- HIGH-VOLTAGE-ACTIVATION CALCIUM CURRENT -- ##
-        neuron.gbar_HVACa = 0.5*1e-12*ntwk.siemens/ntwk.um**2
+        # ## -- HIGH-VOLTAGE-ACTIVATION CALCIUM CURRENT -- ##
+        # neuron.gbar_HVACa = 0.5*1e-12*ntwk.siemens/ntwk.um**2
 
-        ## -- CALCIUM-DEPENDENT POTASSIUM CURRENT -- ##
-        neuron.gbar_KCa = 2.5*1e-12*ntwk.siemens/ntwk.um**2
+        # ## -- CALCIUM-DEPENDENT POTASSIUM CURRENT -- ##
+        # neuron.gbar_KCa = 0*2.5*1e-12*ntwk.siemens/ntwk.um**2
 
-        ## -- T-CURRENT (Calcium) -- ##
-        neuron.gbar_T = 0.0003*1e-12*ntwk.siemens/ntwk.um**2
-        neuron.dend.gbar_T = 0.0006*1e-12*ntwk.siemens/ntwk.um**2
+        # ## -- T-CURRENT (Calcium) -- ##
+        # neuron.gbar_T = 0*0.0003*1e-12*ntwk.siemens/ntwk.um**2
+        # neuron.dend.gbar_T = 0*0.0006*1e-12*ntwk.siemens/ntwk.um**2
 
-        ## -- M-CURRENT (Potassium) -- ##
-        neuron.gbar_Musc = 2.2*1e-12*ntwk.siemens/ntwk.um**2
-        neuron.dend.gbar_Musc = 0.05*1e-12*ntwk.siemens/ntwk.um**2
+        # ## -- M-CURRENT (Potassium) -- ##
+        # neuron.gbar_Musc = 0*2.2*1e-12*ntwk.siemens/ntwk.um**2
+        # neuron.dend.gbar_Musc = 0*0.05*1e-12*ntwk.siemens/ntwk.um**2
 
-        # ## -- H-CURRENT (non-specific) -- ##
-        # neuron.gbar_H = 0*1e-12*ntwk.siemens/ntwk.um**2 # set to zero !!
+        # # ## -- H-CURRENT (non-specific) -- ##
+        # # neuron.gbar_H = 0*1e-12*ntwk.siemens/ntwk.um**2 # set to zero !!
     
     
     neuron.gclamp = 0 # everywhere
@@ -201,17 +207,17 @@ if __name__=='__main__':
     # Model['tsyn_stim'] = 170
     t, neuron, SEGMENTS = initialize_sim(Model, active=True)
     
-    EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
+    # EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
     # output = run(neuron, Model, Estim, ES, Istim, IS)
-    
     # from datavyz import ges as ge
     # plot_signals(output, ge=ge)
     # ge.show()
 
-    synapses_loc = 2000+np.arange(5)
+    tstop = 600
+    synapses_loc = 2000+np.arange(7)
     # synapses_loc = 0+np.arange(5)
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
-    t0_stim, n_pulses, freq_pulses = 50, 5, 300
+    t0_stim, n_pulses, freq_pulses = 200, 5, 50
     for i in range(n_pulses):
         spike_times = np.concatenate([spike_times,
                                       (t0_stim+i*1e3/freq_pulses)*np.ones(len(synapses_loc))])
@@ -228,7 +234,7 @@ if __name__=='__main__':
     S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
 
     # # Run simulation
-    ntwk.run(Model['tstop']*ntwk.ms)
+    ntwk.run(tstop*ntwk.ms)
 
     from datavyz import ges as ge
     fig, ax = ge.figure(figsize=(2,1))
