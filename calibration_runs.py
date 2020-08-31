@@ -148,15 +148,14 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
             factor_model = np.max(trace_model[first_peak_cond])
             factor_model0 = np.max(trace_model0[first_peak_cond])
             # trace_model0 *= factor_model/factor_model0 # norm to peak, MAX
-            # trace_model *= factor_model0/factor_model
             trace_model /= factor_model
             trace_model0 /= factor_model0
             
-
             factor_exp = np.max(trace_exp[first_peak_cond])
             factor_exp0 = np.max(trace_exp0[first_peak_cond])
             # trace_exp0 *= factor_exp/factor_exp0 # MAX
             # trace_exp *= factor_exp0/factor_exp
+            # trace_exp /= factor_exp
             trace_exp /= factor_exp
             trace_exp0 /= factor_exp0
 
