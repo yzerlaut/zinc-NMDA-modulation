@@ -2,6 +2,7 @@ import os
 import numpy as np
 
 import neural_network_dynamics.main as ntwk # my custom layer on top of Brian2
+
 from datavyz import ge
 
 from datavyz import nrnvyz
@@ -49,9 +50,12 @@ def initialize_sim(Model,
                    Vclamp=0.,
                    active=False,
                    Equation_String=Equation_String,
-                   verbose=False):
+                   verbose=True):
 
+    Model['tstop']=400.
+    
     # simulation params
+    ntwk.defaultclock.dt = Model['dt']*ntwk.ms
     t = np.arange(int(Model['tstop']/Model['dt']))*Model['dt']
     
     np.random.seed(Model['seed'])
@@ -62,8 +66,8 @@ def initialize_sim(Model,
 
     if active:
         # calcium dynamics following: HighVoltageActivationCalciumCurrent + LowThresholdCalciumCurrent
-        # Equation_String = ntwk.CalciumConcentrationDynamics(contributing_currents='IT+IHVACa',
-        #                                                     name='CaDynamics').insert(Equation_String)
+        Equation_String = ntwk.CalciumConcentrationDynamics(contributing_currents='IT+IHVACa',
+                                                            name='CaDynamics').insert(Equation_String)
     
         # intrinsic currents
         CURRENTS = [ntwk.PotassiumChannelCurrent(name='K'),
@@ -72,8 +76,7 @@ def initialize_sim(Model,
                     ntwk.LowThresholdCalciumCurrent(name='T'),
                     ntwk.MuscarinicPotassiumCurrent(name='Musc'),
                     ntwk.CalciumDependentPotassiumCurrent(name='KCa')]
-        CURRENTS = [ntwk.PotassiumChannelCurrent(name='K'),
-                    ntwk.SodiumChannelCurrent(name='Na')]
+        
         for current in CURRENTS:
             Equation_String = current.insert(Equation_String)
 
@@ -84,43 +87,32 @@ def initialize_sim(Model,
                                 Ri=Model['Ri'] * ntwk.ohm * ntwk.cm)
     
     if active:
-
-        # initial conditions:
-        # neuron.InternalCalcium = 100*ntwk.nM
-
+        
         for current in CURRENTS:
-            current.init_sim(neuron)
+            current.init_sim(neuron, verbose=verbose)
 
-        ## -- SPIKE PROPS (Na & Kv) -- ##
-        neuron.gbar_Na = 0*1e-12*ntwk.siemens/ntwk.um**2
-        neuron.gbar_K = 0*1e-12*ntwk.siemens/ntwk.um**2
-        # soma
-        neuron.gbar_Na[0] = 1500*1e-12*ntwk.siemens/ntwk.um**2
-        neuron.gbar_K[0] = 200*1e-12*ntwk.siemens/ntwk.um**2
-        # # dendrites
-        # neuron.dend.gbar_Na = 0*40*1e-12*ntwk.siemens/ntwk.um**2
-        # neuron.dend.gbar_K = 0*30*1e-12*ntwk.siemens/ntwk.um**2
-        # neuron.gbar_Na = 0*1e-12*ntwk.siemens/ntwk.um**2
-        # neuron.gbar_K = 0*1e-12*ntwk.siemens/ntwk.um**2
+        pS_um2 = 1e-12*ntwk.siemens/ntwk.um**2
+        # --- axon ---
+        # neuron.axon.gbar_Na = 30000*pS_um2
+        neuron.axon.gbar_K = 400*pS_um2
+        
+        # --- soma ---
+        neuron.gbar_Na[0] = 1500*pS_um2
+        neuron.gbar_K[0] = 200*pS_um2
+        neuron.gbar_Musc[0] = 2.2*pS_um2
+        # neuron.gbar_KCa[0] = 2.5*pS_um2
+        neuron.gbar_HVACa[0] = 0.5*pS_um2
+        neuron.gbar_T[0] = 0.0003*pS_um2
 
-        # ## -- HIGH-VOLTAGE-ACTIVATION CALCIUM CURRENT -- ##
-        # neuron.gbar_HVACa = 0.5*1e-12*ntwk.siemens/ntwk.um**2
+        # --- basal dendrites ---
+        # neuron.dend.gbar_Na = 40*pS_um2
+        neuron.dend.gbar_K = 30*pS_um2
+        neuron.dend.gbar_T = 0.0006*pS_um2
+        neuron.dend.gbar_HVACa = 0.5*pS_um2
+        neuron.dend.gbar_Musc = 0.05*pS_um2
+        neuron.dend.gbar_KCa = 2.5*pS_um2
 
-        # ## -- CALCIUM-DEPENDENT POTASSIUM CURRENT -- ##
-        # neuron.gbar_KCa = 0*2.5*1e-12*ntwk.siemens/ntwk.um**2
 
-        # ## -- T-CURRENT (Calcium) -- ##
-        # neuron.gbar_T = 0*0.0003*1e-12*ntwk.siemens/ntwk.um**2
-        # neuron.dend.gbar_T = 0*0.0006*1e-12*ntwk.siemens/ntwk.um**2
-
-        # ## -- M-CURRENT (Potassium) -- ##
-        # neuron.gbar_Musc = 0*2.2*1e-12*ntwk.siemens/ntwk.um**2
-        # neuron.dend.gbar_Musc = 0*0.05*1e-12*ntwk.siemens/ntwk.um**2
-
-        # # ## -- H-CURRENT (non-specific) -- ##
-        # # neuron.gbar_H = 0*1e-12*ntwk.siemens/ntwk.um**2 # set to zero !!
-    
-    
     neuron.gclamp = 0 # everywhere
     
     if method=='voltage-clamp':
@@ -131,6 +123,8 @@ def initialize_sim(Model,
     else:
         gL = Model['gL']*ntwk.siemens/ntwk.meter**2
         neuron.v = Model['EL']*ntwk.mV # Vm initialized to E
+    if active:
+        neuron.InternalCalcium = 100*ntwk.nM
 
     return t, neuron, SEGMENTS
 
@@ -213,11 +207,11 @@ if __name__=='__main__':
     # plot_signals(output, ge=ge)
     # ge.show()
 
-    tstop = 600
+    tstop = 400
     synapses_loc = 2000+np.arange(7)
     # synapses_loc = 0+np.arange(5)
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
-    t0_stim, n_pulses, freq_pulses = 200, 5, 50
+    t0_stim, n_pulses, freq_pulses = 100, 5, 50
     for i in range(n_pulses):
         spike_times = np.concatenate([spike_times,
                                       (t0_stim+i*1e3/freq_pulses)*np.ones(len(synapses_loc))])
@@ -230,16 +224,19 @@ if __name__=='__main__':
                                                            ON_EXC_EVENT.format(**Model))
 
     # recording and running
-    M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
-    S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
+    M = ntwk.StateMonitor(neuron, ('v', 'InternalCalcium'), record=[0, synapses_loc[0]])
+    # S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
 
     # # Run simulation
     ntwk.run(tstop*ntwk.ms)
 
     from datavyz import ges as ge
-    fig, ax = ge.figure(figsize=(2,1))
-    ax.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:], label='soma')
-    ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[1,:], label='dend', ax=ax)
-    ge.legend(ax)
+    fig, AX = ge.figure(axes=(1,2),figsize=(2,1))
+    AX[0].plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:], label='soma')
+    ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[1,:], label='dend', ax=AX[0])
+    AX[1].plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[0,:], label='soma')
+    ge.plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[1,:], label='dend', ax=AX[1])
+    ge.legend(AX[0])
+    ge.legend(AX[1])
     ge.show()
     

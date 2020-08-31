@@ -44,7 +44,7 @@ Model = {
     # ---------- SIMULATION PARAMS  ----------------- #
     ###################################################
     'tstop':600, # [ms]
-    'dt':0.1,# [ms]
+    'dt':0.025,# [ms]
     'seed':1, #
     'VC-gL-reduction-factor':5, # 
     'VC-discard-time':200, # [ms]
@@ -60,9 +60,9 @@ Model = {
     ########################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
     ########################################################
-    'alphaZn':0.26,# FITTED
+    'alphaZn':0.19,# FITTED
     'tauRiseZn':150.,# [ms], # FITTED
-    'tauDecayZn':605.,# [ms], # FITTED
+    'tauDecayZn':638.,# [ms], # FITTED
     'Deltax0':1., # FITTED
     # 'x0':0.5, # FITTED
     # 'deltax':0.1, # FITTED
@@ -78,8 +78,8 @@ Model = {
     'Tnsyn20Hz_min':30, 'Tnsyn20Hz_max':70, 'N_Tnsyn20Hz':4,
     'Tnsyn3Hz_min':70, 'Tnsyn3Hz_max':1500, 'N_Tnsyn3Hz':4,
     'alphaZn_min':0.1, 'alphaZn_max':0.6, 'N_alphaZn':30,
-    # 'tauRiseZn_min':5, 'tauRiseZn_max':300, 'N_tauRiseZn':7,
     'tauDecayZn_min':100, 'tauDecayZn_max':1300, 'N_tauDecayZn':30,
+    # 'tauRiseZn_min':5, 'tauRiseZn_max':300, 'N_tauRiseZn':7,
     # 'Deltax0_min':0.3, 'Deltax0_max':0.8, 'N_Deltax0':6,
     # 'x0_min':0.3, 'x0_max':0.8, 'N_x0':6,
     # 'deltax_min':0.05, 'deltax_max':0.15, 'N_deltax':3,
