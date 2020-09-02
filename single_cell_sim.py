@@ -49,10 +49,12 @@ def initialize_sim(Model,
                    method='current-clamp',
                    Vclamp=0.,
                    active=False,
+                   chelated_zinc=False,
                    Equation_String=Equation_String,
-                   verbose=True):
+                   verbose=True,
+                   tstop=400.):
 
-    Model['tstop']=400.
+    Model['tstop']=tstop
     
     # simulation params
     ntwk.defaultclock.dt = Model['dt']*ntwk.ms
@@ -88,9 +90,6 @@ def initialize_sim(Model,
     
     if active:
         
-        for current in CURRENTS:
-            current.init_sim(neuron, verbose=verbose)
-
         pS_um2 = 1e-12*ntwk.siemens/ntwk.um**2
         # --- axon ---
         # neuron.axon.gbar_Na = 30000*pS_um2
@@ -125,6 +124,8 @@ def initialize_sim(Model,
         neuron.v = Model['EL']*ntwk.mV # Vm initialized to E
     if active:
         neuron.InternalCalcium = 100*ntwk.nM
+        for current in CURRENTS:
+            current.init_sim(neuron, verbose=verbose)
 
     return t, neuron, SEGMENTS
 
@@ -176,7 +177,8 @@ def run(neuron, Model, Estim, ES, Istim, IS):
               'gAMPA_syn':np.array(S.gAMPA/ntwk.nS)[0,:],
               'gNMDA_syn':np.array(S.gNMDA/ntwk.nS)[0,:],
               'X_syn':np.array(S.X)[0,:],
-              'Vm_syn':np.array(M.v/ntwk.mV)[1,:]}
+              'Vm_syn':np.array(M.v/ntwk.mV)[1,:],
+              'Model':Model}
 
     output['Ic'] = (output['Vm_soma']-Model['VC-cmd'])*Model['VC-gclamp'] # nA
     return output
@@ -198,9 +200,10 @@ def plot_signals(output, ge=None):
 if __name__=='__main__':
     
     from model import Model
-    # Model['tsyn_stim'] = 170
-    t, neuron, SEGMENTS = initialize_sim(Model, active=True)
-    
+
+    active, chelated = True, True
+    t, neuron, SEGMENTS = initialize_sim(Model, active=active, chelated_zinc=chelated)
+
     # EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
     # output = run(neuron, Model, Estim, ES, Istim, IS)
     # from datavyz import ges as ge
@@ -208,10 +211,10 @@ if __name__=='__main__':
     # ge.show()
 
     tstop = 400
-    synapses_loc = 2000+np.arange(7)
+    synapses_loc = 2000+np.arange(6)
     # synapses_loc = 0+np.arange(5)
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
-    t0_stim, n_pulses, freq_pulses = 100, 5, 50
+    t0_stim, n_pulses, freq_pulses = 100, 4, 50
     for i in range(n_pulses):
         spike_times = np.concatenate([spike_times,
                                       (t0_stim+i*1e3/freq_pulses)*np.ones(len(synapses_loc))])
@@ -224,19 +227,30 @@ if __name__=='__main__':
                                                            ON_EXC_EVENT.format(**Model))
 
     # recording and running
-    M = ntwk.StateMonitor(neuron, ('v', 'InternalCalcium'), record=[0, synapses_loc[0]])
-    # S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
+    if active:
+        M = ntwk.StateMonitor(neuron, ('v', 'InternalCalcium'), record=[0, synapses_loc[0]])
+    else:
+        M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
+        S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gE_post', 'bZn'), record=[0])
 
     # # Run simulation
     ntwk.run(tstop*ntwk.ms)
 
     from datavyz import ges as ge
     fig, AX = ge.figure(axes=(1,2),figsize=(2,1))
+    
     AX[0].plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:], label='soma')
     ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[1,:], label='dend', ax=AX[0])
-    AX[1].plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[0,:], label='soma')
-    ge.plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[1,:], label='dend', ax=AX[1])
+    if active:
+        AX[1].plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[0,:], label='soma',
+                   axes_args={'ylabel':'$V_m$ (mV)'})
+        ge.plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[1,:],
+                label='dend', ax=AX[1], axes_args={'ylabel':'[Ca2+] (nM)', 'xlabel':'time (ms)'})
+    else:
+        AX[1].plot(np.array(M.t/ntwk.ms), np.array(S.gAMPA/ntwk.nS)[0,:], ':', color=ge.orange, label='gAMPA')
+        AX[1].plot(np.array(M.t/ntwk.ms), np.array(S.gE_post/ntwk.nS)[0,:]-np.array(S.gAMPA/ntwk.nS)[0,:], color=ge.orange, label='gNMDA')
+        
     ge.legend(AX[0])
     ge.legend(AX[1])
     ge.show()
-    
+
