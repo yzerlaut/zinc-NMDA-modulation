@@ -5,7 +5,7 @@ from analyz.IO.npz import load_dict
 
 def run_sim(Model,
             NSYNs=[3, 6, 9, 12, 15],
-            syn_loc0 = 2000,
+            syn_loc0 = 124,
             t0=100, interstim=400,
             freq_stim=50, n_repeat=3,
             active=False,
@@ -23,10 +23,11 @@ def run_sim(Model,
     
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
 
-    start = t0
+    start, events = t0, []
     for n in NSYNs:
         
         synapses_loc = syn_loc0+np.arange(n)
+        events.append(start)
         
         for i in range(n_repeat):
             spike_times = np.concatenate([spike_times,
@@ -52,7 +53,7 @@ def run_sim(Model,
     # # Run simulation
     ntwk.run(tstop*ntwk.ms)
     
-    output = {'t':np.array(M.t/ntwk.ms),
+    output = {'t':np.array(M.t/ntwk.ms), 'NSYNs':np.array(NSYNs), 'events':np.array(events),
               'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
               'bZn_syn':np.array(S.bZn)[0,:],
               'gAMPA_syn':np.array(S.gAMPA/ntwk.nS)[0,:],
@@ -71,53 +72,73 @@ def demo_plot():
     
     fig, AX = ge.figure(axes=(1,2), figsize=(2,1))
 
-    for key, color in zip(['AMPA-only', 'chelated-Zinc', 'free-Zinc'],
-                          [ge.blue, 'k', ge.green]):
+    for key, color, l in zip(['AMPA-only', 'chelated-Zinc', 'free-Zinc'],
+                             [ge.blue, 'k', ge.green],
+                             ['$g_{AMPA}$', '$g_{NMDA}$ (chelated)', '$g_{NMDA}$ (free)']):
         data = load_dict('data/nmda-spike/demo-%s.npz' % key)
         AX[0].plot(data['t'], data['Vm_soma'], color=color, label=key)
-        AX[1].plot(data['t'], data['gNMDA_syn'], color=color)
+        AX[1].plot(data['t'], data['gNMDA_syn'], color=color, label=l+'  ')
+
+    for e, n in zip(data['events'], data['NSYNs']):
+        ge.annotate(AX[1], ' $N_{syn}$=%i' % n, (e, 0),
+                    xycoords='data', rotation=90, ha='right', size='xx-small')
+        
     ge.legend(AX[0], size='x-small')
+    ge.legend(AX[1], size='xx-small', ncol=3)
     ge.set_plot(AX[0], ylabel='$V_m$ (mV)')
-    ge.set_plot(AX[1], ylabel='conductance (nS)', xlabel='time (ms)')
+    ge.set_plot(AX[1], ylabel='$g$ (nS)', xlabel='time (ms)')
 
     
     
 if __name__=='__main__':
     
+    LOCs = np.load('data/nmda-spike/locations.npy')
+    loc_syn0 = LOCs[1]
+    NSYNs=[2, 4, 6, 8, 10, 12]
+
     if sys.argv[-1]=='syn-demo':
 
-        from datavyz import ges as ge
-        loc_syn0 = 1000
-        NSYNs=[3, 6, 9, 12, 15]
-        from datavyz import nrnvyz
-
+        from datavyz import nrnvyz, ges as ge
+        
         _, neuron, SEGMENTS = initialize_sim(Model)
         vis = nrnvyz(SEGMENTS, ge=ge)
         
         fig, AX = ge.figure(axes=(len(NSYNs),1),
                             figsize=(.8,1.2), wspace=0, left=0, top=0.3, bottom=0, right=0)
         for nsyn, ax in zip(NSYNs, AX):
-            ge.title(ax, '$N_{syn}=%i$'%nsyn, size='xx-small')
+            ge.title(ax, '$N_{syn}$=%i'%nsyn, size='xx-small')
             vis.plot_segments(SEGMENTS['comp_type']!='axon', bar_scale_args={}, ax=ax)
             vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
         ge.show()
         
     elif sys.argv[-1]=='run-demo':
-        
-        data = run_sim(Model, ampa_only=True)
+
+        data = run_sim(Model, ampa_only=True, NSYNs=NSYNs, syn_loc0=LOCs[0])
         np.savez('data/nmda-spike/demo-AMPA-only.npz', **data)
-        data = run_sim(Model, ampa_only=False, chelated=True)
+        data = run_sim(Model, ampa_only=False, chelated=True, NSYNs=NSYNs, syn_loc0=LOCs[0])
         np.savez('data/nmda-spike/demo-chelated-Zinc.npz', **data)
-        data = run_sim(Model, ampa_only=False, chelated=False)
+        data = run_sim(Model, ampa_only=False, chelated=False, NSYNs=NSYNs, syn_loc0=LOCs[0])
         np.savez('data/nmda-spike/demo-free-Zinc.npz', **data)
+
+    elif sys.argv[-1]=='run-full':
         
+        NSYNs=np.arange(1, 15)
+        for loc in LOCs:
+            data = run_sim(Model, ampa_only=True, NSYNs=NSYNs, syn_loc0=loc)
+            np.savez('data/nmda-spike/data-loc-%i-AMPA-only.npz' % loc, **data)
+            data = run_sim(Model, ampa_only=False, chelated=True, NSYNs=NSYNs, syn_loc0=loc)
+            np.savez('data/nmda-spike/data-loc-%i-chelated-Zinc.npz' % loc, **data)
+            data = run_sim(Model, ampa_only=False, chelated=False, NSYNs=NSYNs, syn_loc0=loc)
+            np.savez('data/nmda-spike/data-loc-%i-free-Zinc.npz' % loc, **data)
+
     elif sys.argv[-1]=='demo-plot':
         
         from datavyz import ges as ge
         demo_plot()
         ge.show()
 
-    else:
+    elif sys.argv[-1]=='locations':
+        
         MIN_DISTANCE = 50e-6 # m
         from datavyz import ges as ge
         _, neuron, SEGMENTS = initialize_sim(Model)
@@ -131,16 +152,31 @@ if __name__=='__main__':
                            (SEGMENTS['z']-SEGMENTS['z'][soma][0])**2)
         cond = (SEGMENTS['comp_type']=='dend') & (distance>MIN_DISTANCE)
         
-        nsyn=15
+        nsyn=20
 
         LOCs =[]
         for loc_syn0 in SEGMENTS['index'][cond][::50]:
-            if np.min(distance[loc_syn0+np.arange(nsyn)])>MIN_DISTANCE:
+            comp_name = SEGMENTS['name'][loc_syn0]
+            if (np.sum(cond[loc_syn0+np.arange(nsyn)])==nsyn) &\
+               len(np.unique(SEGMENTS['name'][loc_syn0+np.arange(nsyn)]))==1:
+                # meaning all points are on the same branch
                 LOCs.append(loc_syn0)
+                print('ok')
+            else:
+                print('no')
                 
         for loc_syn0 in LOCs:
             vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
-            
-        print(N, 'segments')
 
         ge.show()
+        print(len(LOCs), 'segments')
+        np.save('data/nmda-spike/locations.npy', np.array(LOCs))
+
+    else:
+        print("""
+        Should be used as either:
+        - python nmda-spikes.py syn-demo
+        - python nmda-spikes.py run-demo
+        - python nmda-spikes.py demo-plot
+        - python nmda-spikes.py locations
+        """)
