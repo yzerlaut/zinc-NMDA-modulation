@@ -132,11 +132,15 @@ if __name__=='__main__':
         cond = (SEGMENTS['comp_type']=='dend') & (distance>MIN_DISTANCE)
         
         nsyn=15
-        N=0
+
+        LOCs =[]
         for loc_syn0 in SEGMENTS['index'][cond][::50]:
             if np.min(distance[loc_syn0+np.arange(nsyn)])>MIN_DISTANCE:
-                vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
-                N+=1
+                LOCs.append(loc_syn0)
+                
+        for loc_syn0 in LOCs:
+            vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
+            
         print(N, 'segments')
 
         ge.show()
