@@ -88,7 +88,9 @@ def demo_plot():
     ge.set_plot(AX[0], ylabel='$V_m$ (mV)')
     ge.set_plot(AX[1], ylabel='$g$ (nS)', xlabel='time (ms)')
 
-    
+
+def fig_full():
+    pass
     
 if __name__=='__main__':
     
@@ -106,7 +108,7 @@ if __name__=='__main__':
         fig, AX = ge.figure(axes=(len(NSYNs),1),
                             figsize=(.8,1.2), wspace=0, left=0, top=0.3, bottom=0, right=0)
         for nsyn, ax in zip(NSYNs, AX):
-            ge.title(ax, '$N_{syn}$=%i'%nsyn, size='xx-small')
+            ge.title(ax, '$N_{syn}$=%i' % nsyn, size='xx-small')
             vis.plot_segments(SEGMENTS['comp_type']!='axon', bar_scale_args={}, ax=ax)
             vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
         ge.show()
@@ -131,6 +133,10 @@ if __name__=='__main__':
             data = run_sim(Model, ampa_only=False, chelated=False, NSYNs=NSYNs, syn_loc0=loc)
             np.savez('data/nmda-spike/data-loc-%i-free-Zinc.npz' % loc, **data)
 
+    elif sys.argv[-1]=='fig-full':
+
+        fig_full()
+            
     elif sys.argv[-1]=='demo-plot':
         
         from datavyz import ges as ge
@@ -161,9 +167,6 @@ if __name__=='__main__':
                len(np.unique(SEGMENTS['name'][loc_syn0+np.arange(nsyn)]))==1:
                 # meaning all points are on the same branch
                 LOCs.append(loc_syn0)
-                print('ok')
-            else:
-                print('no')
                 
         for loc_syn0 in LOCs:
             vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
