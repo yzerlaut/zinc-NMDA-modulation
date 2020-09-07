@@ -49,7 +49,6 @@ def initialize_sim(Model,
                    method='current-clamp',
                    Vclamp=0.,
                    active=False,
-                   chelated_zinc=False,
                    Equation_String=Equation_String,
                    verbose=True,
                    tstop=400.):
@@ -202,7 +201,7 @@ if __name__=='__main__':
     from model import Model
 
     active, chelated = True, True
-    t, neuron, SEGMENTS = initialize_sim(Model, active=active, chelated_zinc=chelated)
+    t, neuron, SEGMENTS = initialize_sim(Model, active=active)
 
     # EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
     # output = run(neuron, Model, Estim, ES, Istim, IS)

@@ -158,7 +158,7 @@ if __name__=='__main__':
                            (SEGMENTS['z']-SEGMENTS['z'][soma][0])**2)
         cond = (SEGMENTS['comp_type']=='dend') & (distance>MIN_DISTANCE)
         
-        nsyn=20
+        nsyn=30
 
         LOCs =[]
         for loc_syn0 in SEGMENTS['index'][cond][::50]:
@@ -168,8 +168,8 @@ if __name__=='__main__':
                 # meaning all points are on the same branch
                 LOCs.append(loc_syn0)
                 
-        for loc_syn0 in LOCs:
-            vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
+        for i, loc_syn0 in enumerate(LOCs):
+            vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, color=ge.tab20(i%20))
 
         ge.show()
         print(len(LOCs), 'segments')
