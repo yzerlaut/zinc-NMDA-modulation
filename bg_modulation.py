@@ -3,6 +3,7 @@ from model import Model
 from single_cell_sim import *
 from analyz.IO.npz import load_dict
 
+LOCs = np.load('data/nmda-spike/locations.npy')
 
 def single_poisson_process_BG(Fbg, duration, tstart=0, seed=0):
     # time in [ms], frequency in [Hz]
@@ -35,6 +36,16 @@ def spike_train_BG_and_STIM(Fbg, Fstim,
     sp_stim = single_poisson_process_STIM(Fstim, tstart, duration)
     return np.sort(np.concatenate([sp_bg, sp_stim])), sp_bg, sp_stim
 
+def filename(args):
+    fn = os.path.join('data', 'bg-modul', 'data-loc-%i' % args.syn_location)
+    if args.active:
+        fn+='-active'
+    if args.chelated:
+        fn+='-chelated-Zinc.npz'
+    else:
+        fn+='-free-Zinc.npz'
+    return fn
+    
 def run_sim_with_bg_levels(args, seed=0):
 
     from model import Model
@@ -44,14 +55,10 @@ def run_sim_with_bg_levels(args, seed=0):
     else:
         Model['alphaZn'] = args.alphaZn
 
-    tstop = len(args.bg_levels)*args.duration_per_bg_level
+    tstop = len(args.bg_levels)*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)*args.duration_per_bg_level
         
     t, neuron, SEGMENTS = initialize_sim(Model, tstop=tstop, active=args.active)
 
-    if not (args.Nstim<=args.Nsyn):
-        print('Nstim need to be lower than Nsyn, but %i>%i' % (args.Nstim,args.Nsyn), '--> Set to max')
-        args.Nstim = args.Nsyn
-        
     if not (args.syn_location<len(LOCs)):
         print('syn_location "%i" too high, only %i locations available\n ---> syn_location index set to 0' % (args.syn_location, len(LOCs)))        
         args.syn_location = 0
@@ -60,16 +67,30 @@ def run_sim_with_bg_levels(args, seed=0):
 
     BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
 
-    stim = stim_single_event_per_synapse(args.stim_duration,
-                                         len(synapses_loc), args.Nstim,
-                                         tstart=args.stim_delay, seed=seed)
 
     for ibg, bg in enumerate(args.bg_levels):
-        
-        for i in range(len(synapses_loc)):
-            BG[i] = BG[i]+list(single_poisson_process_BG(bg, args.duration_per_bg_level,
-                                                         tstart=ibg*args.duration_per_bg_level))
-            STIM[i] = STIM[i]+[s+ibg*args.duration_per_bg_level for s in stim[i]]
+
+        for ibgseed, bgseed in enumerate(args.bgSEEDS):
+            
+            for istim, nstim in enumerate(args.NSTIMs):
+                
+                for istimseed, stimseed in enumerate(args.stimSEEDS):
+
+                    stim = stim_single_event_per_synapse(args.stim_duration,
+                                                         len(synapses_loc), nstim,
+                                                         tstart=args.stim_delay, seed=stimseed)
+                
+                    t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
+                          ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
+                          istim*len(args.stimSEEDS)+istimseed)*args.duration_per_bg_level
+
+                    for i in range(len(synapses_loc)):
+                        if bg>0:
+                            BG[i] = BG[i]+list(single_poisson_process_BG(bg, args.duration_per_bg_level,
+                                                                     tstart=t0,
+                                                                     seed=seed+3*i+2*(ibg+1)+3**istim+istimseed*ibgseed))
+
+                        STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
             
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
     for i in range(len(synapses_loc)):
@@ -94,6 +115,8 @@ def run_sim_with_bg_levels(args, seed=0):
     ntwk.run(tstop*ntwk.ms)
     
     output = {'t':np.array(M.t/ntwk.ms),
+              'BG_raster':BG,
+              'STIM_raster':STIM,
               'syn_locations':synapses_loc,
               'bg_levels':np.array(args.bg_levels),
               'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
@@ -108,20 +131,79 @@ def run_sim_with_bg_levels(args, seed=0):
         /(1+Model['etaMg']*Model['cMg']*np.exp(-output['Vm_syn']/Model['V0NMDA']))\
         *(1-Model['alphaZn']*output['bZn_syn'])
 
-    fn = 'data-loc-%i' % args.syn_location
-    if args.chelated:
-        np.savez('data/bg-modul/%s-chelated-Zinc.npz' % fn, **output)
-    else:
-        np.savez('data/bg-modul/%s-free-Zinc.npz' % fn, **output)
+    np.savez(filename(args), **output)
 
+def analyze_sim(data, data2):
+
+    args = data['args']
+    
+    fig, AX = ge.figure(axes_extents=[[[1,2]],[[1,1]]], figsize=(2,1), wspace=0.1)
+    fig.suptitle('n=%i bg seeds, n=%i stim seeds, loc #%i' (len(args['bgSEEDS']), len(args['stimSEEDS']), args['syn_location']), size=10)
+    
+    for ibg, bg in enumerate(args['bg_levels']):
+
+        for ibgseed, bgseed in enumerate(args.bgSEEDS):
+            
+            for istim, nstim in enumerate(args.NSTIMs):
+                
+                for istimseed, stimseed in enumerate(args.stimSEEDS):
+                    
+                    pass
+                
+def plot_sim(data, data2):
+    """
+    for demo data only not thought to handle different seeds
+    """
+    args = data['args']
+
+    AE = []
+    for i in range(len(args['bg_levels'])):
+        AE.append([[1,4]])
+        AE.append([[1,2]])
+        AE.append([[1,1]])
+    
+    fig, AX = ge.figure(axes_extents=AE, figsize=(3.5,.18), wspace=0., left=.2)
+    
+    for ibg, bg in enumerate(args['bg_levels']):
+
+        t0 = ibg*len(args['NSTIMs'])*len(args['stimSEEDS'])*len(args['bgSEEDS'])*args['duration_per_bg_level']
+        t1 = (ibg+1)*len(args['NSTIMs'])*len(args['stimSEEDS'])*len(args['bgSEEDS'])*args['duration_per_bg_level']
+
+        tcond = (data['t']>=t0) & (data['t']<t1)
+        
+        AX[3*ibg].plot(data2['t'][tcond], data2['Vm_soma'][tcond], color=ge.green, label='chelated-Zinc', lw=1)
+        AX[3*ibg].plot(data['t'][tcond], data['Vm_soma'][tcond], color='k', label='free-Zinc', lw=1)
+        AX[3*ibg].plot([t0,t1], [-75,-75], 'k--', lw=0.5)
+        
+        for i, sp0 in enumerate(data['BG_raster']):
+            sp = np.array(sp0)
+            cond = (sp>=t0) & (sp<t1)
+            AX[3*ibg+1].scatter(sp[cond], i*np.ones(len(sp[cond])), color=ge.purple, s=2)
+        for i, sp0 in enumerate(data['STIM_raster']):
+            sp = np.array(sp0)
+            cond = (sp>=t0) & (sp<t1)
+            AX[3*ibg+1].scatter(sp[cond], i*np.ones(len(sp[cond])), color=ge.orange, s=2)
+            
+        ge.annotate(AX[3*ibg+1], '$\\nu_{bg}$=%.1fHz' % bg, (0,0), color=ge.purple, rotation=90, ha='right')
+        ge.set_plot(AX[3*ibg], [], xlim=[t0, t1])#, ylabel='Vm (mV)')
+        ge.draw_bar_scales(AX[3*ibg], Ybar_label_format="%.1fmV", Xbar_label_format="%.0fms",
+                           Ybar_fraction=.25, Xbar_fraction=.05, loc=(0.005,.99), orientation='right-bottom')
+        ge.annotate(AX[3*ibg], ' -75mV', (t1,-75), xycoords='data', va='center')
+        ge.set_plot(AX[3*ibg+1], [], xlim=[t0, t1])#, ylabel='synapse ID')
+        ge.set_plot(AX[3*ibg+2], [], xlim=[t0, t1])#, ylabel='synapse ID')
+        # AX[3*ibg+2].axis('off')
+
+    y1 = AX[1].get_ylim()[1]
+    for istim, nstim in enumerate(args['NSTIMs']):
+        ge.annotate(AX[1], ' %i syn.' % nstim,
+                    (args['stim_delay']+istim*args['duration_per_bg_level']*len(args['stimSEEDS']),y1/2),
+                    xycoords='data', color=ge.orange, va='center', ha='right')
+        
+
+    
 
 if __name__=='__main__':
     
-    LOCs = np.load('data/nmda-spike/locations.npy')
-    loc_syn0 = LOCs[1]
-    NSYNs=[2, 4, 6, 8, 10, 12]
-
-
     import argparse
     # First a nice documentation 
     parser=argparse.ArgumentParser(description=
@@ -141,12 +223,18 @@ if __name__=='__main__':
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
     parser.add_argument("--bg_level",help="[ms]", type=float, default=2)
-    parser.add_argument("--bg_levels",help="[ms]", type=float, default=[], nargs='*')
+    parser.add_argument("--bg_levels",help="[ms]", type=float, default=[0, 2, 4, 6, 8], nargs='*')
+    parser.add_argument("--NbgSEEDS",help="#", type=int, default=1)
+    parser.add_argument("--bgSEEDS",help="#", type=int, default=[0], nargs='*')
     # stim props
-    parser.add_argument("-sl", "--syn_location",help="#", type=int, default=0)
-    parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
+    parser.add_argument("-sl", "--syn_location",help="#", type=int, default=1)
     parser.add_argument("--Nsyn",help="#", type=int, default=20)
-    parser.add_argument("--Nstim",help="# < Nsyn", type=int, default=15)
+    parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
+                        default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
+    parser.add_argument("--stimSEEDS",help="#", type=int, default=[0], nargs='*')
+    # loop over locations
+    parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
+    # model variations
     parser.add_argument("-c", "--chelated", help="chelated Zinc condition", action="store_true")
     parser.add_argument("--active", help="with active conductances", action="store_true")
     parser.add_argument("-aZn", "--alphaZn", help="inhibition factor in free Zinc condition",
@@ -155,34 +243,25 @@ if __name__=='__main__':
 
 
     args = parser.parse_args()
-    
+
+    if args.NbgSEEDS>1:
+        args.bgSEEDS = np.arange(args.NbgSEEDS)
+        
     if len(args.bg_levels)==0:
         args.bg_levels =[args.bg_level]
 
-    # # dealing with the available synaptic locations
-    # if len(args.syn_locations)>0:
-    #     syn_locations = []
-    #     for s in args.syn_locations:
-    #         if s<len(LOCs):
-    #             syn_locations.append(s)
-    #     args.syn_locations = syn_locations
-    # if len(args.syn_locations)==0 and (args.syn_location<len(LOCs)):
-    #     args.syn_locations =[args.syn_location]
-    # elif len(args.syn_locations)==0:
-    #     print('syn_location "%i" too high, only  %i locations available\n ---> syn_location index set to 0' % (args.syn_location, len(LOCs)))
-    #     args.syn_locations =[0]
-
-        
     if args.task=='run':
-        run_sim_with_bg_levels(args, seed=0)
+        for args.chelated in [True,False]:
+            run_sim_with_bg_levels(args, seed=0)
+            
+    elif args.task=='full':
+        for args.syn_location in range(10):
+            for args.chelated in [True,False]:
+                run_sim_with_bg_levels(args, seed=0)
     else:
-        fn = 'data-loc-%i' % args.syn_location
-        if args.chelated:
-            data = load_dict('data/bg-modul/%s-chelated-Zinc.npz' % fn)
-        else:
-            data = load_dict('data/bg-modul/%s-free-Zinc.npz' % fn)
-
-        ge.plot(data['t'], data['Vm_soma'])
+        data = load_dict(filename(args))
+        args.chelated  = True
+        data2 = load_dict(filename(args))
+        plot_sim(data, data2)
         ge.show()
         
-
