@@ -137,18 +137,60 @@ def analyze_sim(data, data2):
 
     args = data['args']
     
-    fig, AX = ge.figure(axes_extents=[[[1,2]],[[1,1]]], figsize=(2,1), wspace=0.1)
-    fig.suptitle('n=%i bg seeds, n=%i stim seeds, loc #%i' (len(args['bgSEEDS']), len(args['stimSEEDS']), args['syn_location']), size=10)
+    fig, AX = ge.figure(axes=(len(args['bg_levels']),2), wspace=0.1)
+    fig2, AX2 = ge.figure(axes=(1,len(args['bg_levels'])), figsize=(1.,.7), hspace=0.1, bottom=1.5)
+    fig.suptitle('n=%i bg seeds, n=%i stim seeds, loc #%i' % (len(args['bgSEEDS']), len(args['stimSEEDS']), args['syn_location']), size=10)
+
+    tcond = (data['t']>=0) & (data['t']<args['duration_per_bg_level'])
+    output = {'t':data['t'][tcond]-args['stim_delay']}
+    output['free'] = np.zeros((len(args['bg_levels']), len(args['bgSEEDS']), len(args['NSTIMs']), len(args['stimSEEDS']), len(output['t'])))
+    output['chelated'] = np.zeros((len(args['bg_levels']), len(args['bgSEEDS']), len(args['NSTIMs']), len(args['stimSEEDS']), len(output['t'])))
     
     for ibg, bg in enumerate(args['bg_levels']):
 
-        for ibgseed, bgseed in enumerate(args.bgSEEDS):
+        for ibgseed, bgseed in enumerate(args['bgSEEDS']):
             
-            for istim, nstim in enumerate(args.NSTIMs):
+            for istim, nstim in enumerate(args['NSTIMs']):
                 
-                for istimseed, stimseed in enumerate(args.stimSEEDS):
+                for istimseed, stimseed in enumerate(args['stimSEEDS']):
+                    t0 = (ibg*len(args['NSTIMs'])*len(args['stimSEEDS'])*len(args['bgSEEDS'])+\
+                          ibgseed*len(args['NSTIMs'])*len(args['stimSEEDS'])+\
+                          istim*len(args['stimSEEDS'])+istimseed)*args['duration_per_bg_level']
                     
-                    pass
+                    tcond = (data['t']>=t0) & (data['t']<t0+args['duration_per_bg_level'])
+                    output['free'][ibg,ibgseed,istim,istimseed,:] = data['Vm_soma'][tcond]
+                    output['chelated'][ibg,ibgseed,istim,istimseed,:] = data2['Vm_soma'][tcond]
+
+    ylim, ylim2 = [np.inf, -np.inf], [np.inf, -np.inf]
+    for ibg, bg in enumerate(args['bg_levels']):
+        for istim, nstim in zip(range(len(args['NSTIMs']))[::-1] ,args['NSTIMs'][::-1]):
+            # raw responses
+            y0 = output['free'][ibg,:,istim,:,:].mean(axis=(0,1))
+            y1 = output['chelated'][ibg,:,istim,:,:].mean(axis=(0,1))
+            AX[0][ibg].plot(output['t'], y0,lw=1,color=ge.red_to_blue(istim/len(args['NSTIMs'])))
+            AX[1][ibg].plot(output['t'], y1,lw=1,color=ge.red_to_blue(istim/len(args['NSTIMs'])))
+            ylim = [min([ylim[0],y1.min(),y0.min()]), max([ylim[0],y1.max(),y0.max()])]
+            # max responses
+        y0 = output['free'][ibg,:,:,:,:].max(axis=(0,2,3))
+        y1 = output['chelated'][ibg,:,:,:,:].max(axis=(0,2,3))
+        AX2[ibg].plot(args['NSTIMs'], y0,lw=1,color='k')
+        AX2[ibg].plot(args['NSTIMs'], y1,lw=1,color=ge.green)
+        ylim2 = [min([ylim2[0],y1.min(),y0.min()]), max([ylim2[0],y1.max(),y0.max()])]
+        ge.annotate(AX[0][ibg],'%.1fHz'%bg,(1,1),color=ge.purple,ha='right',va='top')
+        ge.annotate(AX2[ibg],'%.1fHz'%bg,(0,1),color=ge.purple,va='top')
+        
+    for ibg, bg in enumerate(args['bg_levels']):
+        if ibg==0:
+            ge.set_plot(AX[0][ibg], ['left'], ylim=ylim, xticks=[0,500])
+            ge.set_plot(AX[1][ibg], ylim=ylim, xticks=[0,500], xlabel='time (ms)')
+        else:
+            ge.set_plot(AX[0][ibg], [], ylim=ylim, xticks=[0,500], xticks_labels=[])
+            ge.set_plot(AX[1][ibg], ['bottom'], ylim=ylim, xticks=[0,500], xlabel='time (ms)')
+        ge.set_plot(AX2[ibg], ['left'], ylim=ylim2, ylabel='peak (mV)')
+    ge.set_plot(AX2[ibg], ylim=ylim2, ylabel='peak (mV)', xlabel='syn. #')
+    ge.annotate(AX[0][0], 'free-Zinc', (0,1), bold=True, size='large')
+    ge.annotate(AX[1][0], 'chelated-Zinc', (0,1), bold=True, color=ge.green, size='large')
+    
                 
 def plot_sim(data, data2):
     """
@@ -197,7 +239,7 @@ def plot_sim(data, data2):
     for istim, nstim in enumerate(args['NSTIMs']):
         ge.annotate(AX[1], ' %i syn.' % nstim,
                     (args['stim_delay']+istim*args['duration_per_bg_level']*len(args['stimSEEDS']),y1/2),
-                    xycoords='data', color=ge.orange, va='center', ha='right')
+                    xycoords='data', color=ge.orange, va='center', ha='right', rotation=90)
         
 
     
@@ -254,6 +296,13 @@ if __name__=='__main__':
         for args.chelated in [True,False]:
             run_sim_with_bg_levels(args, seed=0)
             
+    elif args.task=='analyze':
+        data = load_dict(filename(args))
+        args.chelated  = True
+        data2 = load_dict(filename(args))
+        analyze_sim(data, data2)
+        ge.show()
+
     elif args.task=='full':
         for args.syn_location in range(10):
             for args.chelated in [True,False]:
