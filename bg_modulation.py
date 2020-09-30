@@ -37,7 +37,7 @@ def spike_train_BG_and_STIM(Fbg, Fstim,
     return np.sort(np.concatenate([sp_bg, sp_stim])), sp_bg, sp_stim
 
 def filename(args):
-    fn = os.path.join('data', 'bg-modul', 'data-loc-%i' % args.syn_location)
+    fn = os.path.join('data', 'bg-modul', 'data-loc-%i-seed-%i' % (args.syn_location, args.seed))
     if args.active:
         fn+='-active'
     if args.chelated:
@@ -60,10 +60,10 @@ def run_sim_with_bg_levels(args, seed=0):
     t, neuron, SEGMENTS = initialize_sim(Model, tstop=tstop, active=args.active)
 
     if not (args.syn_location<len(LOCs)):
-        print('syn_location "%i" too high, only %i locations available\n ---> syn_location index set to 0' % (args.syn_location, len(LOCs)))        
+        print('syn_location "%i" too high, only %i locations available\n ---> syn_location index set to 0' % (args.syn_location, len(LOCs)))
         args.syn_location = 0
         
-    synapses_loc = LOCs[args.syn_location] + np.arange(args.Nsyn)
+    synapses_loc = LOCs[args.syn_location]+np.arange(args.Nsyn)
 
     BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
 
@@ -78,7 +78,7 @@ def run_sim_with_bg_levels(args, seed=0):
 
                     stim = stim_single_event_per_synapse(args.stim_duration,
                                                          len(synapses_loc), nstim,
-                                                         tstart=args.stim_delay, seed=stimseed)
+                                                         tstart=args.stim_delay, seed=seed**2+stimseed)
                 
                     t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
                           ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
@@ -278,6 +278,7 @@ if __name__=='__main__':
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
     # model variations
     parser.add_argument("-c", "--chelated", help="chelated Zinc condition", action="store_true")
+    parser.add_argument("-c", "--chelated", help="chelated Zinc condition", default='False')
     parser.add_argument("--active", help="with active conductances", action="store_true")
     parser.add_argument("-aZn", "--alphaZn", help="inhibition factor in free Zinc condition",
                         type=float, default=.35)
