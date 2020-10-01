@@ -153,25 +153,13 @@ def compute_free_residual(sim, index, calib_data, condition='free'):
             
             factor_exp = np.max(trace_exp[first_peak_cond])
             factor_exp0 = np.max(trace_exp0[first_peak_cond])
-            # trace_exp0 *= factor_exp/factor_exp0 # MAX
-            # trace_exp *= factor_exp0/factor_exp
-            # trace_exp /= factor_exp
+            
             trace_exp /= factor_exp
             trace_exp0 /= factor_exp0
 
             diff_model = trace_model0-trace_model
             diff_exp = trace_exp0-trace_exp
 
-            # Residual *= 1./np.corrcoef(trace_model,trace_exp)[0][1]
-            # print(Residual, np.corrcoef(trace_model,trace_exp)[0][1])
-            # Residual *= np.std((diff_model-diff_exp)**2)/np.std(diff_exp)**2
-            # Residual *= 1+np.abs(1./np.corrcoef(diff_model,diff_exp)[0][1])
-            # Residual *= np.mean(np.abs(diff_exp-diff_model))
-            # Residual *= np.std(trace_exp-trace_model)/np.std(trace_exp)
-            # Residual *= 1+np.std(np.abs(diff_model-diff_exp))/np.std(diff_exp)
-            
-            # Residual *= 1+np.sum((diff_model-diff_exp)**2)/np.sum(diff_exp)**2
-            # Residual *= 1+1./np.corrcoef(diff_model,diff_exp)[0][1]
             Residual *= 1+np.mean(np.abs(diff_model-diff_exp))/np.std(diff_exp)
 
     except FileNotFoundError:
