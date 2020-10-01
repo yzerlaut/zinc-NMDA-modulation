@@ -30,11 +30,28 @@ VC_STEPS_DATASET = {'20Hz_protocol':[\
                     ],
 }
 
-L4L23_PAIRS_DATASET = [{'Control':['nm08Mar2018c2_006.h5'],
+L23L23_PAIRS_DATASET = [{'Control':['nm18Jul2019c0_001.h5'],
+                         'ZX1':['nm18Jul2019c0_002.h5'],
+                         'window':[100,700],
+                         'MaxSweep_ZX1':[34]},
+                       {'Control':['nm02Jul2018c17_003.h5'],
+                        'MaxSweep_Control':[20],
+                         'window':[100,700],
+                        'ZX1':['nm02Jul2018c17_004.h5']},
+                       {'Control':['nm16Apr2018c12_004.h5'],
+                         'window':[100,700],
+                        'ZX1':['nm16Apr2018c12_005.h5']},
+                       {'Control':['nm14Feb2018c1_003.h5'],
+                         'window':[300,900],
+                        'ZX1':['nm14Feb2018c1_004.h5']},
+                       {'Control':['nm08Mar2018c2_006.h5'],
+                         'window':[300,900],
                         'ZX1':['nm08Mar2018c2_007.h5']},
-                       {'Control':['nm19Feb2018c6_007.h5'],
+                       {'Control':['nm19Feb2018c6_007.h5', 'nm19Feb2018c6_008.h5'],
+                         'window':[300,900],
                         'ZX1':['nm19Feb2018c6_009.h5']},
-                       {'Control':['nm19Mar2018c3_006.h5'],
+                       {'Control':['nm19Mar2018c3_006.h5', 'nm19Mar2018c3_007.h5'],
+                         'window':[300,900],
                         'ZX1':['nm19Mar2018c3_008.h5']}]
                        
 

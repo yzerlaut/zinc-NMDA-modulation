@@ -6,9 +6,9 @@ from analyz.IO.igor import load_hdf5_exported_from_Igor as load_data
 from analyz.processing.filters import butter_lowpass_filter
 
 try:
-    from .exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts, L4L23_PAIRS_DATASET
+    from .exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts, L23L23_PAIRS_DATASET
 except ModuleNotFoundError:
-    from exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts, L4L23_PAIRS_DATASET
+    from exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts, L23L23_PAIRS_DATASET
     
 
 def abbrev_to_month(abbrev):
@@ -22,13 +22,13 @@ def abbrev_to_month(abbrev):
         
 def filename_to_path(filename):
     day, month, year = filename[2:4], filename[4:7], filename[7:11]
-    cell = filename[11:13]
+    cell = 'c'+filename.split('_')[0].split('c')[1]
     cond = filename[14:17]
-    return os.path.join(year, abbrev_to_month(month), filename[:13], filename)
+    return os.path.join(year, abbrev_to_month(month), filename.split('_')[0], filename)
 
 
 def LoadPairData(icell=0,
-                 iexp=0, condition='Control', irec=0,
+                 condition='Control',
                  dt_subampling=0,
                  Fcutoff = 2000., # for low pass filtering
                  verbose=False):
@@ -37,7 +37,12 @@ def LoadPairData(icell=0,
     else:
         root_folder = '/media/yann/DATADRIVE1/DATA/Data_Nunzio'
 
-    for fn0 in L4L23_PAIRS_DATASET[icell][condition]:
+    Data ={'recordings':{'Irecording':np.array([]),
+                         'Vrecording':np.array([])},
+           'stimulations':{'ICommand':np.array([])},
+           'filename':''}
+    
+    for ic, fn0 in enumerate(L23L23_PAIRS_DATASET[icell][condition]):
         fn = os.path.join(root_folder, filename_to_path(fn0))
         try:
             data = load_data(fn,
@@ -53,37 +58,49 @@ def LoadPairData(icell=0,
                                           verbose=verbose)
             
         if 'Irecording' in data['recordings']:
-            data['Irec_key'] = 'Irecording'
-        if 'Irecording2' in data['recordings']:
-            data['Irec_key'] = 'Irecording2'
-        if 'Irecording1' in data['recordings']:
-            data['Irec_key'] = 'Irecording1'
+            Data['recordings']['Irecording']  = np.vstack([Data['recordings']['Irecording'],
+                                                                data['recordings']['Irecording']]) if Data['recordings']['Irecording'].size else data['recordings']['Irecording']
+        elif 'Irecording2' in data['recordings']:
+            Data['recordings']['Irecording']  = np.vstack([Data['recordings']['Irecording'],
+                                                                data['recordings']['Irecording2']]) if Data['recordings']['Irecording'].size else data['recordings']['Irecording2']
+        elif 'Irecording1' in data['recordings']:
+            Data['recordings']['Irecording']  = np.vstack([Data['recordings']['Irecording'],
+                                                                data['recordings']['Irecording1']]) if Data['recordings']['Irecording'].size else data['recordings']['Irecording1']
+
         if 'Vrecording' in data['recordings']:
-            data['Vrec_key'] = 'Vrecording'
-        if 'Vrecording2' in data['recordings']:
-            data['Vrec_key'] = 'Vrecording2'
-        if 'Vrecording1' in data['recordings']:
-            data['Vrec_key'] = 'Vrecording1'
-        if 'ICommand' in data['stimulations']:
-            data['Icmd_key'] = 'ICommand'
-        if 'ICommand1' in data['stimulations']:
-            data['Icmd_key'] = 'ICommand1'
-        if 'ICommand2' in data['stimulations']:
-            data['Icmd_key'] = 'ICommand2'
-        data['filename'] = fn
-        # except (UnboundLocalError, KeyError):
-        #     print('/!\ -- File corrupted ! -- /!\ ')
-        #     print(fn)
-        #     from analyz.IO.hdf5 import load_dict_from_hdf5
-        #     data = load_dict_from_hdf5(fn)
+            Data['recordings']['Vrecording']  = np.vstack([Data['recordings']['Vrecording'],
+                                                                data['recordings']['Vrecording']]) if Data['recordings']['Vrecording'].size else data['recordings']['Vrecording']
+        elif 'Vrecording2' in data['recordings']:
+            Data['recordings']['Vrecording']  = np.vstack([Data['recordings']['Vrecording'],
+                                                                data['recordings']['Vrecording2']]) if Data['recordings']['Vrecording'].size else data['recordings']['Vrecording2']
+        elif 'Vrecording1' in data['recordings']:
+            Data['recordings']['Vrecording']  = np.vstack([Data['recordings']['Vrecording'],
+                                                                data['recordings']['Vrecording1']]) if Data['recordings']['Vrecording'].size else data['recordings']['Vrecording1']
+
+                                                           
+        Data['filename'] += fn+'  '
+    if 'ICommand' in data['stimulations']:
+        Data['stimulations']['ICommand'] = data['stimulations']['ICommand']
+    elif 'ICommand2' in data['stimulations']:
+        Data['stimulations']['ICommand'] = data['stimulations']['ICommand2']
+    elif 'ICommand1' in data['stimulations']:
+        Data['stimulations']['ICommand'] = data['stimulations']['ICommand1']
+
+    Data['t'] = data['t']
     if Fcutoff>0:
         # adding low pass filtering
         Facq = 1./(data['t'][1]-data['t'][0])*1e3
-        for i in range(data['recordings'][data['Irec_key']].shape[0]):
-            data['recordings'][data['Irec_key']][i,:] =\
-                butter_lowpass_filter(data['recordings'][data['Irec_key']][i,:], Fcutoff, Facq, order=5)
+        for i in range(Data['recordings']['Irecording'].shape[0]):
+            Data['recordings']['Irecording'][i,:] =\
+                butter_lowpass_filter(Data['recordings']['Irecording'][i,:], Fcutoff, Facq, order=5)
+    if ('MaxSweep_%s' % condition) in L23L23_PAIRS_DATASET[icell]:
+        Nmax = L23L23_PAIRS_DATASET[icell]['MaxSweep_%s' % condition][ic]
+        for key in ['Irecording', 'Vrecording']:
+            Data['recordings'][key] = Data['recordings'][key][:Nmax,:]
+        print(Data['filename'], ' limited to', Nmax, 'sweeps')
         
-    return data
+    Data['window'] = L23L23_PAIRS_DATASET[icell]['window']
+    return Data
 
 def LoadVCData(protocol,
              iexp=0, condition='Control', irec=0,
@@ -191,12 +208,13 @@ def LoadICData(index=0,
         for i in range(data['recordings'][data['Vrec_key']].shape[0]):
             data['recordings'][data['Vrec_key']][i,:] =\
                butter_lowpass_filter(data['recordings'][data['Vrec_key']][i,:], Fcutoff, Facq, order=5)
-            
+
     return data
 
 
 if __name__=='__main__':
 
-    data = LoadPairData(2, condition='Control')
-    # data = LoadPairData(0, condition='ZX1')
-    print(data)
+    data = LoadPairData(1, condition='Control')
+    data = LoadPairData(1, condition='ZX1')
+    print(data['stimulations']['Icommand'])
+    # print(data)
