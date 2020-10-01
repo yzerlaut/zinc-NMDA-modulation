@@ -30,9 +30,13 @@ VC_STEPS_DATASET = {'20Hz_protocol':[\
                     ],
 }
 
-L4L23_PAIRS_DATASET = [{'Control':['nm19Mar2018c3_006.h5'., 'nm19Mar2018c3_007.h5'],
-                        'ZX1':['nm19Mar2018c3_007.h5']}]
-
+L4L23_PAIRS_DATASET = [{'Control':['nm08Mar2018c2_006.h5'],
+                        'ZX1':['nm08Mar2018c2_007.h5']},
+                       {'Control':['nm19Feb2018c6_007.h5'],
+                        'ZX1':['nm19Feb2018c6_009.h5']},
+                       {'Control':['nm19Mar2018c3_006.h5'],
+                        'ZX1':['nm19Mar2018c3_008.h5']}]
+                       
 
 IC_STEPS_DATASET = [
     'nm19May2019c1_001.h5',

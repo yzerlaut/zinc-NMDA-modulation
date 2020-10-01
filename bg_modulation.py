@@ -277,13 +277,16 @@ if __name__=='__main__':
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
     # model variations
-    parser.add_argument("-c", "--chelated", help="chelated Zinc condition", action="store_true")
-    parser.add_argument("-c", "--chelated", help="chelated Zinc condition", default='False')
-    parser.add_argument("--active", help="with active conductances", action="store_true")
-    parser.add_argument("-aZn", "--alphaZn", help="inhibition factor in free Zinc condition",
+    parser.add_argument("-c", "--chelated",
+                        help="chelated Zinc condition",
+                        default='False')
+    parser.add_argument("--active",
+                        help="with active conductances",
+                        action="store_true")
+    parser.add_argument("-aZn", "--alphaZn",
+                        help="inhibition factor in free Zinc condition",
                         type=float, default=.35)
-    parser.add_argument("-s", "--seed",help="#", type=int, default=1)
-
+    parser.add_argument("-s", "--seed", help="#", type=int, default=1)
 
     args = parser.parse_args()
 

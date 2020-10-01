@@ -1,10 +1,15 @@
 import os, sys
 import numpy as np
 
+from analyz.IO.igor import reshape_data_from_Igor
 from analyz.IO.igor import load_hdf5_exported_from_Igor as load_data
 from analyz.processing.filters import butter_lowpass_filter
 
-from .exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts
+try:
+    from .exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts, L4L23_PAIRS_DATASET
+except ModuleNotFoundError:
+    from exp_datasets import VC_STEPS_DATASET, IC_STEPS_DATASET, IC_t0s, IC_dts, L4L23_PAIRS_DATASET
+    
 
 def abbrev_to_month(abbrev):
     M = ['January', 'February', 'March', 'April', 'May',\
@@ -32,37 +37,51 @@ def LoadPairData(icell=0,
     else:
         root_folder = '/media/yann/DATADRIVE1/DATA/Data_Nunzio'
 
-    fn = os.path.join(root_folder,
-                      filename_to_path(L4L23_PAIRS_DATASET[icell][condition]))
-    
-    try:
-        data = load_data(fn, dt_subsampling=dt_subampling, verbose=verbose)
-        data['filename'] = fn
-        if 'stim' in data['stimulations']:
-            data['stim_key'] = 'stim'
-        else:
-            data['stim_key'] = 'Stimulator'
-        if 'Vcommand2' in data['stimulations']:
-            data['Vcmd_key'] = 'Vcommand2'
-        else:
-            data['Vcmd_key'] = 'Vcommand'
+    for fn0 in L4L23_PAIRS_DATASET[icell][condition]:
+        fn = os.path.join(root_folder, filename_to_path(fn0))
+        try:
+            data = load_data(fn,
+                             dt_subsampling=dt_subampling,
+                             verbose=verbose,
+                             with_reshaping=True)
+        except KeyError:
+            # means this is a merged datafile !
+            from analyz.IO.hdf5 import load_dict_from_hdf5
+            data0 = load_dict_from_hdf5(fn)
+            data = reshape_data_from_Igor(data0[fn0.split('.')[0]],
+                                          dt_subsampling=dt_subampling,
+                                          verbose=verbose)
+            
+        if 'Irecording' in data['recordings']:
+            data['Irec_key'] = 'Irecording'
         if 'Irecording2' in data['recordings']:
             data['Irec_key'] = 'Irecording2'
-        else:
-            data['Irec_key'] = 'Irecording'
-    except (UnboundLocalError, KeyError):
-        print('/!\ -- File corrupted ! -- /!\ ')
-        print(fn)
-        from analyz.IO.hdf5 import load_dict_from_hdf5
-        data = load_dict_from_hdf5(fn)
+        if 'Irecording1' in data['recordings']:
+            data['Irec_key'] = 'Irecording1'
+        if 'Vrecording' in data['recordings']:
+            data['Vrec_key'] = 'Vrecording'
+        if 'Vrecording2' in data['recordings']:
+            data['Vrec_key'] = 'Vrecording2'
+        if 'Vrecording1' in data['recordings']:
+            data['Vrec_key'] = 'Vrecording1'
+        if 'ICommand' in data['stimulations']:
+            data['Icmd_key'] = 'ICommand'
+        if 'ICommand1' in data['stimulations']:
+            data['Icmd_key'] = 'ICommand1'
+        if 'ICommand2' in data['stimulations']:
+            data['Icmd_key'] = 'ICommand2'
+        data['filename'] = fn
+        # except (UnboundLocalError, KeyError):
+        #     print('/!\ -- File corrupted ! -- /!\ ')
+        #     print(fn)
+        #     from analyz.IO.hdf5 import load_dict_from_hdf5
+        #     data = load_dict_from_hdf5(fn)
     if Fcutoff>0:
         # adding low pass filtering
         Facq = 1./(data['t'][1]-data['t'][0])*1e3
         for i in range(data['recordings'][data['Irec_key']].shape[0]):
             data['recordings'][data['Irec_key']][i,:] =\
                 butter_lowpass_filter(data['recordings'][data['Irec_key']][i,:], Fcutoff, Facq, order=5)
-        
-    data = remove_VC_stimulation_artefact(data)
         
     return data
 
@@ -178,5 +197,6 @@ def LoadICData(index=0,
 
 if __name__=='__main__':
 
-    data = LoadPairData(0)
+    data = LoadPairData(2, condition='Control')
+    # data = LoadPairData(0, condition='ZX1')
     print(data)
