@@ -93,7 +93,7 @@ def run_model(Model, debug=False):
     return output
 
     
-    
+
 if __name__=='__main__':
 
     from analyz.workflow.batch_run import GridSimulation
