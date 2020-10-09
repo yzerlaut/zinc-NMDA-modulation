@@ -37,7 +37,7 @@ def spike_train_BG_and_STIM(Fbg, Fstim,
     return np.sort(np.concatenate([sp_bg, sp_stim])), sp_bg, sp_stim
 
 def filename(args):
-    fn = os.path.join('data', 'bg-modul', 'data-loc-%i-seed-%i' % (args.syn_location, args.seed))
+    fn = os.path.join('data', 'bg-modul', 'data-loc-%i-seed-%i-alphaZn-%.2f' % (args.syn_location, args.seed, args.alphaZn))
     if args.active:
         fn+='-active'
     if args.chelated:
@@ -264,8 +264,8 @@ if __name__=='__main__':
     parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=1000)
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
-    parser.add_argument("--bg_level",help="[ms]", type=float, default=2)
-    parser.add_argument("--bg_levels",help="[ms]", type=float, default=[0, 2, 4, 6, 8], nargs='*')
+    parser.add_argument("--bg_level",help="[Hz]", type=float, default=2)
+    parser.add_argument("--bg_levels",help="[Hz]", type=float, default=[0, 3, 6], nargs='*')
     parser.add_argument("--NbgSEEDS",help="#", type=int, default=1)
     parser.add_argument("--bgSEEDS",help="#", type=int, default=[0], nargs='*')
     # stim props
@@ -285,7 +285,7 @@ if __name__=='__main__':
                         action="store_true")
     parser.add_argument("-aZn", "--alphaZn",
                         help="inhibition factor in free Zinc condition",
-                        type=float, default=.35)
+                        type=float, default=.25)
     parser.add_argument("-s", "--seed", help="#", type=int, default=1)
 
     args = parser.parse_args()
@@ -310,7 +310,9 @@ if __name__=='__main__':
     elif args.task=='full':
         for args.syn_location in range(10):
             for args.chelated in [True,False]:
-                run_sim_with_bg_levels(args, seed=0)
+                for args.seed in np.arange(3):
+                    print(args.syn_location, args.chelated, args.seed)
+                    run_sim_with_bg_levels(args, seed=args.seed)
     else:
         data = load_dict(filename(args))
         args.chelated  = True
