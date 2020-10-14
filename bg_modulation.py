@@ -70,12 +70,24 @@ def run_sim_with_bg_levels(args, seed=0):
 
     for ibg, bg in enumerate(args.bg_levels):
 
+        if args.verbose:
+            print('bg_levels: ', ibg, bg, args.bg_levels)
+        
         for ibgseed, bgseed in enumerate(args.bgSEEDS):
+            
+            if args.verbose:
+                print('bg_seed: ', ibgseed, bgseed, args.bgSEEDS)
             
             for istim, nstim in enumerate(args.NSTIMs):
                 
+                if args.verbose:
+                    print('stim: ', istim, nstim, args.NSTIMs)
+                
                 for istimseed, stimseed in enumerate(args.stimSEEDS):
 
+                    if args.verbose:
+                        print('stim seed: ', istimseed, stimseed, args.stimSEEDS)
+                    
                     stim = stim_single_event_per_synapse(args.stim_duration,
                                                          len(synapses_loc), nstim,
                                                          tstart=args.stim_delay, seed=seed**2+stimseed)
@@ -271,6 +283,8 @@ if __name__=='__main__':
     # stim props
     parser.add_argument("-sl", "--syn_location",help="#", type=int, default=1)
     parser.add_argument("--Nsyn",help="#", type=int, default=20)
+    # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
+    #                     default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
     parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
                         default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
     parser.add_argument("--stimSEEDS",help="#", type=int, default=[0], nargs='*')
@@ -285,8 +299,9 @@ if __name__=='__main__':
                         action="store_true")
     parser.add_argument("-aZn", "--alphaZn",
                         help="inhibition factor in free Zinc condition",
-                        type=float, default=.25)
+                        type=float, default=.4)
     parser.add_argument("-s", "--seed", help="#", type=int, default=1)
+    parser.add_argument('-v', "--verbose", action="store_true")
 
     args = parser.parse_args()
 
@@ -298,7 +313,7 @@ if __name__=='__main__':
 
     if args.task=='run':
         for args.chelated in [True,False]:
-            run_sim_with_bg_levels(args, seed=0)
+            run_sim_with_bg_levels(args, seed=args.seed)
             
     elif args.task=='analyze':
         data = load_dict(filename(args))
