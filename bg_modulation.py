@@ -216,7 +216,7 @@ def plot_sim(data, data2):
         AE.append([[1,2]])
         AE.append([[1,1]])
     
-    fig, AX = ge.figure(axes_extents=AE, figsize=(3.5,.18), wspace=0., left=.2)
+    fig, AX = ge.figure(axes_extents=AE, figsize=(3.5,.25), wspace=0., left=.2)
     
     for ibg, bg in enumerate(args['bg_levels']):
 
@@ -225,8 +225,8 @@ def plot_sim(data, data2):
 
         tcond = (data['t']>=t0) & (data['t']<t1)
         
-        AX[3*ibg].plot(data2['t'][tcond], data2['Vm_soma'][tcond], color=ge.green, label='chelated-Zinc', lw=1)
-        AX[3*ibg].plot(data['t'][tcond], data['Vm_soma'][tcond], color='k', label='free-Zinc', lw=1)
+        AX[3*ibg].plot(data2['t'][tcond], data2['Vm_soma'][tcond], color=ge.green, label='chelated-Zinc', lw=1.5)
+        AX[3*ibg].plot(data['t'][tcond], data['Vm_soma'][tcond], color='k', label='free-Zinc', lw=1.5)
         AX[3*ibg].plot([t0,t1], [-75,-75], 'k--', lw=0.5)
         
         for i, sp0 in enumerate(data['BG_raster']):
@@ -236,7 +236,7 @@ def plot_sim(data, data2):
         for i, sp0 in enumerate(data['STIM_raster']):
             sp = np.array(sp0)
             cond = (sp>=t0) & (sp<t1)
-            AX[3*ibg+1].scatter(sp[cond], i*np.ones(len(sp[cond])), color=ge.orange, s=2)
+            AX[3*ibg+1].scatter(sp[cond], i*np.ones(len(sp[cond])), color=ge.orange, s=4)
             
         ge.annotate(AX[3*ibg+1], '$\\nu_{bg}$=%.1fHz' % bg, (0,0), color=ge.purple, rotation=90, ha='right')
         ge.set_plot(AX[3*ibg], [], xlim=[t0, t1])#, ylabel='Vm (mV)')
@@ -316,6 +316,7 @@ if __name__=='__main__':
             run_sim_with_bg_levels(args, seed=args.seed)
             
     elif args.task=='analyze':
+        args.chelated  = False
         data = load_dict(filename(args))
         args.chelated  = True
         data2 = load_dict(filename(args))
@@ -329,6 +330,7 @@ if __name__=='__main__':
                     print(args.syn_location, args.chelated, args.seed)
                     run_sim_with_bg_levels(args, seed=args.seed)
     else:
+        args.chelated  = False
         data = load_dict(filename(args))
         args.chelated  = True
         data2 = load_dict(filename(args))

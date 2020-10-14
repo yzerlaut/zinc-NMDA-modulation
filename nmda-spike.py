@@ -15,9 +15,11 @@ def run_sim(Model,
 
     Modelc = Model.copy()
     tstop = t0+len(NSYNs)*interstim
+    if chelated:
+        Modelc['alphaZn'] = 0.
+
     t, neuron, SEGMENTS = initialize_sim(Model,
                                          active=active,
-                                         chelated_zinc=chelated,
                                          tstop=tstop)
 
     
@@ -99,7 +101,7 @@ if __name__=='__main__':
         loc_syn0 = LOCs[1]
     except BaseException:
         pass
-    NSYNs=[2, 4, 6, 8, 10, 12]
+    NSYNs=[2, 4, 6, 8, 10, 12, 14]
 
     if sys.argv[-1]=='syn-demo':
 
