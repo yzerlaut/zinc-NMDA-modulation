@@ -15,9 +15,11 @@ def run_sim(Model,
 
     Modelc = Model.copy()
     tstop = t0+len(NSYNs)*interstim
+    if chelated:
+        Modelc['alphaZn'] = 0.
+
     t, neuron, SEGMENTS = initialize_sim(Model,
                                          active=active,
-                                         chelated_zinc=chelated,
                                          tstop=tstop)
 
     
@@ -93,10 +95,13 @@ def fig_full():
     pass
     
 if __name__=='__main__':
-    
-    LOCs = np.load('data/nmda-spike/locations.npy')
-    loc_syn0 = LOCs[1]
-    NSYNs=[2, 4, 6, 8, 10, 12]
+
+    try:
+        LOCs = np.load('data/nmda-spike/locations.npy')
+        loc_syn0 = LOCs[1]
+    except BaseException:
+        pass
+    NSYNs=[2, 4, 6, 8, 10, 12, 14]
 
     if sys.argv[-1]=='syn-demo':
 

@@ -24,7 +24,6 @@ This model allowed to implement synaptic stimulation coupled with current-clamp 
 To examine the validity of this theoretical description against our experimental observations, we incorporated 
 
 
-
 *** Zinc modulation restrict the temporal window of NMDA events / shifts NMDA spike threshold.
 
 We then embed this model in a background of synaptic activity and examined how the Zinc modulation mechanism affect the NMDA events following diverse sets of synchronized synaptic events, see Figure {model-prediction}.
