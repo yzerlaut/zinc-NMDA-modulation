@@ -55,6 +55,8 @@ def run_sim_with_bg_levels(args, seed=0):
 
     Model['alphaZn'] = args.alphaZn
 
+    np.random.seed(seed)
+    
     tstop = len(args.bg_levels)*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)*args.duration_per_bg_level
         
     t, neuron, SEGMENTS = initialize_sim(Model, tstop=tstop, active=args.active)
@@ -89,7 +91,8 @@ def run_sim_with_bg_levels(args, seed=0):
                     
                     stim = stim_single_event_per_synapse(args.stim_duration,
                                                          len(synapses_loc), nstim,
-                                                         tstart=args.stim_delay, seed=seed**2+stimseed)
+                                                         tstart=args.stim_delay,
+                                                         seed=seed**2+stimseed)
                 
                     t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
                           ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
@@ -99,7 +102,8 @@ def run_sim_with_bg_levels(args, seed=0):
                         if bg>0:
                             bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
                                                                   tstart=t0,
-                                                                  seed=seed+(3*i+2*(ibg+1)+3**istim+istimseed+3*ibgseed)**seed)
+                                                                  # seed=seed+(3*i+2*(ibg+1)+3**istim+istimseed+3*ibgseed)**seed)
+                                                                  seed=np.random.randint(10000))
                             BG[i] = BG[i]+list(bg_spikes)
 
                         STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
@@ -319,11 +323,11 @@ if __name__=='__main__':
         run_sim_with_bg_levels(args, seed=args.seed)
             
     elif args.task=='analyze':
-        args.chelated  = False
+        # args.chelated  = False
         data = load_dict(filename(args))
-        args.chelated  = True
-        data2 = load_dict(filename(args))
-        analyze_sim(data, data2)
+        # args.chelated  = True
+        # data2 = load_dict(filename(args))
+        analyze_sim(data, data)
         ge.show()
 
     elif args.task=='full':
