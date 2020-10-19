@@ -2,7 +2,6 @@
 
 * Key Points
 
-
 [[Figure {model-description} around here]]
 
 \item We derive a model for the modulation of synaptic transmission through NMDA channels due to the binding of endogeneous Zinc. 

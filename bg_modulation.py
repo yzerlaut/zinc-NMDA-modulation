@@ -13,8 +13,9 @@ def single_poisson_process_BG(Fbg, duration, tstart=0, seed=0):
     return tstart+1e3*poisson
 
 
-def single_poisson_process_STIM(Fstim, tstart, duration):
+def single_poisson_process_STIM(Fstim, tstart, duration, seed=0):
     # time in [ms], frequency in [Hz]
+    np.random.seed(seed)
     poisson = np.cumsum(np.random.exponential(1./Fstim, size=int(3*duration/1e3*Fstim)))
     poisson = poisson[poisson<=1e-3*duration]
     return tstart+1e3*poisson
@@ -30,10 +31,12 @@ def stim_single_event_per_synapse(window, Nsyn, Nsyn_stim, tstart=0., seed=0):
 def spike_train_BG_and_STIM(Fbg, Fstim,
                             tstop=1000,
                             tstart=200,
+                            bg_seed=1,
+                            stim_seed=1,
                             duration=20):
     # time in [ms], frequency in [Hz]
-    sp_bg = single_poisson_process_BG(Fbg, tstop)
-    sp_stim = single_poisson_process_STIM(Fstim, tstart, duration)
+    sp_bg = single_poisson_process_BG(Fbg, tstop, seed=bg_seed)
+    sp_stim = single_poisson_process_STIM(Fstim, tstart, duration, seed=stim_seed)
     return np.sort(np.concatenate([sp_bg, sp_stim])), sp_bg, sp_stim
 
 def filename(args):
@@ -50,10 +53,7 @@ def run_sim_with_bg_levels(args, seed=0):
 
     from model import Model
 
-    if args.chelated:
-        Model['alphaZn'] = 0
-    else:
-        Model['alphaZn'] = args.alphaZn
+    Model['alphaZn'] = args.alphaZn
 
     tstop = len(args.bg_levels)*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)*args.duration_per_bg_level
         
@@ -66,7 +66,6 @@ def run_sim_with_bg_levels(args, seed=0):
     synapses_loc = LOCs[args.syn_location]+np.arange(args.Nsyn)
 
     BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
-
 
     for ibg, bg in enumerate(args.bg_levels):
 
@@ -98,9 +97,10 @@ def run_sim_with_bg_levels(args, seed=0):
 
                     for i in range(len(synapses_loc)):
                         if bg>0:
-                            BG[i] = BG[i]+list(single_poisson_process_BG(bg, args.duration_per_bg_level,
-                                                                     tstart=t0,
-                                                                     seed=seed+3*i+2*(ibg+1)+3**istim+istimseed*ibgseed))
+                            bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
+                                                                  tstart=t0,
+                                                                  seed=seed+(3*i+2*(ibg+1)+3**istim+istimseed+3*ibgseed)**seed)
+                            BG[i] = BG[i]+list(bg_spikes)
 
                         STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
             
@@ -269,6 +269,7 @@ if __name__=='__main__':
     parser.add_argument("task",\
         help="""
         Task to be performed, either:
+        - full
         - run
         - plot
         """, default='plot')
@@ -300,10 +301,13 @@ if __name__=='__main__':
     parser.add_argument("-aZn", "--alphaZn",
                         help="inhibition factor in free Zinc condition",
                         type=float, default=.4)
-    parser.add_argument("-s", "--seed", help="#", type=int, default=1)
+    parser.add_argument("-s", "--seed", help="#", type=int, default=2)
     parser.add_argument('-v', "--verbose", action="store_true")
 
     args = parser.parse_args()
+
+    if args.chelated:
+        args.alphaZn = 0
 
     if args.NbgSEEDS>1:
         args.bgSEEDS = np.arange(args.NbgSEEDS)
@@ -312,8 +316,7 @@ if __name__=='__main__':
         args.bg_levels =[args.bg_level]
 
     if args.task=='run':
-        for args.chelated in [True,False]:
-            run_sim_with_bg_levels(args, seed=args.seed)
+        run_sim_with_bg_levels(args, seed=args.seed)
             
     elif args.task=='analyze':
         args.chelated  = False
@@ -325,15 +328,12 @@ if __name__=='__main__':
 
     elif args.task=='full':
         for args.syn_location in range(10):
-            for args.chelated in [True,False]:
+            for args.chelated in [True, False]:
                 for args.seed in np.arange(3):
                     print(args.syn_location, args.chelated, args.seed)
                     run_sim_with_bg_levels(args, seed=args.seed)
     else:
-        args.chelated  = False
         data = load_dict(filename(args))
-        args.chelated  = True
-        data2 = load_dict(filename(args))
-        plot_sim(data, data2)
+        plot_sim(data, data)
         ge.show()
         
