@@ -335,8 +335,9 @@ if __name__=='__main__':
                 for args.seed in np.arange(3):
                     print(args.syn_location, args.chelated, args.seed)
                     run_sim_with_bg_levels(args, seed=args.seed)
-    else:
+    elif args.task=='plot':
         data = load_dict(filename(args))
         plot_sim(data, data)
         ge.show()
-        
+    else:
+        pass
