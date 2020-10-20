@@ -257,7 +257,6 @@ def plot_sim(data, data2):
                     (args['stim_delay']+istim*args['duration_per_bg_level']*len(args['stimSEEDS']),y1/2),
                     xycoords='data', color=ge.orange, va='center', ha='right', rotation=90)
         
-
     
 
 if __name__=='__main__':
