@@ -5,7 +5,7 @@ from analyz.IO.npz import load_dict
 
 LOCs = np.load('data/nmda-spike/locations.npy')
 
-def single_poisson_process_BG(Fbg, duration, tstart=0, seed=0):
+def single_poisson_process_BG(Fbg, duration, tstart=0, seed=1):
     # time in [ms], frequency in [Hz]
     np.random.seed(seed)
     poisson = np.cumsum(np.random.exponential(1./Fbg, size=int(3*duration/1e3*Fbg)))
@@ -40,13 +40,8 @@ def spike_train_BG_and_STIM(Fbg, Fstim,
     return np.sort(np.concatenate([sp_bg, sp_stim])), sp_bg, sp_stim
 
 def filename(args):
-    fn = os.path.join('data', 'bg-modul', 'data-loc-%i-seed-%i-alphaZn-%.2f' % (args.syn_location, args.seed, args.alphaZn))
-    if args.active:
-        fn+='-active'
-    if args.chelated:
-        fn+='-chelated-Zinc.npz'
-    else:
-        fn+='-free-Zinc.npz'
+    fn = os.path.join('data', 'bg-modul',
+        'data-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.syn_location, args.seed, args.alphaZn, args.active))
     return fn
     
 def run_sim_with_bg_levels(args, seed=0):
@@ -92,7 +87,7 @@ def run_sim_with_bg_levels(args, seed=0):
                     stim = stim_single_event_per_synapse(args.stim_duration,
                                                          len(synapses_loc), nstim,
                                                          tstart=args.stim_delay,
-                                                         seed=seed**2+stimseed)
+                                                         seed=stimseed+10*seed)
                 
                     t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
                           ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
@@ -102,8 +97,7 @@ def run_sim_with_bg_levels(args, seed=0):
                         if bg>0:
                             bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
                                                                   tstart=t0,
-                                                                  # seed=seed+(3*i+2*(ibg+1)+3**istim+istimseed+3*ibgseed)**seed)
-                                                                  seed=np.random.randint(10000))
+                                                                  seed=i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*seed)
                             BG[i] = BG[i]+list(bg_spikes)
 
                         STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
@@ -117,6 +111,8 @@ def run_sim_with_bg_levels(args, seed=0):
     spike_times = spike_times[isorted]
     spike_IDs = spike_IDs[isorted]
 
+    spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t, verbose=True)
+    
     Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
                                                            spike_IDs, spike_times,
                                                            synapses_loc,
@@ -126,6 +122,7 @@ def run_sim_with_bg_levels(args, seed=0):
     # recording and running
     M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
     S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
+
 
     # # Run simulation
     ntwk.run(tstop*ntwk.ms)
@@ -148,6 +145,7 @@ def run_sim_with_bg_levels(args, seed=0):
         *(1-Model['alphaZn']*output['bZn_syn'])
 
     np.savez(filename(args), **output)
+    
 
 def analyze_sim(data, data2):
 
@@ -276,8 +274,8 @@ if __name__=='__main__':
         - run
         - plot
         """, default='plot')
-    parser.add_argument("--stim_delay",help="[ms]", type=float, default=400)
-    parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=1000)
+    parser.add_argument("--stim_delay",help="[ms]", type=float, default=600)
+    parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=1500)
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
     parser.add_argument("--bg_level",help="[Hz]", type=float, default=2)
@@ -295,22 +293,22 @@ if __name__=='__main__':
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
     # model variations
-    parser.add_argument("-c", "--chelated",
-                        help="chelated Zinc condition",
-                        default='False')
+    # parser.add_argument("-c", "--chelated",
+    #                     help="chelated Zinc condition",
+    #                     default='False')
     parser.add_argument("--active",
                         help="with active conductances",
                         action="store_true")
     parser.add_argument("-aZn", "--alphaZn",
                         help="inhibition factor in free Zinc condition",
                         type=float, default=.4)
-    parser.add_argument("-s", "--seed", help="#", type=int, default=2)
+    parser.add_argument("-s", "--seed", help="#", type=int, default=10)
     parser.add_argument('-v', "--verbose", action="store_true")
 
     args = parser.parse_args()
 
-    if args.chelated:
-        args.alphaZn = 0
+    # if args.chelated:
+    #     args.alphaZn = 0
 
     if args.NbgSEEDS>1:
         args.bgSEEDS = np.arange(args.NbgSEEDS)
@@ -330,14 +328,19 @@ if __name__=='__main__':
         ge.show()
 
     elif args.task=='full':
-        for args.syn_location in range(10):
-            for args.chelated in [True, False]:
-                for args.seed in np.arange(3):
-                    print(args.syn_location, args.chelated, args.seed)
-                    run_sim_with_bg_levels(args, seed=args.seed)
+        for args.syn_location in range(5):
+            print('syn loc #%i, alphaZn=%.2f' % (args.syn_location, args.alphaZn))
+            run_sim_with_bg_levels(args, seed=args.seed)
+            # # for args.seed in [0,1,3,4,5]:
+            # for args.seed in [2]:
+            #     print('syn loc #%i, alphaZn=%.2f, seed=%i' % (args.syn_location, args.alphaZn, args.seed))
+            #     run_sim_with_bg_levels(args, seed=args.seed)
+                
+                
     elif args.task=='plot':
         data = load_dict(filename(args))
         plot_sim(data, data)
         ge.show()
+        
     else:
         pass
