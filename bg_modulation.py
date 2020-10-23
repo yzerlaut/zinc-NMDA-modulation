@@ -40,17 +40,26 @@ def spike_train_BG_and_STIM(Fbg, Fstim,
     return np.sort(np.concatenate([sp_bg, sp_stim])), sp_bg, sp_stim
 
 def filename(args):
-    fn = os.path.join('data', 'bg-modul',
-        'data-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.syn_location, args.seed, args.alphaZn, args.active))
+    if args.ampa_only:
+        fn = os.path.join('data', 'bg-modul',
+                          'data-loc-%i-seed-%i-ampa-active-%s.npz' % (args.syn_location, args.seed, args.active))
+    else:
+        fn = os.path.join('data', 'bg-modul',
+                          'data-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.syn_location, args.seed, args.alphaZn, args.active))
+        
     return fn
     
-def run_sim_with_bg_levels(args, seed=0):
+def run_sim_with_bg_levels(args):
 
     from model import Model
 
-    Model['alphaZn'] = args.alphaZn
+    if args.ampa_only:
+        Model['alphaZn'] = 0
+        Model['qNMDA'] = 0.
+    else:
+        Model['alphaZn'] = args.alphaZn
 
-    np.random.seed(seed)
+    np.random.seed(args.seed)
     
     tstop = len(args.bg_levels)*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)*args.duration_per_bg_level
         
@@ -87,7 +96,7 @@ def run_sim_with_bg_levels(args, seed=0):
                     stim = stim_single_event_per_synapse(args.stim_duration,
                                                          len(synapses_loc), nstim,
                                                          tstart=args.stim_delay,
-                                                         seed=stimseed+10*seed)
+                                                         seed=stimseed+10*args.seed)
                 
                     t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
                           ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
@@ -97,7 +106,7 @@ def run_sim_with_bg_levels(args, seed=0):
                         if bg>0:
                             bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
                                                                   tstart=t0,
-                                                                  seed=i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*seed)
+                                                                  seed=i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*args.seed)
                             BG[i] = BG[i]+list(bg_spikes)
 
                         STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
@@ -275,7 +284,7 @@ if __name__=='__main__':
         - plot
         """, default='plot')
     parser.add_argument("--stim_delay",help="[ms]", type=float, default=600)
-    parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=1500)
+    parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=2000)
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
     parser.add_argument("--bg_level",help="[Hz]", type=float, default=2)
@@ -284,11 +293,12 @@ if __name__=='__main__':
     parser.add_argument("--bgSEEDS",help="#", type=int, default=[0], nargs='*')
     # stim props
     parser.add_argument("-sl", "--syn_location",help="#", type=int, default=1)
+    parser.add_argument("-Nsl", "--N_syn_location",help="#", type=int, default=5)
     parser.add_argument("--Nsyn",help="#", type=int, default=20)
     # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
     #                     default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
     parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
-                        default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
+                        default=range(20), nargs='*')
     parser.add_argument("--stimSEEDS",help="#", type=int, default=[0], nargs='*')
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
@@ -298,6 +308,9 @@ if __name__=='__main__':
     #                     default='False')
     parser.add_argument("--active",
                         help="with active conductances",
+                        action="store_true")
+    parser.add_argument("--ampa_only",
+                        help="ampa only",
                         action="store_true")
     parser.add_argument("-aZn", "--alphaZn",
                         help="inhibition factor in free Zinc condition",
@@ -317,7 +330,7 @@ if __name__=='__main__':
         args.bg_levels =[args.bg_level]
 
     if args.task=='run':
-        run_sim_with_bg_levels(args, seed=args.seed)
+        run_sim_with_bg_levels(args)
             
     elif args.task=='analyze':
         # args.chelated  = False
@@ -330,7 +343,7 @@ if __name__=='__main__':
     elif args.task=='full':
         for args.syn_location in range(5):
             print('syn loc #%i, alphaZn=%.2f' % (args.syn_location, args.alphaZn))
-            run_sim_with_bg_levels(args, seed=args.seed)
+            run_sim_with_bg_levels(args)
             # # for args.seed in [0,1,3,4,5]:
             # for args.seed in [2]:
             #     print('syn loc #%i, alphaZn=%.2f, seed=%i' % (args.syn_location, args.alphaZn, args.seed))
