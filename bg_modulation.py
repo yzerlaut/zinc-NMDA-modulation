@@ -142,16 +142,17 @@ def run_sim_with_bg_levels(args):
               'syn_locations':synapses_loc,
               'bg_levels':np.array(args.bg_levels),
               'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
-              'bZn_syn':np.array(S.bZn)[0,:],
-              'gAMPA_syn':np.array(S.gAMPA/ntwk.nS)[0,:],
-              'X_syn':np.array(S.X)[0,:],
-              'Vm_syn':np.array(M.v/ntwk.mV)[1,:],
+              # 'bZn_syn':np.array(S.bZn)[0,:], # REMOVED TO DECREASE FILE SIZE !!
+              # 'gAMPA_syn':np.array(S.gAMPA/ntwk.nS)[0,:],
+              # 'X_syn':np.array(S.X)[0,:],
+              # 'Vm_syn':np.array(M.v/ntwk.mV)[1,:],
               'Model':Model, 'args':vars(args)}
-    
-    output['gNMDA_syn']= Model['qNMDA']*Model['nNMDA']*\
-        (np.array(S.gDecayNMDA)[0,:]-np.array(S.gRiseNMDA)[0,:])\
-        /(1+Model['etaMg']*Model['cMg']*np.exp(-output['Vm_syn']/Model['V0NMDA']))\
-        *(1-Model['alphaZn']*output['bZn_syn'])
+
+    # REMOVED TO DECREASE FILE SIZE !!
+    # output['gNMDA_syn']= Model['qNMDA']*Model['nNMDA']*\
+    #     (np.array(S.gDecayNMDA)[0,:]-np.array(S.gRiseNMDA)[0,:])\
+    #     /(1+Model['etaMg']*Model['cMg']*np.exp(-output['Vm_syn']/Model['V0NMDA']))\
+    #     *(1-Model['alphaZn']*output['bZn_syn'])
 
     np.savez(filename(args), **output)
     

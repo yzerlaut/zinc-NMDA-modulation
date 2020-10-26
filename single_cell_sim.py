@@ -70,7 +70,7 @@ def initialize_sim(Model,
         Equation_String = ntwk.CalciumConcentrationDynamics(contributing_currents='IT+IHVACa',
                                                             name='CaDynamics').insert(Equation_String)
     
-        # intrinsic currents
+        # intrinsic currents (passive current already in eq.)
         CURRENTS = [ntwk.PotassiumChannelCurrent(name='K'),
                     ntwk.SodiumChannelCurrent(name='Na'),
                     ntwk.HighVoltageActivationCalciumCurrent(name='HVACa'),
@@ -92,18 +92,18 @@ def initialize_sim(Model,
         pS_um2 = 1e-12*ntwk.siemens/ntwk.um**2
         # --- axon ---
         # neuron.axon.gbar_Na = 30000*pS_um2
-        neuron.axon.gbar_K = 400*pS_um2
+        # neuron.axon.gbar_K = 400*pS_um2
         
         # --- soma ---
         neuron.gbar_Na[0] = 1500*pS_um2
         neuron.gbar_K[0] = 200*pS_um2
         neuron.gbar_Musc[0] = 2.2*pS_um2
-        # neuron.gbar_KCa[0] = 2.5*pS_um2
+        neuron.gbar_KCa[0] = 2.5*pS_um2
         neuron.gbar_HVACa[0] = 0.5*pS_um2
         neuron.gbar_T[0] = 0.0003*pS_um2
 
         # --- basal dendrites ---
-        # neuron.dend.gbar_Na = 40*pS_um2
+        neuron.dend.gbar_Na = 40*pS_um2
         neuron.dend.gbar_K = 30*pS_um2
         neuron.dend.gbar_T = 0.0006*pS_um2
         neuron.dend.gbar_HVACa = 0.5*pS_um2
@@ -200,16 +200,20 @@ if __name__=='__main__':
     
     from model import Model
 
+    ntwk.defaultclock.dt = 0.025*ntwk.ms
+    
     active, chelated = True, True
     t, neuron, SEGMENTS = initialize_sim(Model, active=active)
 
+    print(np.unique(SEGMENTS['name']))
+    """
     # EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
     # output = run(neuron, Model, Estim, ES, Istim, IS)
     # from datavyz import ges as ge
     # plot_signals(output, ge=ge)
     # ge.show()
 
-    tstop = 400
+    tstop = 200.
     synapses_loc = 2000+np.arange(6)
     # synapses_loc = 0+np.arange(5)
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
@@ -225,6 +229,7 @@ if __name__=='__main__':
                                                            EXC_SYNAPSES_EQUATIONS.format(**Model),
                                                            ON_EXC_EVENT.format(**Model))
 
+    
     # recording and running
     if active:
         M = ntwk.StateMonitor(neuron, ('v', 'InternalCalcium'), record=[0, synapses_loc[0]])
@@ -241,8 +246,6 @@ if __name__=='__main__':
     AX[0].plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:], label='soma')
     ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[1,:], label='dend', ax=AX[0])
     if active:
-        AX[1].plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[0,:], label='soma',
-                   axes_args={'ylabel':'$V_m$ (mV)'})
         ge.plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[1,:],
                 label='dend', ax=AX[1], axes_args={'ylabel':'[Ca2+] (nM)', 'xlabel':'time (ms)'})
     else:
@@ -253,3 +256,4 @@ if __name__=='__main__':
     ge.legend(AX[1])
     ge.show()
 
+    """
