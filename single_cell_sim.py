@@ -205,8 +205,7 @@ if __name__=='__main__':
     active, chelated = True, True
     t, neuron, SEGMENTS = initialize_sim(Model, active=active)
 
-    print(np.unique(SEGMENTS['name']))
-    """
+
     # EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
     # output = run(neuron, Model, Estim, ES, Istim, IS)
     # from datavyz import ges as ge
@@ -256,4 +255,4 @@ if __name__=='__main__':
     ge.legend(AX[1])
     ge.show()
 
-    """
+
