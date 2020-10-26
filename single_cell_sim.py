@@ -213,7 +213,8 @@ if __name__=='__main__':
     # ge.show()
 
     tstop = 200.
-    synapses_loc = 2000+np.arange(6)
+    synapses_loc = 2000+np.arange(20)
+    
     # synapses_loc = 0+np.arange(5)
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
     t0_stim, n_pulses, freq_pulses = 100, 4, 50
@@ -228,7 +229,6 @@ if __name__=='__main__':
                                                            EXC_SYNAPSES_EQUATIONS.format(**Model),
                                                            ON_EXC_EVENT.format(**Model))
 
-    
     # recording and running
     if active:
         M = ntwk.StateMonitor(neuron, ('v', 'InternalCalcium'), record=[0, synapses_loc[0]])

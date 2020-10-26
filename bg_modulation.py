@@ -43,6 +43,9 @@ def filename(args):
     if args.ampa_only:
         fn = os.path.join('data', 'bg-modul',
                           'data-loc-%i-seed-%i-ampa-active-%s.npz' % (args.syn_location, args.seed, args.active))
+    elif args.bg_level>0:
+        fn = os.path.join('data', 'bg-modul',
+                          'data-bg-level-%.2f-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.bg_level, args.syn_location, args.seed, args.alphaZn, args.active))
     else:
         fn = os.path.join('data', 'bg-modul',
                           'data-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.syn_location, args.seed, args.alphaZn, args.active))
@@ -134,6 +137,7 @@ def run_sim_with_bg_levels(args):
 
 
     # # Run simulation
+    print('running simulation [...]')
     ntwk.run(tstop*ntwk.ms)
     
     output = {'t':np.array(M.t/ntwk.ms),
@@ -288,7 +292,7 @@ if __name__=='__main__':
     parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=2000)
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
-    parser.add_argument("--bg_level",help="[Hz]", type=float, default=2)
+    parser.add_argument("--bg_level",help="[Hz]", type=float, default=0)
     parser.add_argument("--bg_levels",help="[Hz]", type=float, default=[0, 1, 2, 3, 4, 5, 6], nargs='*')
     parser.add_argument("--NbgSEEDS",help="#", type=int, default=1)
     parser.add_argument("--bgSEEDS",help="#", type=int, default=[0], nargs='*')
@@ -356,5 +360,82 @@ if __name__=='__main__':
         plot_sim(data, data)
         ge.show()
         
+    elif args.task=='active-demo':
+
+        from model import Model
+
+        ntwk.defaultclock.dt = 0.025*ntwk.ms
+
+        active, chelated = True, True
+        t, neuron, SEGMENTS = initialize_sim(Model, active=active)
+
+        tstop = args.duration_per_bg_level
+        synapses_loc = LOCs[args.syn_location]+np.arange(args.Nsyn)
+
+        stim = stim_single_event_per_synapse(args.stim_duration,
+                                             len(synapses_loc), len(synapses_loc),
+                                             tstart=args.stim_delay,
+                                             seed=args.seed)
+        
+        BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
+
+        for i in range(len(synapses_loc)):
+            BG.append([])
+            if args.bg_level>0:
+                bg_spikes = single_poisson_process_BG(args.bg_level, args.duration_per_bg_level,
+                                                      tstart=0,
+                                                      seed=args.seed+2*i)
+                BG[i] = BG[i]+list(bg_spikes)
+
+            STIM[i] = STIM[i]+[s for s in stim[i]]
+
+        spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
+        for i in range(len(synapses_loc)):
+            spike_times = np.concatenate([spike_times,
+                                          np.concatenate([STIM[i],BG[i]])])
+            spike_IDs = np.concatenate([spike_IDs,i*np.ones(len(STIM[i])+len(BG[i]))])
+
+        isorted = np.argsort(spike_times)
+        spike_times = spike_times[isorted]
+        spike_IDs = spike_IDs[isorted]
+
+        spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t,
+                                                                        verbose=True)
+
+        Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
+                                                               spike_IDs, spike_times,
+                                                               synapses_loc,
+                                                               EXC_SYNAPSES_EQUATIONS.format(**Model),
+                                                               ON_EXC_EVENT.format(**Model))
+
+
+        # recording and running
+        if active:
+            M = ntwk.StateMonitor(neuron, ('v', 'InternalCalcium'), record=[0, synapses_loc[0]])
+        else:
+            M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
+            S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gE_post', 'bZn'), record=[0])
+
+        # # Run simulation
+        print('running simulation [...]')
+        ntwk.run(tstop*ntwk.ms)
+
+        from datavyz import ges as ge
+        fig, AX = ge.figure(axes=(1,2),figsize=(2,1))
+
+        AX[0].plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[0,:], label='soma')
+        ge.plot(np.array(M.t/ntwk.ms), np.array(M.v/ntwk.mV)[1,:], label='dend', ax=AX[0])
+        if active:
+            ge.plot(np.array(M.t/ntwk.ms), np.array(M.InternalCalcium/ntwk.nM)[1,:],
+                    label='dend', ax=AX[1], axes_args={'ylabel':'[Ca2+] (nM)', 'xlabel':'time (ms)'})
+        else:
+            AX[1].plot(np.array(M.t/ntwk.ms), np.array(S.gAMPA/ntwk.nS)[0,:], ':', color=ge.orange, label='gAMPA')
+            AX[1].plot(np.array(M.t/ntwk.ms), np.array(S.gE_post/ntwk.nS)[0,:]-np.array(S.gAMPA/ntwk.nS)[0,:], color=ge.orange, label='gNMDA')
+
+        ge.legend(AX[0])
+        ge.legend(AX[1])
+        ge.show()
+
+
     else:
         pass
