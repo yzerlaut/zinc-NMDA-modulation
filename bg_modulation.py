@@ -137,7 +137,8 @@ def run_sim_with_bg_levels(args):
 
 
     # # Run simulation
-    print('running simulation [...]')
+    print('running simulation [...]', t[-1])
+    
     ntwk.run(tstop*ntwk.ms)
     
     output = {'t':np.array(M.t/ntwk.ms),
@@ -164,7 +165,7 @@ def run_sim_with_bg_levels(args):
 def analyze_sim(data, data2):
 
     args = data['args']
-    
+    print(args)
     fig, AX = ge.figure(axes=(len(args['bg_levels']),2), wspace=0.1)
     fig2, AX2 = ge.figure(axes=(1,len(args['bg_levels'])), figsize=(1.,.7), hspace=0.1, bottom=1.5)
     fig.suptitle('n=%i bg seeds, n=%i stim seeds, loc #%i' % (len(args['bgSEEDS']), len(args['stimSEEDS']), args['syn_location']), size=10)
@@ -292,7 +293,7 @@ if __name__=='__main__':
     parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=2000)
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
-    parser.add_argument("--bg_level",help="[Hz]", type=float, default=0)
+    parser.add_argument("--bg_level",help="[Hz]", type=float, default=-1)
     parser.add_argument("--bg_levels",help="[Hz]", type=float, default=[0, 1, 2, 3, 4, 5, 6], nargs='*')
     parser.add_argument("--NbgSEEDS",help="#", type=int, default=1)
     parser.add_argument("--bgSEEDS",help="#", type=int, default=[0], nargs='*')
@@ -331,7 +332,7 @@ if __name__=='__main__':
     if args.NbgSEEDS>1:
         args.bgSEEDS = np.arange(args.NbgSEEDS)
         
-    if len(args.bg_levels)==0:
+    if args.bg_level>=0:
         args.bg_levels =[args.bg_level]
 
     if args.task=='run':
