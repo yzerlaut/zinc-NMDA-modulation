@@ -288,17 +288,17 @@ if __name__=='__main__':
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
     parser.add_argument("--bg_level",help="[Hz]", type=float, default=2)
-    parser.add_argument("--bg_levels",help="[Hz]", type=float, default=[0, 3, 6], nargs='*')
+    parser.add_argument("--bg_levels",help="[Hz]", type=float, default=[0, 1, 2, 3, 4, 5, 6], nargs='*')
     parser.add_argument("--NbgSEEDS",help="#", type=int, default=1)
     parser.add_argument("--bgSEEDS",help="#", type=int, default=[0], nargs='*')
     # stim props
     parser.add_argument("-sl", "--syn_location",help="#", type=int, default=1)
     parser.add_argument("-Nsl", "--N_syn_location",help="#", type=int, default=5)
     parser.add_argument("--Nsyn",help="#", type=int, default=20)
-    # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
-    #                     default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
     parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
-                        default=range(20), nargs='*')
+                        default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
+    # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
+    #                     default=range(20), nargs='*')
     parser.add_argument("--stimSEEDS",help="#", type=int, default=[0], nargs='*')
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')

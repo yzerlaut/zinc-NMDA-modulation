@@ -6,7 +6,7 @@ do
 	python bg_modulation.py run --syn_location $(($i+1)) --alphaZn $alphaZn &
     done
 	python bg_modulation.py run --syn_location $i --ampa_only &
-	python bg_modulation.py run --syn_location $(($i+1)) --ampa_only &
+	python bg_modulation.py run --syn_location $(($i+1)) --ampa_only
 done    
 # python bg_modulation.py run --bg_levels 0 2 4 6 --NbgSEEDS 10 --alphaZn 0.00 --syn_location 0 &
 # python bg_modulation.py run --bg_levels 0 2 4 6 --NbgSEEDS 10 --alphaZn 0.25 --syn_location 0 &
