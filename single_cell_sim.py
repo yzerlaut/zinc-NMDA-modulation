@@ -241,10 +241,11 @@ if __name__=='__main__':
         ntwk.run(tstop*ntwk.ms)
     else:
         i=0
-        while i<len(t):
+        while i<10:
             print(ntwk.t)
             ntwk.run(ntwk.defaultclock.dt)
             neuron.v = np.clip(neuron.v, -80, 0)
+            i+=1
 
     from datavyz import ges as ge
     fig, AX = ge.figure(axes=(1,2),figsize=(2,1))
