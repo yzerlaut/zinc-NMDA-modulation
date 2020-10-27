@@ -5,12 +5,12 @@ do
     do
 	for alphaZn in 0.00 0.45
 	do
-	    for iseed in $(seq 4 1 7)
+	    for iseed in $(seq 4 1 5)
 	    do
 		seed=$(($i+$bg+3*$iseed))
 		python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $i --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active &
 	    done
-	    iseed=8
+	    iseed=6
 	    seed=$(($i+$bg+3*$iseed))
 	    python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $i --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active
 	done
