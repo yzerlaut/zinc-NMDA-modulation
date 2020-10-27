@@ -45,7 +45,7 @@ Model = {
     # ---------- SIMULATION PARAMS  ----------------- #
     ###################################################
     'tstop':600, # [ms]
-    'dt':0.01,# [ms]
+    'dt':0.025,# [ms]
     'seed':1, #
     'VC-gL-reduction-factor':5, # 
     'VC-discard-time':200, # [ms]

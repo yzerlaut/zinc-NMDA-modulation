@@ -1,4 +1,4 @@
-import os
+import os, time
 import numpy as np
 
 import neural_network_dynamics.main as ntwk # my custom layer on top of Brian2
@@ -80,10 +80,11 @@ def initialize_sim(Model,
         
         for current in CURRENTS:
             Equation_String = current.insert(Equation_String)
-
+            
     neuron = ntwk.SpatialNeuron(morphology=morpho,
                                 model=Equation_String.format(**Model),
-                                method='exponential_euler',
+                                # method='exponential_euler',
+                                method='euler',
                                 Cm=Model['cm'] * ntwk.uF / ntwk.cm ** 2,
                                 Ri=Model['Ri'] * ntwk.ohm * ntwk.cm)
     
@@ -194,14 +195,24 @@ def plot_signals(output, ge=None):
     AX[2].plot(output['t'][cond], output['Vm_soma'][cond], '-', color=ge.colors[2])
     return fig
 
-    
+def adaptive_run(neuron, dt, tstop,
+                 check_every=5, # ms
+                 VCLIP=[-80, 0]):
+
+    Vm, i, last_t = [], 0, 0
+    while last_t<tstop:
+        ntwk.run(0.2*ntwk.ms)
+        neuron.v = np.clip(neuron.v/ntwk.mV, -80, 0)*ntwk.mV
+        print(np.max(neuron.v/ntwk.mV), np.min(neuron.v/ntwk.mV))
+        last_t = M.t[-1]/ntwk.ms
+        print(M.t[-1]/ntwk.ms)
+    pass
 
 if __name__=='__main__':
     
+    
     from model import Model
 
-    ntwk.defaultclock.dt = 0.025*ntwk.ms
-    
     active, chelated = True, True
     t, neuron, SEGMENTS = initialize_sim(Model, active=active)
 
@@ -212,12 +223,12 @@ if __name__=='__main__':
     # plot_signals(output, ge=ge)
     # ge.show()
 
-    tstop = 200.
+    tstop = 40.
     synapses_loc = 2000+np.arange(20)
     
     # synapses_loc = 0+np.arange(5)
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
-    t0_stim, n_pulses, freq_pulses = 100, 4, 50
+    t0_stim, n_pulses, freq_pulses = 10, 4, 50
     for i in range(n_pulses):
         spike_times = np.concatenate([spike_times,
                                       (t0_stim+i*1e3/freq_pulses)*np.ones(len(synapses_loc))])
@@ -237,16 +248,23 @@ if __name__=='__main__':
         S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gE_post', 'bZn'), record=[0])
 
     # # Run simulation
-    if not active:
-        ntwk.run(tstop*ntwk.ms)
-    else:
-        i=0
-        while i<10:
-            print(ntwk.t)
-            ntwk.run(ntwk.defaultclock.dt)
-            neuron.v = np.clip(neuron.v, -80, 0)
-            i+=1
+    start = time.time()
 
+    if active:
+        ntwk.defaultclock.dt = 0.01*ntwk.ms
+    else:
+        ntwk.defaultclock.dt = 0.025*ntwk.ms
+    
+    ntwk.run(tstop*ntwk.ms)
+    # if not active:
+    #     ntwk.run(tstop*ntwk.ms)
+    # else:
+    #     adaptive_run(tstop, neuron, M)
+        
+    
+    # ntwk.run(tstop*ntwk.ms)
+    print('Runtime: %.2f s' % (time.time()-start))
+    
     from datavyz import ges as ge
     fig, AX = ge.figure(axes=(1,2),figsize=(2,1))
     
@@ -257,7 +275,8 @@ if __name__=='__main__':
                 label='dend', ax=AX[1], axes_args={'ylabel':'[Ca2+] (nM)', 'xlabel':'time (ms)'})
     else:
         AX[1].plot(np.array(M.t/ntwk.ms), np.array(S.gAMPA/ntwk.nS)[0,:], ':', color=ge.orange, label='gAMPA')
-        AX[1].plot(np.array(M.t/ntwk.ms), np.array(S.gE_post/ntwk.nS)[0,:]-np.array(S.gAMPA/ntwk.nS)[0,:], color=ge.orange, label='gNMDA')
+        AX[1].plot(np.array(M.t/ntwk.ms), np.array(S.gE_post/ntwk.nS)[0,:]-np.array(S.gAMPA/ntwk.nS)[0,:],
+                   color=ge.orange, label='gNMDA')
         
     ge.legend(AX[0])
     ge.legend(AX[1])
