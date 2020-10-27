@@ -237,7 +237,14 @@ if __name__=='__main__':
         S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gE_post', 'bZn'), record=[0])
 
     # # Run simulation
-    ntwk.run(tstop*ntwk.ms)
+    if not active:
+        ntwk.run(tstop*ntwk.ms)
+    else:
+        i=0
+        while i<len(t):
+            print(ntwk.t)
+            ntwk.run(ntwk.defaultclock.dt)
+            neuron.v = np.clip(neuron.v, -80, 0)
 
     from datavyz import ges as ge
     fig, AX = ge.figure(axes=(1,2),figsize=(2,1))
