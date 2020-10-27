@@ -139,10 +139,11 @@ def run_sim_with_bg_levels(args):
     # # Run simulation
     print('running simulation [...]', t[-1])
 
-    if not active:
-        ntwk.run(tstop*ntwk.ms)
-    else:
-        pass
+    if args.active:
+        ntwk.defaultclock.dt = 0.01*ntwk.ms
+        
+    ntwk.run(tstop*ntwk.ms)
+
     
     output = {'t':np.array(M.t/ntwk.ms),
               'BG_raster':BG,
