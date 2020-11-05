@@ -40,15 +40,18 @@ def spike_train_BG_and_STIM(Fbg, Fstim,
     return np.sort(np.concatenate([sp_bg, sp_stim])), sp_bg, sp_stim
 
 def filename(args):
-    if args.ampa_only:
-        fn = os.path.join('data', 'bg-modul',
-                          'data-loc-%i-seed-%i-ampa-active-%s.npz' % (args.syn_location, args.seed, args.active))
-    elif args.bg_level>0:
-        fn = os.path.join('data', 'bg-modul',
-                          'data-bg-level-%.2f-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.bg_level, args.syn_location, args.seed, args.alphaZn, args.active))
+    if args.active:
+        root_folder = os.path.join('data', 'bg-modul', 'active')
     else:
-        fn = os.path.join('data', 'bg-modul',
-                          'data-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.syn_location, args.seed, args.alphaZn, args.active))
+        root_folder = os.path.join('data', 'bg-modul', 'passive')
+    if args.ampa_only:
+        fn = os.path.join(root_folder,
+                          'data-bg-level-%.2f-loc-%i-seed-%i-ampa-only.npz' % (args.bg_level,\
+                                                            args.syn_location, args.seed))
+    else:
+        fn = os.path.join(root_folder,
+                          'data-bg-level-%.2f-loc-%i-seed-%i-alphaZn-%.2f.npz' % (args.bg_level,\
+                                                            args.syn_location, args.seed, args.alphaZn))
         
     return fn
     
@@ -72,74 +75,58 @@ def run_sim_with_bg_levels(args):
         print('syn_location "%i" too high, only %i locations available\n ---> syn_location index set to 0' % (args.syn_location, len(LOCs)))
         args.syn_location = 0
         
-    if not args.use_preloaded_presynact:
-        
-        synapses_loc = LOCs[args.syn_location]+np.arange(args.Nsyn)
-        
-        BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
+    synapses_loc = LOCs[args.syn_location]+np.arange(args.Nsyn)
 
-        for ibg, bg in enumerate(args.bg_levels):
+    BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
 
+    for ibg, bg in enumerate(args.bg_levels):
+
+        if args.verbose:
+            print('bg_levels: ', ibg, bg, args.bg_levels)
+        
+        for ibgseed, bgseed in enumerate(args.bgSEEDS):
+            
             if args.verbose:
-                print('bg_levels: ', ibg, bg, args.bg_levels)
-
-            for ibgseed, bgseed in enumerate(args.bgSEEDS):
-
+                print('bg_seed: ', ibgseed, bgseed, args.bgSEEDS)
+            
+            for istim, nstim in enumerate(args.NSTIMs):
+                
                 if args.verbose:
-                    print('bg_seed: ', ibgseed, bgseed, args.bgSEEDS)
-
-                for istim, nstim in enumerate(args.NSTIMs):
+                    print('stim: ', istim, nstim, args.NSTIMs)
+                
+                for istimseed, stimseed in enumerate(args.stimSEEDS):
 
                     if args.verbose:
-                        print('stim: ', istim, nstim, args.NSTIMs)
+                        print('stim seed: ', istimseed, stimseed, args.stimSEEDS)
+                    
+                    stim = stim_single_event_per_synapse(args.stim_duration,
+                                                         len(synapses_loc), nstim,
+                                                         tstart=args.stim_delay,
+                                                         seed=stimseed+10*args.seed)
+                
+                    t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
+                          ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
+                          istim*len(args.stimSEEDS)+istimseed)*args.duration_per_bg_level
 
-                    for istimseed, stimseed in enumerate(args.stimSEEDS):
+                    for i in range(len(synapses_loc)):
+                        if bg>0:
+                            bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
+                                                                  tstart=t0,
+                                                                  seed=i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*args.seed)
+                            BG[i] = BG[i]+list(bg_spikes)
 
-                        if args.verbose:
-                            print('stim seed: ', istimseed, stimseed, args.stimSEEDS)
+                        STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
+            
+    spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
+    for i in range(len(synapses_loc)):
+        spike_times = np.concatenate([spike_times,
+                                      np.concatenate([STIM[i],BG[i]])])
+        spike_IDs = np.concatenate([spike_IDs,i*np.ones(len(STIM[i])+len(BG[i]))])
+    isorted = np.argsort(spike_times)
+    spike_times = spike_times[isorted]
+    spike_IDs = spike_IDs[isorted]
 
-                        stim = stim_single_event_per_synapse(args.stim_duration,
-                                                             len(synapses_loc), nstim,
-                                                             tstart=args.stim_delay,
-                                                             seed=5+stimseed+10*args.seed)
-
-                        t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
-                              ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
-                              istim*len(args.stimSEEDS)+istimseed)*args.duration_per_bg_level
-
-                        for i in range(len(synapses_loc)):
-                            if bg>0:
-                                bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
-                                                                      tstart=t0,
-                                                                      seed=1+i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*args.seed)
-                                BG[i] = BG[i]+list(bg_spikes)
-
-                            STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
-
-        spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
-        for i in range(len(synapses_loc)):
-            spike_times = np.concatenate([spike_times,
-                                          np.concatenate([STIM[i],BG[i]])])
-            spike_IDs = np.concatenate([spike_IDs,i*np.ones(len(STIM[i])+len(BG[i]))])
-        isorted = np.argsort(spike_times)
-        spike_times = spike_times[isorted]
-        spike_IDs = spike_IDs[isorted]
-
-        spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t,
-                                                                        verbose=True)
-        if args.save_presynaptic_input:
-            np.save(os.path.join('data', 'bg-modul', 'presyn-data.npy'),
-                    {'spike_IDs':spike_IDs,
-                     'BG':BG, 'STIM':STIM,
-                     'synapses_loc':synapses_loc,
-                     't':t, 'tstop':tstop,
-                     'spike_times':spike_times})
-    else:
-        pre = np.load(os.path.join('data', 'bg-modul', 'presyn-data.npy'), allow_pickle=True).item()
-        spike_IDs, spike_times = pre['spike_IDs'], pre['spike_times']
-        synapses_loc = pre['synapses_loc']
-        t, tstop = pre['t'], pre['tstop']
-        # BG, STIM = pre['BG'], pre['STIM']
+    spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t, verbose=True)
     
     Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
                                                            spike_IDs, spike_times,
@@ -147,35 +134,43 @@ def run_sim_with_bg_levels(args):
                                                            EXC_SYNAPSES_EQUATIONS.format(**Model),
                                                            ON_EXC_EVENT.format(**Model))
         
-    # recording and running
-    M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
-    S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
+    # recording
+    if args.store_full_data:
+        S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
+        M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
+    else:
+        M = ntwk.StateMonitor(neuron, ('v'), record=[0])
 
-    # # Run simulation
+    # Run simulation
     print('running simulation [...]', t[-1])
-
-    if args.active:
-        ntwk.defaultclock.dt = 0.01*ntwk.ms
 
     ntwk.run(tstop*ntwk.ms)
     
-    output = {'t':np.array(M.t/ntwk.ms),
-              # 'BG_raster':BG,
-              # 'STIM_raster':STIM,
-              'syn_locations':synapses_loc,
-              'bg_levels':np.array(args.bg_levels),
-              'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
-              # 'bZn_syn':np.array(S.bZn)[0,:], # REMOVED TO DECREASE FILE SIZE !!
-              # 'gAMPA_syn':np.array(S.gAMPA/ntwk.nS)[0,:],
-              # 'X_syn':np.array(S.X)[0,:],
-              # 'Vm_syn':np.array(M.v/ntwk.mV)[1,:],
-              'Model':Model, 'args':vars(args)}
+    if args.store_full_data:
+        output = {'t':np.array(M.t/ntwk.ms),
+                  'BG_raster':BG,
+                  'STIM_raster':STIM,
+                  'syn_locations':synapses_loc,
+                  'bg_levels':np.array(args.bg_levels),
+                  'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
+                  'bZn_syn':np.array(S.bZn)[0,:], # REMOVED TO DECREASE FILE SIZE !!
+                  'gAMPA_syn':np.array(S.gAMPA/ntwk.nS)[0,:],
+                  'X_syn':np.array(S.X)[0,:],
+                  'Vm_syn':np.array(M.v/ntwk.mV)[1,:],
+                  'Model':Model, 'args':vars(args)}
 
-    # REMOVED TO DECREASE FILE SIZE !!
-    # output['gNMDA_syn']= Model['qNMDA']*Model['nNMDA']*\
-    #     (np.array(S.gDecayNMDA)[0,:]-np.array(S.gRiseNMDA)[0,:])\
-    #     /(1+Model['etaMg']*Model['cMg']*np.exp(-output['Vm_syn']/Model['V0NMDA']))\
-    #     *(1-Model['alphaZn']*output['bZn_syn'])
+        output['gNMDA_syn']= Model['qNMDA']*Model['nNMDA']*\
+            (np.array(S.gDecayNMDA)[0,:]-np.array(S.gRiseNMDA)[0,:])\
+            /(1+Model['etaMg']*Model['cMg']*np.exp(-output['Vm_syn']/Model['V0NMDA']))\
+            *(1-Model['alphaZn']*output['bZn_syn'])
+    else:
+        output = {'t':np.array(M.t/ntwk.ms),
+                  'BG_raster':BG,
+                  'STIM_raster':STIM,
+                  'syn_locations':synapses_loc,
+                  'bg_levels':np.array(args.bg_levels),
+                  'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
+                  'Model':Model, 'args':vars(args)}
 
     np.savez(filename(args), **output)
     
@@ -308,7 +303,7 @@ if __name__=='__main__':
         - plot
         """, default='plot')
     parser.add_argument("--stim_delay",help="[ms]", type=float, default=600)
-    parser.add_argument('-dbl', "--duration_per_bg_level",help="[ms]", type=float, default=2000)
+    parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=2000)
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
     parser.add_argument("--bg_level",help="[Hz]", type=float, default=-1)
@@ -330,8 +325,6 @@ if __name__=='__main__':
     # parser.add_argument("-c", "--chelated",
     #                     help="chelated Zinc condition",
     #                     default='False')
-    parser.add_argument("--use_preloaded_presynact", action="store_true")
-    parser.add_argument("--save_presynaptic_input", action="store_true")
     parser.add_argument("--active",
                         help="with active conductances",
                         action="store_true")
@@ -343,6 +336,7 @@ if __name__=='__main__':
                         type=float, default=.4)
     parser.add_argument("-s", "--seed", help="#", type=int, default=10)
     parser.add_argument('-v', "--verbose", action="store_true")
+    parser.add_argument("--store_full_data", action="store_true")
 
     args = parser.parse_args()
 
@@ -367,11 +361,11 @@ if __name__=='__main__':
         ge.show()
 
     elif args.task=='full':
-        for args.alphaZn in [0., 0.3, 0.45]:
+        for args.alphaZn in [0, 0.3, 0.45]:
+            print('syn loc #%i, alphaZn=%.2f' % (args.syn_location, args.alphaZn))
             run_sim_with_bg_levels(args)
         args.ampa_only = True
-        run_sim_with_bg_levels(args, seed=args.seed)
-                
+        run_sim_with_bg_levels(args)
                 
     elif args.task=='plot':
         data = load_dict(filename(args))
@@ -417,8 +411,8 @@ if __name__=='__main__':
         spike_times = spike_times[isorted]
         spike_IDs = spike_IDs[isorted]
 
-        # spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t,
-        #                                                                 verbose=True)
+        spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t,
+                                                                        verbose=True)
 
         Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
                                                                spike_IDs, spike_times,
