@@ -72,58 +72,74 @@ def run_sim_with_bg_levels(args):
         print('syn_location "%i" too high, only %i locations available\n ---> syn_location index set to 0' % (args.syn_location, len(LOCs)))
         args.syn_location = 0
         
-    synapses_loc = LOCs[args.syn_location]+np.arange(args.Nsyn)
-
-    BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
-
-    for ibg, bg in enumerate(args.bg_levels):
-
-        if args.verbose:
-            print('bg_levels: ', ibg, bg, args.bg_levels)
+    if not args.use_preloaded_presynact:
         
-        for ibgseed, bgseed in enumerate(args.bgSEEDS):
-            
+        synapses_loc = LOCs[args.syn_location]+np.arange(args.Nsyn)
+        
+        BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
+
+        for ibg, bg in enumerate(args.bg_levels):
+
             if args.verbose:
-                print('bg_seed: ', ibgseed, bgseed, args.bgSEEDS)
-            
-            for istim, nstim in enumerate(args.NSTIMs):
-                
+                print('bg_levels: ', ibg, bg, args.bg_levels)
+
+            for ibgseed, bgseed in enumerate(args.bgSEEDS):
+
                 if args.verbose:
-                    print('stim: ', istim, nstim, args.NSTIMs)
-                
-                for istimseed, stimseed in enumerate(args.stimSEEDS):
+                    print('bg_seed: ', ibgseed, bgseed, args.bgSEEDS)
+
+                for istim, nstim in enumerate(args.NSTIMs):
 
                     if args.verbose:
-                        print('stim seed: ', istimseed, stimseed, args.stimSEEDS)
-                    
-                    stim = stim_single_event_per_synapse(args.stim_duration,
-                                                         len(synapses_loc), nstim,
-                                                         tstart=args.stim_delay,
-                                                         seed=stimseed+10*args.seed)
-                
-                    t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
-                          ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
-                          istim*len(args.stimSEEDS)+istimseed)*args.duration_per_bg_level
+                        print('stim: ', istim, nstim, args.NSTIMs)
 
-                    for i in range(len(synapses_loc)):
-                        if bg>0:
-                            bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
-                                                                  tstart=t0,
-                                                                  seed=i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*args.seed)
-                            BG[i] = BG[i]+list(bg_spikes)
+                    for istimseed, stimseed in enumerate(args.stimSEEDS):
 
-                        STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
-            
-    spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
-    for i in range(len(synapses_loc)):
-        spike_times = np.concatenate([spike_times,
-                                      np.concatenate([STIM[i],BG[i]])])
-        spike_IDs = np.concatenate([spike_IDs,i*np.ones(len(STIM[i])+len(BG[i]))])
-    isorted = np.argsort(spike_times)
-    spike_times = spike_times[isorted]
-    spike_IDs = spike_IDs[isorted]
+                        if args.verbose:
+                            print('stim seed: ', istimseed, stimseed, args.stimSEEDS)
 
-    spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t, verbose=True)
+                        stim = stim_single_event_per_synapse(args.stim_duration,
+                                                             len(synapses_loc), nstim,
+                                                             tstart=args.stim_delay,
+                                                             seed=5+stimseed+10*args.seed)
+
+                        t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
+                              ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
+                              istim*len(args.stimSEEDS)+istimseed)*args.duration_per_bg_level
+
+                        for i in range(len(synapses_loc)):
+                            if bg>0:
+                                bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
+                                                                      tstart=t0,
+                                                                      seed=1+i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*args.seed)
+                                BG[i] = BG[i]+list(bg_spikes)
+
+                            STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
+
+        spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
+        for i in range(len(synapses_loc)):
+            spike_times = np.concatenate([spike_times,
+                                          np.concatenate([STIM[i],BG[i]])])
+            spike_IDs = np.concatenate([spike_IDs,i*np.ones(len(STIM[i])+len(BG[i]))])
+        isorted = np.argsort(spike_times)
+        spike_times = spike_times[isorted]
+        spike_IDs = spike_IDs[isorted]
+
+        spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t,
+                                                                        verbose=True)
+        if args.save_presynaptic_input:
+            np.save(os.path.join('data', 'bg-modul', 'presyn-data.npy'),
+                    {'spike_IDs':spike_IDs,
+                     'BG':BG, 'STIM':STIM,
+                     'synapses_loc':synapses_loc,
+                     't':t, 'tstop':tstop,
+                     'spike_times':spike_times})
+    else:
+        pre = np.load(os.path.join('data', 'bg-modul', 'presyn-data.npy'), allow_pickle=True).item()
+        spike_IDs, spike_times = pre['spike_IDs'], pre['spike_times']
+        synapses_loc = pre['synapses_loc']
+        t, tstop = pre['t'], pre['tstop']
+        # BG, STIM = pre['BG'], pre['STIM']
     
     Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
                                                            spike_IDs, spike_times,
@@ -135,19 +151,17 @@ def run_sim_with_bg_levels(args):
     M = ntwk.StateMonitor(neuron, ('v'), record=[0, synapses_loc[0]])
     S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
 
-
     # # Run simulation
     print('running simulation [...]', t[-1])
 
     if args.active:
         ntwk.defaultclock.dt = 0.01*ntwk.ms
-        
-    ntwk.run(tstop*ntwk.ms)
 
+    ntwk.run(tstop*ntwk.ms)
     
     output = {'t':np.array(M.t/ntwk.ms),
-              'BG_raster':BG,
-              'STIM_raster':STIM,
+              # 'BG_raster':BG,
+              # 'STIM_raster':STIM,
               'syn_locations':synapses_loc,
               'bg_levels':np.array(args.bg_levels),
               'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
@@ -294,7 +308,7 @@ if __name__=='__main__':
         - plot
         """, default='plot')
     parser.add_argument("--stim_delay",help="[ms]", type=float, default=600)
-    parser.add_argument("--duration_per_bg_level",help="[ms]", type=float, default=2000)
+    parser.add_argument('-dbl', "--duration_per_bg_level",help="[ms]", type=float, default=2000)
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
     parser.add_argument("--bg_level",help="[Hz]", type=float, default=-1)
@@ -316,6 +330,8 @@ if __name__=='__main__':
     # parser.add_argument("-c", "--chelated",
     #                     help="chelated Zinc condition",
     #                     default='False')
+    parser.add_argument("--use_preloaded_presynact", action="store_true")
+    parser.add_argument("--save_presynaptic_input", action="store_true")
     parser.add_argument("--active",
                         help="with active conductances",
                         action="store_true")
@@ -404,8 +420,8 @@ if __name__=='__main__':
         spike_times = spike_times[isorted]
         spike_IDs = spike_IDs[isorted]
 
-        spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t,
-                                                                        verbose=True)
+        # spike_IDs, spike_times = ntwk.deal_with_multiple_spikes_per_bin(spike_IDs, spike_times, t,
+        #                                                                 verbose=True)
 
         Estim, ES = ntwk.process_and_connect_event_stimulation(neuron,
                                                                spike_IDs, spike_times,

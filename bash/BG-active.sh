@@ -1,7 +1,6 @@
-for i in $(seq 0 1 10)
+for i in $(seq 0 1 20)
 do
-    # for alphaZn in 0.00 0.25 0.35 0.45
-    for bg in 0 2 4 6 8
+    for bg in 0 1 2 3 4 5
     do
 	for alphaZn in 0.00 0.45
 	do
