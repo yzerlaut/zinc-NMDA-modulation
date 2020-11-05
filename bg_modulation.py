@@ -367,13 +367,10 @@ if __name__=='__main__':
         ge.show()
 
     elif args.task=='full':
-        for args.syn_location in range(5):
-            print('syn loc #%i, alphaZn=%.2f' % (args.syn_location, args.alphaZn))
+        for args.alphaZn in [0., 0.3, 0.45]:
             run_sim_with_bg_levels(args)
-            # # for args.seed in [0,1,3,4,5]:
-            # for args.seed in [2]:
-            #     print('syn loc #%i, alphaZn=%.2f, seed=%i' % (args.syn_location, args.alphaZn, args.seed))
-            #     run_sim_with_bg_levels(args, seed=args.seed)
+        args.ampa_only = True
+        run_sim_with_bg_levels(args, seed=args.seed)
                 
                 
     elif args.task=='plot':
