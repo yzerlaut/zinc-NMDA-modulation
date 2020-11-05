@@ -46,13 +46,12 @@ def filename(args):
         root_folder = os.path.join('data', 'bg-modul', 'passive')
     if args.ampa_only:
         fn = os.path.join(root_folder,
-                          'data-loc-%i-seed-%i-ampa-only.npz' % (args.syn_location, args.seed))
-    elif args.bg_level>0:
-        fn = os.path.join('data', 'bg-modul',
-                          'data-bg-level-%.2f-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.bg_level, args.syn_location, args.seed, args.alphaZn, args.active))
+                          'data-bg-level-%.2f-loc-%i-seed-%i-ampa-only.npz' % (args.bg_level,\
+                                                            args.syn_location, args.seed))
     else:
-        fn = os.path.join('data', 'bg-modul',
-                          'data-loc-%i-seed-%i-alphaZn-%.2f-active-%s.npz' % (args.syn_location, args.seed, args.alphaZn, args.active))
+        fn = os.path.join(root_folder,
+                          'data-bg-level-%.2f-loc-%i-seed-%i-alphaZn-%.2f.npz' % (args.bg_level,\
+                                                            args.syn_location, args.seed, args.alphaZn))
         
     return fn
     
