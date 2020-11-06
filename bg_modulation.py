@@ -73,7 +73,7 @@ def run_sim_with_bg_levels(args):
     else:
         Model['alphaZn'] = args.alphaZn
 
-    tstop = len(args.bg_levels)*len(args.NSTIMs)*len(args.bgSEEDS)*args.duration_per_bg_level+args.stim_delay
+    tstop = len(args.NSTIMs)*args.duration_per_bg_level+args.stim_delay
         
     t, neuron, SEGMENTS = initialize_sim(Model, tstop=tstop, active=args.active)
 
@@ -85,37 +85,26 @@ def run_sim_with_bg_levels(args):
 
     BG, STIM = [[] for i in range(len(synapses_loc))], [[] for i in range(len(synapses_loc))]
 
-    for ibg, bg in enumerate(args.bg_levels):
+    for istim, nstim in enumerate(args.NSTIMs):
 
         if args.verbose:
-            print('bg_levels: ', ibg, bg, args.bg_levels)
-        
-        for ibgseed, bgseed in enumerate(args.bgSEEDS):
-            
-            if args.verbose:
-                print('bg_seed: ', ibgseed, bgseed, args.bgSEEDS)
-            
-            for istim, nstim in enumerate(args.NSTIMs):
-                
-                if args.verbose:
-                    print('stim: ', istim, nstim, args.NSTIMs)
-                
-                stim = stim_single_event_per_synapse(args.stim_duration,
-                                                     len(synapses_loc), nstim,
-                                                     tstart=args.stim_delay,
-                                                     seed=args.stimseed)
+            print('stim: ', istim, nstim, args.NSTIMs)
 
-                t0 = (ibg*len(args.NSTIMs)*len(args.bgSEEDS)+\
-                      ibgseed*len(args.NSTIMs)+istim)*args.duration_per_bg_level
+        stim = stim_single_event_per_synapse(args.stim_duration,
+                                             len(synapses_loc), nstim,
+                                             tstart=args.stim_delay,
+                                             seed=args.stimseed)
 
-                for i in range(len(synapses_loc)):
-                    if bg>0:
-                        bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
-                                                              tstart=t0,
-                                                              seed=i+10*ibg+100*istim+10000*ibgseed+100000*args.seed)
-                        BG[i] = BG[i]+list(bg_spikes)
+        t0 = istim*args.duration_per_bg_level
 
-                    STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
+        for i in range(len(synapses_loc)):
+            if args.bg_level>0:
+                bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
+                                                      tstart=t0,
+                                                      seed=i+int(100*istim)+int(10000*args.seed))
+                BG[i] = BG[i]+list(bg_spikes)
+
+            STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
             
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
     for i in range(len(synapses_loc)):
@@ -151,7 +140,7 @@ def run_sim_with_bg_levels(args):
                   'BG_raster':BG,
                   'STIM_raster':STIM,
                   'syn_locations':synapses_loc,
-                  'bg_levels':np.array(args.bg_levels),
+                  'bg_level':args.bg_level,
                   'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
                   'bZn_syn':np.array(S.bZn)[0,:], # REMOVED TO DECREASE FILE SIZE !!
                   'gAMPA_syn':np.array(S.gAMPA/ntwk.nS)[0,:],
@@ -168,7 +157,7 @@ def run_sim_with_bg_levels(args):
                   'BG_raster':BG,
                   'STIM_raster':STIM,
                   'syn_locations':synapses_loc,
-                  'bg_levels':np.array(args.bg_levels),
+                  'bg_level':args.bg_level,
                   'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
                   'Model':Model, 'args':vars(args)}
 
@@ -307,9 +296,6 @@ if __name__=='__main__':
     parser.add_argument("--stim_duration",help="[ms]", type=float, default=20)
     # background props
     parser.add_argument("--bg_level",help="[Hz]", type=float, default=-1)
-    parser.add_argument("--bg_levels",help="[Hz]", type=float, default=[0, 1, 2, 3, 4, 5, 6], nargs='*')
-    parser.add_argument("--NbgSEEDS",help="#", type=int, default=1)
-    parser.add_argument("--bgSEEDS",help="#", type=int, default=[0], nargs='*')
     # stim props
     parser.add_argument("-sl", "--syn_location",help="#", type=int, default=1)
     parser.add_argument("-Nsl", "--N_syn_location",help="#", type=int, default=5)
@@ -319,7 +305,6 @@ if __name__=='__main__':
     # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
     #                     default=range(20), nargs='*')
     parser.add_argument("--stimseed", type=int, default=10)
-    parser.add_argument("--stimSEEDS",help="#", type=int, default=[0], nargs='*')
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
     # model variations
@@ -337,12 +322,6 @@ if __name__=='__main__':
     parser.add_argument("--store_full_data", action="store_true")
 
     args = parser.parse_args()
-
-    if args.NbgSEEDS>1:
-        args.bgSEEDS = np.arange(args.NbgSEEDS)
-        
-    if args.bg_level>=0:
-        args.bg_levels =[args.bg_level]
 
     if args.task=='run':
         run_sim_with_bg_levels(args)
