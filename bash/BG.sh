@@ -1,13 +1,15 @@
-for i in $(seq 0 1 3)
+for stimseed in 10
 do
-    for bg in $(seq 0 2 4)
+    for syn_location in 0 1
     do
-	for iseed in $(seq 4 1 7)
+	for seed in 10
 	do
-	    seed=$(($i+$bg+3*$iseed))
-	    python bg_modulation.py full --seed $seed --bg_level $bg --syn_location $i --duration_per_bg_level 2000 --stim_delay 300 --NSTIMs 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 &
+	    command='python bg_modulation.py full --seed $seed --syn_location $syn_location --duration_per_bg_level 2000 --stim_delay 300 --NSTIMs 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20'
+	    $command --bg_level 0 &
+	    $command --bg_level 1 &
+	    $command --bg_level 2 &
+	    $command --bg_level 3 &
+	    $command --bg_level 4
 	done
-	seed=$(($seed+1))
-	python bg_modulation.py full --seed $seed --bg_level $bg --syn_location $i --duration_per_bg_level 2000 --stim_delay 300 --NSTIMs 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
     done
 done

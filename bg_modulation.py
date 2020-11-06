@@ -44,6 +44,15 @@ def filename(args):
         root_folder = os.path.join('data', 'bg-modul', 'active')
     else:
         root_folder = os.path.join('data', 'bg-modul', 'passive')
+        
+    if args.ampa_only:
+        fn = os.path.join(root_folder,
+                          'data-bg-level-%.2f-loc-%i-stimseed-%i-seed-%i-ampa-only.npz' % (args.bg_level,\
+                                                            args.syn_location, args.stimseed, args.seed))
+    else:
+        fn = os.path.join(root_folder,
+                          'data-bg-level-%.2f-loc-%i-stimseed-%i-seed-%i-alphaZn-%.2f.npz' % (args.bg_level,\
+                                                     args.syn_location, args.stimseed, args.seed, args.alphaZn))
     if args.ampa_only:
         fn = os.path.join(root_folder,
                           'data-bg-level-%.2f-loc-%i-seed-%i-ampa-only.npz' % (args.bg_level,\
@@ -60,14 +69,11 @@ def run_sim_with_bg_levels(args):
     from model import Model
 
     if args.ampa_only:
-        Model['alphaZn'] = 0
         Model['qNMDA'] = 0.
     else:
         Model['alphaZn'] = args.alphaZn
 
-    np.random.seed(args.seed)
-    
-    tstop = len(args.bg_levels)*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)*args.duration_per_bg_level
+    tstop = len(args.bg_levels)*len(args.NSTIMs)*len(args.bgSEEDS)*args.duration_per_bg_level+args.stim_delay
         
     t, neuron, SEGMENTS = initialize_sim(Model, tstop=tstop, active=args.active)
 
@@ -94,28 +100,22 @@ def run_sim_with_bg_levels(args):
                 if args.verbose:
                     print('stim: ', istim, nstim, args.NSTIMs)
                 
-                for istimseed, stimseed in enumerate(args.stimSEEDS):
+                stim = stim_single_event_per_synapse(args.stim_duration,
+                                                     len(synapses_loc), nstim,
+                                                     tstart=args.stim_delay,
+                                                     seed=args.stimseed)
 
-                    if args.verbose:
-                        print('stim seed: ', istimseed, stimseed, args.stimSEEDS)
-                    
-                    stim = stim_single_event_per_synapse(args.stim_duration,
-                                                         len(synapses_loc), nstim,
-                                                         tstart=args.stim_delay,
-                                                         seed=stimseed+10*args.seed)
-                
-                    t0 = (ibg*len(args.NSTIMs)*len(args.stimSEEDS)*len(args.bgSEEDS)+\
-                          ibgseed*len(args.NSTIMs)*len(args.stimSEEDS)+\
-                          istim*len(args.stimSEEDS)+istimseed)*args.duration_per_bg_level
+                t0 = (ibg*len(args.NSTIMs)*len(args.bgSEEDS)+\
+                      ibgseed*len(args.NSTIMs)+istim)*args.duration_per_bg_level
 
-                    for i in range(len(synapses_loc)):
-                        if bg>0:
-                            bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
-                                                                  tstart=t0,
-                                                                  seed=i+10*ibg+100*istim+1000*istimseed+10000*ibgseed+100000*args.seed)
-                            BG[i] = BG[i]+list(bg_spikes)
+                for i in range(len(synapses_loc)):
+                    if bg>0:
+                        bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
+                                                              tstart=t0,
+                                                              seed=i+10*ibg+100*istim+10000*ibgseed+100000*args.seed)
+                        BG[i] = BG[i]+list(bg_spikes)
 
-                        STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
+                    STIM[i] = STIM[i]+[s+t0 for s in stim[i]]
             
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
     for i in range(len(synapses_loc)):
@@ -181,12 +181,12 @@ def analyze_sim(data, data2):
     print(args)
     fig, AX = ge.figure(axes=(len(args['bg_levels']),2), wspace=0.1)
     fig2, AX2 = ge.figure(axes=(1,len(args['bg_levels'])), figsize=(1.,.7), hspace=0.1, bottom=1.5)
-    fig.suptitle('n=%i bg seeds, n=%i stim seeds, loc #%i' % (len(args['bgSEEDS']), len(args['stimSEEDS']), args['syn_location']), size=10)
+    fig.suptitle('n=%i bg seeds, loc #%i' % (len(args['bgSEEDS']), args['syn_location']), size=10)
 
     tcond = (data['t']>=0) & (data['t']<args['duration_per_bg_level'])
     output = {'t':data['t'][tcond]-args['stim_delay']}
-    output['free'] = np.zeros((len(args['bg_levels']), len(args['bgSEEDS']), len(args['NSTIMs']), len(args['stimSEEDS']), len(output['t'])))
-    output['chelated'] = np.zeros((len(args['bg_levels']), len(args['bgSEEDS']), len(args['NSTIMs']), len(args['stimSEEDS']), len(output['t'])))
+    output['free'] = np.zeros((len(args['bg_levels']), len(args['bgSEEDS']), len(args['NSTIMs']), len(output['t'])))
+    output['chelated'] = np.zeros((len(args['bg_levels']), len(args['bgSEEDS']), len(args['NSTIMs']), len(output['t'])))
     
     for ibg, bg in enumerate(args['bg_levels']):
 
@@ -318,13 +318,11 @@ if __name__=='__main__':
                         default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
     # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
     #                     default=range(20), nargs='*')
+    parser.add_argument("--stimseed", type=int, default=10)
     parser.add_argument("--stimSEEDS",help="#", type=int, default=[0], nargs='*')
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
     # model variations
-    # parser.add_argument("-c", "--chelated",
-    #                     help="chelated Zinc condition",
-    #                     default='False')
     parser.add_argument("--active",
                         help="with active conductances",
                         action="store_true")
@@ -339,9 +337,6 @@ if __name__=='__main__':
     parser.add_argument("--store_full_data", action="store_true")
 
     args = parser.parse_args()
-
-    # if args.chelated:
-    #     args.alphaZn = 0
 
     if args.NbgSEEDS>1:
         args.bgSEEDS = np.arange(args.NbgSEEDS)

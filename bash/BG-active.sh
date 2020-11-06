@@ -1,17 +1,17 @@
-for i in $(seq 0 1 20)
+for sl in $(seq 0 1 20)
 do
     for bg in 0 1 2 3 4 5
     do
 	for alphaZn in 0.00 0.45
 	do
-	    for iseed in $(seq 4 1 5)
+	    for iseed in $(seq 4 1 9)
 	    do
 		seed=$(($i+$bg+3*$iseed))
-		python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $i --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active &
+		python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $sl --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active &
 	    done
 	    iseed=6
 	    seed=$(($i+$bg+3*$iseed))
-	    python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $i --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active
+	    python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $sl --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active
 	done
 	# python bg_modulation.py plot --seed $seed --bg_level $bg --syn_location $i --ampa_only --duration_per_bg_level 500 --stim_delay 300 --NSTIMs 0 5 10 15 --active
     done
