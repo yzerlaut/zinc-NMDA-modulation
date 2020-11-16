@@ -53,14 +53,6 @@ def filename(args):
         fn = os.path.join(root_folder,
                           'data-bg-level-%.2f-loc-%i-stimseed-%i-seed-%i-alphaZn-%.2f.npz' % (args.bg_level,\
                                                      args.syn_location, args.stimseed, args.seed, args.alphaZn))
-    if args.ampa_only:
-        fn = os.path.join(root_folder,
-                          'data-bg-level-%.2f-loc-%i-seed-%i-ampa-only.npz' % (args.bg_level,\
-                                                            args.syn_location, args.seed))
-    else:
-        fn = os.path.join(root_folder,
-                          'data-bg-level-%.2f-loc-%i-seed-%i-alphaZn-%.2f.npz' % (args.bg_level,\
-                                                            args.syn_location, args.seed, args.alphaZn))
         
     return fn
     
@@ -99,7 +91,7 @@ def run_sim_with_bg_levels(args):
 
         for i in range(len(synapses_loc)):
             if args.bg_level>0:
-                bg_spikes = single_poisson_process_BG(bg, args.duration_per_bg_level,
+                bg_spikes = single_poisson_process_BG(args.bg_level, args.duration_per_bg_level,
                                                       tstart=t0,
                                                       seed=i+int(100*istim)+int(10000*args.seed))
                 BG[i] = BG[i]+list(bg_spikes)

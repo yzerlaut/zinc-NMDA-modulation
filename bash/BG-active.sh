@@ -1,18 +1,17 @@
-for sl in $(seq 0 1 20)
+for stimseed in 10 20 30
 do
-    for bg in 0 1 2 3 4 5
+    # for syn_location in 0 1 2 5 8 
+    for syn_location in 0 1 10 11 12 13 14 15
     do
-	for alphaZn in 0.00 0.45
+	for seed in 0 1 2 3 4 5 6 7 8
 	do
-	    for iseed in $(seq 4 1 9)
-	    do
-		seed=$(($i+$bg+3*$iseed))
-		python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $sl --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active &
-	    done
-	    iseed=6
-	    seed=$(($i+$bg+3*$iseed))
-	    python bg_modulation.py run --seed $seed --bg_level $bg --syn_location $sl --alphaZn $alphaZn --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 4 6 8 10 12 14 16 --active
+	    command='python bg_modulation.py full --duration_per_bg_level 400 --stim_delay 300 --NSTIMs 0 2 4 6 8 10 12 14 --active'
+	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 0 &
+	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 0.5 &
+	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 1. &
+	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 1.5 &
+	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 2. &
+	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 2.5
 	done
-	# python bg_modulation.py plot --seed $seed --bg_level $bg --syn_location $i --ampa_only --duration_per_bg_level 500 --stim_delay 300 --NSTIMs 0 5 10 15 --active
     done
 done
