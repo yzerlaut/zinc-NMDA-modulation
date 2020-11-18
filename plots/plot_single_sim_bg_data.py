@@ -4,17 +4,17 @@ from datavyz import ge
 
 def plot_single_sim_bg_data(RESP,
                             ge=ge,
-                            alphaZn=[0, 0.3, 0.45],
+                            alphaZn=[0, 0.45],
                             view=[-200,600],  
                             shift=20,
                             Vm_shift=1.,
                             with_ampa_only=False,
-                            NSTIMs=None,   
-                            bg_level=0.,
+                            NSTIMs=None,
+                            bg_level=0., with_nsyn_annot=False,
                             syn_location=0,  
                             seed=0,
                             stimseed=0, 
-                            COLORS=[ge.green, ge.orange, 'k'], LWS=range(1, 5),
+                            COLORS=[ge.green, 'k'], LWS=[1.5, 1, 1, 2],
                             ampa_color=ge.blue,
                             figsize=(2.2,.15),
                             VLIM=[-85, 30]):
@@ -38,14 +38,18 @@ def plot_single_sim_bg_data(RESP,
     for acond in CONDS:
         AVAILABLE_BG_SEEDS.append(np.unique(RESP['seed'][cond & acond]))
         AVAILABLE_STIM_SEEDS.append(np.unique(RESP['stimseed'][cond & acond]))
-    print(np.intersect1d(*AVAILABLE_STIM_SEEDS))
     available_bg_seeds = np.intersect1d(*AVAILABLE_BG_SEEDS)   
     available_stim_seeds = np.intersect1d(*AVAILABLE_STIM_SEEDS)   
     #print(available_bg_seeds, available_stim_seeds)
     cond = cond &\
             (RESP['seed']==available_bg_seeds[seed]) &\
             (RESP['stimseed']==available_stim_seeds[stimseed])
-    
+
+    if (len(available_bg_seeds)<1) or (len(available_stim_seeds)<1):
+        print('No available seeds for this configuration:')
+        print(available_bg_seeds, available_stim_seeds)
+        raise BaseException
+
     if with_ampa_only:
         CONDS.append((RESP['ampa_only']==True))
         COLORS.append(ampa_color)    
@@ -83,7 +87,7 @@ def plot_single_sim_bg_data(RESP,
                             spcond = (sp>=t0) & (sp<t1)
                             ax2.scatter(sp[spcond]-t0+iplot*(shift+view[1]-view[0]),
                                         i*np.ones(len(sp[spcond])), color=ge.orange, s=3)
-                    if bg_level==0.:
+                    if bg_level==0. or with_nsyn_annot:
                         ge.annotate(ax2, '$N_{syn}$=%i' % nstim, 
                                             (iplot*(shift+view[1]-view[0])-view[0], i), va='top',
                                             xycoords='data',rotation=90,color=ge.orange,ha='right',size='x-small')

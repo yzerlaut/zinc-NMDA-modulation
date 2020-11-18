@@ -4,7 +4,7 @@
 
 [[Figure {model-description} around here]]
 
-\item We derive a model for the modulation of synaptic transmission through NMDA channels due to the binding of endogeneous Zinc. 
+\item We derive a model for the modulation of synaptic transmission through NMDA channels due to the binding of endogeneously-released Zinc. 
 \item We analyze the functional impact of the pathway-specificity of the Zinc modulation for the computation performed by Layer 2/3 pyramidal cells. We find that Zinc modulation under synaptic bombardment restrict the temporal window of NMDA events / shifts the threshold for NMDA-spike.
 \item ...
 
