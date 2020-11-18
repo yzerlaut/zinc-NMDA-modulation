@@ -9,6 +9,8 @@
 # 	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 1 &
 # 	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 2 &
 # 	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 3 &
+
+
 # 	    $command --stimseed $stimseed  --seed $seed --syn_location $syn_location --bg_level 4
 # 	done
 #     done
