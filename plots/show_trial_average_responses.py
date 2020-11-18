@@ -7,11 +7,12 @@ def sigmoid_func(x, x0=0, sx=1.):
         
 cmap = ge.blue_to_red #ge.get_linear_colormap(ge.orange, ge.purple)
 
-def get_trial_average_responses(RESP_PER_STIM, resp='',
+def get_trial_average_responses(RESP_PER_STIM,
+                                resp='',
                                 NSTIMS=None,
                                 alphaZn=0., 
                                 syn_location='all',
-                                integral_threshold=4.,
+                                thresholds={},
                                 baseline_window=[-100,0],
                                 peak_window=[0,500],
                                 integral_window=[0,500]):
@@ -26,7 +27,7 @@ def get_trial_average_responses(RESP_PER_STIM, resp='',
         sloc = 'loc #%i' % syn_location
     else:
         sloc = 'Nloc=%i' % len(np.unique(RESP_PER_STIM['syn_location']))
-        
+
     bg_levels = np.unique(RESP_PER_STIM['bg_level'])
 
     t = RESP_PER_STIM['t']
@@ -34,7 +35,7 @@ def get_trial_average_responses(RESP_PER_STIM, resp='',
     RESP = []
     if NSTIMS is None:
         NSTIMS = np.unique(RESP_PER_STIM['nstim'])
-    
+
     for ibg, bg in enumerate(bg_levels):
         RESP.append({'nstims':[], 'Peak':[], 'Integral':[], 'Freq':[], 'Proba':[], 'bg_level':bg})
         for k in ['Peak', 'Integral', 'Freq', 'Proba']:
@@ -48,7 +49,7 @@ def get_trial_average_responses(RESP_PER_STIM, resp='',
                     (RESP_PER_STIM['nstim']==nstim) & (RESP_PER_STIM['bg_level']==bg)
                 # trial average
                 y = np.mean([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
-                sy = np.std([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
+                # sy = np.std([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
                 # baseline
                 BSLcond = (t>=RESP_PER_STIM['stim_delay']+baseline_window[0]) &\
                                 (t<RESP_PER_STIM['stim_delay']+baseline_window[1])
@@ -62,6 +63,7 @@ def get_trial_average_responses(RESP_PER_STIM, resp='',
                                 (t<RESP_PER_STIM['stim_delay']+integral_window[1])
                 RESP[ibg]['Integral'].append(np.trapz(y[INTcond]-BSL, t[INTcond])/1e3)
                 RESP[ibg]['Freq'].append(np.mean([RESP_PER_STIM['freq'][i] for i, s in enumerate(scond) if s]))
+                RESP[ibg]['Proba'].append(np.mean([RESP_PER_STIM['spike'][i] for i, s in enumerate(scond) if s]))
 
         x = NSTIMS
         for key in ['Peak', 'Integral', 'Freq', 'Proba']:
@@ -69,15 +71,13 @@ def get_trial_average_responses(RESP_PER_STIM, resp='',
             def to_minimize(coefs):
                 return np.sum((y-coefs[0]*sigmoid_func(x, coefs[1], coefs[2]))**2)
                 #return np.sum((y-max(y)*sigmoid_func(x, coefs[1], coefs[2]))**2)
-
             res = minimize(to_minimize, [y.max()-y[0], np.mean(x), np.std(x)],
-                            bounds=([0, 1.5*y.max()], [1, x[-2]], [1, x[-2]]))
+                            bounds=([0, 1.5*y.max()], [1, x[-2]], [0.5, x[-2]]))
             RESP[ibg][key+'-coeffs'] = res.x
-            yf = res.x[0]*sigmoid_func(x, res.x[1], res.x[2])    
-            #if key=='Integral':
-            #    RESP[ibg]['Integral-threshold'] = np.array(x)[yf>integral_threshold].min()
+            yf = res.x[0]*sigmoid_func(x, res.x[1], res.x[2])
+            if key in thresholds:
+                RESP[ibg][key+'-threshold'] = np.array(x)[yf>thresholds[key]].min()
             
-       
     return RESP
 
 def show_trial_average_responses(RESP_PER_STIM, ge=ge,
@@ -140,7 +140,7 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
                          method='Integral',
                          BG_levels=None,
                          crossing=None,
-                         ylim=None):
+                         xlim=None, ylim=None):
     
     if BG_levels is None:
         BG_levels = [R['bg_level'] for R in FREE]
@@ -197,12 +197,12 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
         
     ge.set_plot(AX[0], ['left'], ylabel=ylabel, ylim=ylim)
     if AMPA is None:
-        ge.set_plot(AX[0], ['left'], ylabel=ylabel, ylim=ylim)
-        ge.set_plot(AX[1], xlabel='$N_{syn}$', ylim=ylim)
+        ge.set_plot(AX[0], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim)
+        ge.set_plot(AX[1], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim)
     else:
-        ge.set_plot(AX[0], ['left'], ylim=ylim)
-        ge.set_plot(AX[1], ['left'], ylabel=ylabel, ylim=ylim)
-        ge.set_plot(AX[2], xlabel='$N_{syn}$', ylim=ylim)
+        ge.set_plot(AX[0], ['left'], ylim=ylim, xlim=xlim)
+        ge.set_plot(AX[1], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim)
+        ge.set_plot(AX[2], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim)
         ge.annotate(AX[2], 'AMPA\nonly', (0., .55), size='small', color=ge.blue, bold=True)
         
         
