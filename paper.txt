@@ -5,25 +5,32 @@
 [[Figure {model-description} around here]]
 
 \item We derive a model for the modulation of synaptic transmission through NMDA channels due to the binding of endogeneously-released Zinc. 
-\item We analyze the functional impact of the pathway-specificity of the Zinc modulation for the computation performed by Layer 2/3 pyramidal cells. We find that Zinc modulation under synaptic bombardment restrict the temporal window of NMDA events / shifts the threshold for NMDA-spike.
-\item ...
+\item We calibrate the model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells. We use a combination of extracellular stimulation recordings to calibrate the biophysical parameters and paired intracellular-recordings to calibrate the pathway-specificty of the Zinc modulation.
+\item We investigate the functional impact of the Zinc modulation for the computation performed by Layer 2/3 pyramidal cells during \textit{in vivo}-like regimes of cortical activity (strong synaptic bombardment).
+\item We find that, while NMDA in L2/3 cells is strongly involved in the response to both L4 and L2/3 synaptic stimulation, the strong Zinc modulation characterizing L2/3 synapses implements a background-invariant encoding of stimulus intensity. On the other hand, for L4->L2/3 synaptic stimulation, the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of stimulus intensity.
 
 * Results
-
+  
 *** Modeling Zinc-modulation of NMDAR signaling
 
-We now derive a model of the Zinc modulation of NMDAR signaling based on the above observations and previous studies (Vergnano et al., 2014, ...). Our modeling approach aimed at describing the modulation in the form of a minimal phenomenological description at the single synapse level (see Discussion). 
+We derive a model of the Zinc modulation of NMDAR signaling based on our experimental observations and previous studies (Vergnano et al., 2014, ...). Our modeling approach aimed at describing the modulation in the form of a minimal phenomenological description at the single synapse level (see Discussion). 
 
 The phenomenology and the reasoning guiding the derivation of the model were the following (illustrated in Figure {model-description}a). Glutamatergic events are associated to Zinc release in the synaptic cleft. Zinc has a high affinity for binding and does not accumulate in the cleft (the cleft is free of Zinc in less than 2ms, REF), so the dynamics is led by the binding-unbinding phenomenon. Zinc binding is modelled by a variable $b_{Zn}$ varying betweeen 0 (no binding) and 1 (full binding). A parameter $\alpha_{Zn}$ captures the inhibitory efficacy of Zinc binding on NMDAR conductance. At full binding ($b_{Zn}$=1), the NMDA conductance has a factor 1-$\alpha_{Zn}$. Zinc binding as an inertia captured by a time constant $\tau^{rise}_{Zn}$. Zinc unbinding has a decay time constant $\tau^{decay}_{Zn}$. Zinc binding is a non-linear phenomenon, from Vergnano et al. (2014), we extrapolate that the relation between available Zinc (upon synaptic release) and Zinc binding should be captured by a sigmoid function. This non-linearity is implemented in two-steps. First the relation between Glutamate release and the increments of Zinc binding are state-dependent and bounded to 1, we therefore introduce an intermediate variable $x$ that is incremented at synaptic events (see Figure {model-description}a). Second, we apply the sigmoid function on that variable to enforce the non-linear behavior of Zinc-binding (to display full binding level for sustained inputs, see Figure {model-description}a). Finally, we low-pass filter this signal to add the binding dynamics. The two-dimensional system of equations implementing those steps is Equation {Zn-modul}.
 
 We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015) and we fixed biophysical parameters (beside NMDA and Zinc-modulation parameters) to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014). 
 
+*** Calibrating model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells
+
 This model allowed to implement synaptic stimulation coupled with current-clamp and voltage-clamp recording protocols similar to our experimental recordings (see Methods). We therefore calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz (see Methods, Figure {optimization}a,b,c and Table {model-params}). After parameter optimization, the error between model and experiment for the "chelation"-effect (defined by the residual trace: chelated - control) only represented {MAPE_chelation_model_exp} of the experimentally recorded variations (see Figure {optimization}d), we therefore conclude that our theoretical description successfully captured the experimentally observed modulation of NMDAR signalling by endogeneous Zinc.
 
 To examine the validity of this theoretical description against our experimental observations, we incorporated 
 
+*** Zinc modulation increases the threshold for NMDA events
 
-*** Zinc modulation restrict the temporal window of NMDA events / shifts NMDA spike threshold.
+*** Zinc modulation of NMDAR critically shape the background dependency of the stimulus encoding
+of synaptic stimulation in  synaptic stimulation  recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic stimulation (while the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3
+synaptic stimulation)
+*** The Zinc-modulated recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic stimulation (while the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3 synaptic stimulation)
 
 We then embed this model in a background of synaptic activity and examined how the Zinc modulation mechanism affect the NMDA events following diverse sets of synchronized synaptic events, see Figure {model-prediction}.
 
@@ -43,7 +50,7 @@ Single cell integration was simulated using the cable equation (Rall, 1962; Koch
 
 where the membrane current $i_m$ and the input currents $i_I$ are linear density of currents. The cable equation parameters are derived from the membrane parameters of Table {model-params} by applying the radial symmetry (for a segment of diameter $D$: $r_m=\frac{1}{\pi D G_L}$, $c_m=\pi D C_m$, , $r_i=\frac{4 R_i}{\pi D^2}$). 
 
-Additional point currents (synaptic inputs and/or "voltage-clamp"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current of amplitude $I$ and a segment of length $l_S$).
+Additional point currents (synaptic inputs and/or "voltage-clamp"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current $I$ and a segment of length $l_S$).
 
 For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a factor {VC-gL-reduction-factor} (to reproduce the Cesium block), an additional point current $I_{clamp} = g_{clamp} \cdot (V_{cmd} - V_m)$ of clamping conductance {VC-gclamp}$\mu$S was inserted at the soma, an additional {VC-discard-time}ms were added prior to stimulation to reach stationary "clamp" conditions (initialized at $V_{cmd}$) and we report the $I_{amp}$ quantity after those {VC-discard-time}ms (see Figure {model-description}).
 
@@ -102,6 +109,7 @@ The system of equation setting the dynamics of the binding variable $b_{Zn}$ in 
 \end{equation}
 
 where $\Delta_x (x)$ is the ($x$-dependent) increment defined by  $\Delta_x : x \rightarrow \Delta_x^0 \cdot \big(1- x \big)$. The function $\mathcal{S}$ is the sigmoid function defined by: $\mathcal{S} : X \rightarrow \frac{1}{1+e^{-X}}$, the parameters $x_0$ and $\delta x$ therefore define the center and slope of the sigmoid. To limit the number of free parameters, the parameter $x_0$ was constrained to $x_0$=$\Delta_x^0$, meaning that the sigmoid of the Zinc-modulation activation was centered around one the increment corresponding to one synaptic event (see Figure {model-description}a). Such constraint did not prevent an accurate quantitative description of the effect (see Figure {optimization}d).
+
 
 *** Model calibration: parameter fitting
 
