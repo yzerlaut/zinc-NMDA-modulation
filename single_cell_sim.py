@@ -91,9 +91,6 @@ def initialize_sim(Model,
     if active:
         
         pS_um2 = 1e-12*ntwk.siemens/ntwk.um**2
-        # --- axon ---
-        # neuron.axon.gbar_Na = 30000*pS_um2
-        # neuron.axon.gbar_K = 400*pS_um2
         
         # --- soma ---
         neuron.gbar_Na[0] = 1500*pS_um2
@@ -102,6 +99,9 @@ def initialize_sim(Model,
         neuron.gbar_KCa[0] = 2.5*pS_um2
         neuron.gbar_HVACa[0] = 0.5*pS_um2
         neuron.gbar_T[0] = 0.0003*pS_um2
+        # --- axon ---
+        neuron.axon[1:50].gbar_Na = 30000*pS_um2
+        neuron.axon[1:50].gbar_K = 400*pS_um2
 
         # --- basal dendrites ---
         neuron.dend.gbar_Na = 40*pS_um2

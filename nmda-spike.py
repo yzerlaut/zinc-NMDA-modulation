@@ -21,7 +21,6 @@ def run_sim(Model,
     t, neuron, SEGMENTS = initialize_sim(Model,
                                          active=active,
                                          tstop=tstop)
-
     
     spike_IDs, spike_times = np.empty(0, dtype=int), np.empty(0, dtype=float)
 
@@ -158,7 +157,9 @@ if __name__=='__main__':
         vis = nrnvyz(SEGMENTS, ge=ge)
         fig, ax = ge.figure(figsize=(1.,1.5), left=0, top=0.3, bottom=0, right=0)
         vis.plot_segments(SEGMENTS['comp_type']!='axon',
-                          bar_scale_args=dict(Ybar=100, Ybar_label='100um', Xbar=None, size='xx-small'),
+                          # bar_scale_args=dict(Ybar=50, Xbar_label='50um', Xbar=50, Ybar_label='', loc='bottom-left', size='xx-small'),
+                          bar_scale_args=dict(Ybar=50, Xbar_label='50um', Xbar=50, Ybar_label='',
+                                              loc='top-right', xyLoc=(-110,90), size='xx-small'),
                           ax=ax)
 
         soma = (SEGMENTS['name']=='soma')

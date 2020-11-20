@@ -7,7 +7,7 @@
 \item We derive a model for the modulation of synaptic transmission through NMDA channels due to the binding of endogeneously-released Zinc. 
 \item We calibrate the model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells. We use a combination of extracellular stimulation recordings to calibrate the biophysical parameters and paired intracellular-recordings to calibrate the pathway-specificty of the Zinc modulation.
 \item We investigate the functional impact of the Zinc modulation for the computation performed by Layer 2/3 pyramidal cells during \textit{in vivo}-like regimes of cortical activity (strong synaptic bombardment).
-\item We find that, while NMDA in L2/3 cells is strongly involved in the response to both L4 and L2/3 synaptic stimulation, the strong Zinc modulation characterizing L2/3 synapses implements a background-invariant encoding of stimulus intensity. On the other hand, for L4->L2/3 synaptic stimulation, the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of stimulus intensity.
+\item We find that, while NMDAR in L2/3 cells is strongly involved in shaping the response to both L4 and L2/3 synaptic stimulation, the strong Zinc modulation characterizing L2/3 synapses implements a background-invariant encoding of stimulus intensity. On the other hand, for L4->L2/3 synaptic stimulation, the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of stimulus intensity.
 
 * Results
   
@@ -27,9 +27,13 @@ To examine the validity of this theoretical description against our experimental
 
 *** Zinc modulation increases the threshold for NMDA events
 
+We tested the 
+
 *** Zinc modulation of NMDAR critically shape the background dependency of the stimulus encoding
+
 of synaptic stimulation in  synaptic stimulation  recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic stimulation (while the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3
 synaptic stimulation)
+
 *** The Zinc-modulated recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic stimulation (while the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3 synaptic stimulation)
 
 We then embed this model in a background of synaptic activity and examined how the Zinc modulation mechanism affect the NMDA events following diverse sets of synchronized synaptic events, see Figure {model-prediction}.
