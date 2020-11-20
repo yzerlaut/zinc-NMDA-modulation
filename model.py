@@ -63,7 +63,7 @@ Model = {
     ########################################################
     # 'alphaZn':0.19,# FITTED
     'alphaZn':0.35,# FITTED
-    'tauRiseZn':150.,# [ms], # FITTED
+    # 'tauRiseZn':150.,# [ms], # FITTED
     'tauDecayZn':638.,# [ms], # FITTED
     'Deltax0':1., # FITTED
     # 'x0':0.5, # FITTED

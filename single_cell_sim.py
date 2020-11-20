@@ -100,8 +100,8 @@ def initialize_sim(Model,
         neuron.gbar_HVACa[0] = 0.5*pS_um2
         neuron.gbar_T[0] = 0.0003*pS_um2
         # --- axon ---
-        neuron.axon[1:50].gbar_Na = 30000*pS_um2
-        neuron.axon[1:50].gbar_K = 400*pS_um2
+        neuron.axon.gbar_Na[10:50] = 30000*pS_um2
+        neuron.axon.gbar_K[10:50] = 400*pS_um2
 
         # --- basal dendrites ---
         neuron.dend.gbar_Na = 40*pS_um2
