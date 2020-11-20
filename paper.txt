@@ -31,10 +31,11 @@ We tested the
 
 *** Zinc modulation of NMDAR critically shape the background dependency of the stimulus encoding
 
-of synaptic stimulation in  synaptic stimulation  recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic stimulation (while the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3
-synaptic stimulation)
+\begin{itemize}
+\item The Zinc-modulated recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic 
+\item The Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3 synaptic stimulation
+\end{itemize}
 
-*** The Zinc-modulated recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic stimulation (while the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3 synaptic stimulation)
 
 We then embed this model in a background of synaptic activity and examined how the Zinc modulation mechanism affect the NMDA events following diverse sets of synchronized synaptic events, see Figure {model-prediction}.
 
@@ -43,6 +44,8 @@ We then embed this model in a background of synaptic activity and examined how t
 * Methods
 
 [[Table {model-params} around here]]
+
+[[Table {active-params} around here]]
 
 *** Numerical simulations of morphologically-detailed L2/3 pyramidal cells
 
@@ -172,7 +175,7 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 
 *** Parameters of the L2/3 pyramidal cell model.
 #+options : {'label':'model-params', 'extent':'singlecolumn'}
-Values for the parameters used in the numerical simulations of single cell integration (unless otherwise stated, see annotations in Figure {model-description} and Figure {model-prediction}). The parameters highlighted with a star(*) were fitted from experimental recordings (see Methods), the other synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2015).
+Values for the parameters used in the numerical simulations of single cell integration (unless otherwise stated, see annotations in Figure {model-description} and Figure {model-prediction}). The parameters highlighted with a star(*) were fitted from experimental recordings (see Methods), the other synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2014).
 \begin{tabular}{l|c|c}
 \textbf{Model parameter} & \textbf{Symbol} & \textbf{Value} \\ 
  \hline \vspace{-.3cm} \\ 
@@ -181,20 +184,10 @@ Values for the parameters used in the numerical simulations of single cell integ
  intracellular resistance & $R_i$ & {Ri} $\Omega$.cm \\
  leak reversal potential & $E_L$ & {EL}mV \\[.05cm]
  \hline \vspace{-.3cm} \\ 
- L2/3-Glut. density &  $D_{exc}$ & {DensityGlut_L23} syn./100$\mu$m$^2$\\
- L4-Glut. density &  $D_{exc}$ & {DensityGlut_L4} syn./100$\mu$m$^2$\\
- GABA density (proximal) &  $D_{GABA}^{prox}$ & {DensityGABA_soma} syn./100$\mu$m$^2$\\
- GABA density (distal) &  $D_{GABA}^{dist}$ & {DensityGABA_dend} syn./100$\mu$m$^2$ \\[.05cm]
- \hline \vspace{-.3cm} \\ 
  AMPA conductance quantal & $q_{AMPA}$ & {qAMPA}nS \\
  AMPA reversal potential & $E_{AMPA}$ & {Ee}mV \\
  AMPA rise time &  $\tau_{AMPA}^{rise}$ & {tauRiseAMPA}ms\\
  AMPA decay time &  $\tau_{AMPA}^{decay}$ & {tauDecayAMPA}ms  \\[.05cm]
- \hline \vspace{-.3cm} \\ 
- GABA conductance quantal & $q_{GABA}$ & {qGABA}nS \\
- GABA reversal potential & $E_{GABA}$ & {Ei}mV \\
- GABA rise time &  $\tau_{GABA}^{rise}$ & {tauRiseGABA}ms\\
- GABA decay time &  $\tau_{GABA}^{decay}$ & {tauDecayGABA}ms  \\[.05cm]
  \hline \vspace{-.3cm} \\ 
  NMDA conductance quantal* & $q_{NMDA}$ & {qNMDA}nS \\
  NMDA reversal potential & $E_{NMDA}$ & {Ee}mV \\
@@ -207,11 +200,24 @@ Values for the parameters used in the numerical simulations of single cell integ
   Mg-NMDA voltage slope factor &  $V^0_{Mg}$ & {V0NMDA}mV \\
  \hline \vspace{-.3cm} \\ 
  Zinc-NMDA inhibition factor* &  $\alpha_{Zn}$ & {alphaZn} \\
- Zinc-NMDA rise time* &  $\tau_{Zn}^{rise}$ & {tauRiseZn}ms\\
  Zinc-NMDA decay time* &  $\tau_{decay}^{Zn}$ & {tauDecayZn}ms\\
- Zinc-NMDA base $x$-increment* & $\Delta_x^0 & {Deltax0} \\
- Zinc-NMDA sigmoid center* &  $x_0$ & {x0} \\
- Zinc-NMDA sigmoid width* &  $\delta x & {deltax}  \\[.05cm]
+\hline
+\end{tabular}
+
+*** Active currents in the L2/3 pyramidal cell model.
+#+options : {'label':'active-params', 'extent':'double-column'}
+Active currents included in the detailed model with their respective densities in the different compartments in picosiemens/micrometer$^2$ (Branco and Häusser, 2011).
+\begin{tabular}{l|c|c|c|}
+\textbf{Current type} \hspace{2cm} Densities in pS/$\mu$m$^2$
+		 & Basal Dendrite  & Soma & Axon\\ 
+ \hline \vspace{-.3cm} \\ 
+ Sodium channel: "Na"-current & 40 & 1500 & 30000 \\ 
+ Potassium channel: "Kv"-current & 30 & 200 & 400 \\ 
+ Low-threshold calcium channel: "T"-current & 0.0003 & 0.0006 & 0 \\
+ High-voltage activation calcium channel: "Ca"-current & 0.5 & 0.5 & 0 \\
+ Muscarinic potassium channel: "M"-current & 0.05 & 0 & 0 \\
+ Hyperpolarization-activated cation channel: "H"-current & 0 & 0 & 0 \\
+ Calcium-dependent potassium: "KCa"-current & 2.5 & 2.5 & 0 \\[.05cm]
 \hline
 \end{tabular}
 
@@ -491,8 +497,15 @@ How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been stu
 }
 
 * Informations
+
+*** Short_Title
+Modeling Zinc-Modulation of NMDAR signalling
+
+*** Funding
+FRM fellowship 
+
 *** Data_availability
-The code to run and analyze the numerical simulations of this study is publicy available at the url: \url{https://github.com/yzerlaut/zinc-NMDA-modulation}.
+The code to run and analyze the numerical simulations of this study is publicy available at the url: \url{https://github.com/yzerlaut/zinc-NMDA-modulation/README.md}.
 
 * Pieces of text
 
