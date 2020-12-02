@@ -47,11 +47,11 @@ def filename(args):
         
     if args.ampa_only:
         fn = os.path.join(root_folder,
-                          'data-bg-level-%.2f-loc-%i-stimseed-%i-seed-%i-ampa-only.npz' % (args.bg_level,\
+                          'data-bg-level-%.2f-loc-%i-stimseed-%i-seed-%i-ampa-only.npy' % (args.bg_level,\
                                                             args.syn_location, args.stimseed, args.seed))
     else:
         fn = os.path.join(root_folder,
-                          'data-bg-level-%.2f-loc-%i-stimseed-%i-seed-%i-alphaZn-%.2f.npz' % (args.bg_level,\
+                          'data-bg-level-%.2f-loc-%i-stimseed-%i-seed-%i-alphaZn-%.2f.npy' % (args.bg_level,\
                                                      args.syn_location, args.stimseed, args.seed, args.alphaZn))
         
     return fn
@@ -145,15 +145,21 @@ def run_sim_with_bg_levels(args):
             /(1+Model['etaMg']*Model['cMg']*np.exp(-output['Vm_syn']/Model['V0NMDA']))\
             *(1-Model['alphaZn']*output['bZn_syn'])
     else:
-        output = {'t':np.array(M.t/ntwk.ms),
+        subsampling = 10
+        Vm_soma = np.array(M.v/ntwk.mV)[0,:]
+        t = np.array(M.t/ntwk.ms)
+        threshold = 0 # mV
+        ispikes = np.argwhere((Vm_soma[:-1]<threshold) & (Vm_soma[1:]>=threshold)).flatten()
+        output = {'t':t[::subsampling],
                   'BG_raster':BG,
                   'STIM_raster':STIM,
                   'syn_locations':synapses_loc,
                   'bg_level':args.bg_level,
-                  'Vm_soma':np.array(M.v/ntwk.mV)[0,:],
+                  'Vm_soma':Vm_soma[::subsampling],
+                  'tspikes':t[ispikes], 
                   'Model':Model, 'args':vars(args)}
 
-    np.savez(filename(args), **output)
+    np.save(filename(args), output)
     
 
 def analyze_sim(data, data2):
@@ -215,54 +221,44 @@ def analyze_sim(data, data2):
     ge.annotate(AX[1][0], 'chelated-Zinc', (0,1), bold=True, color=ge.green, size='large')
     
                 
-def plot_sim(data, data2):
+def plot_sim(data, data2=None, data3=None):
     """
     for demo data only not thought to handle different seeds
     """
     args = data['args']
 
-    AE = []
-    for i in range(len(args['bg_levels'])):
-        AE.append([[1,4]])
-        AE.append([[1,2]])
-        AE.append([[1,1]])
+    fig, AX = ge.figure(axes_extents=[[[1,4]], [[1,2]], [[1,1]]],
+                        figsize=(2.5,.15), wspace=0., left=.4, top=4, right=2.)
     
-    fig, AX = ge.figure(axes_extents=AE, figsize=(3.5,.25), wspace=0., left=.2)
-    
-    for ibg, bg in enumerate(args['bg_levels']):
+    if data2 is not None:
+        AX[0].plot(data2['t'], data2['Vm_soma'], color=ge.green, label='chelated-Zinc', lw=1)
+    if data3 is not None:
+        AX[0].plot(data3['t'], data3['Vm_soma'], color=ge.blue, label='AMPA-only', lw=1)
+    AX[0].plot(data['t'], data['Vm_soma'], color='k', label='free-Zinc', lw=1)
 
-        t0 = ibg*len(args['NSTIMs'])*len(args['stimSEEDS'])*len(args['bgSEEDS'])*args['duration_per_bg_level']
-        t1 = (ibg+1)*len(args['NSTIMs'])*len(args['stimSEEDS'])*len(args['bgSEEDS'])*args['duration_per_bg_level']
-
-        tcond = (data['t']>=t0) & (data['t']<t1)
+    AX[0].plot([0,data['t'][-1]], [-75,-75], 'k--', lw=0.5)
         
-        AX[3*ibg].plot(data2['t'][tcond], data2['Vm_soma'][tcond], color=ge.green, label='chelated-Zinc', lw=1.5)
-        AX[3*ibg].plot(data['t'][tcond], data['Vm_soma'][tcond], color='k', label='free-Zinc', lw=1.5)
-        AX[3*ibg].plot([t0,t1], [-75,-75], 'k--', lw=0.5)
-        
-        for i, sp0 in enumerate(data['BG_raster']):
-            sp = np.array(sp0)
-            cond = (sp>=t0) & (sp<t1)
-            AX[3*ibg+1].scatter(sp[cond], i*np.ones(len(sp[cond])), color=ge.purple, s=2)
-        for i, sp0 in enumerate(data['STIM_raster']):
-            sp = np.array(sp0)
-            cond = (sp>=t0) & (sp<t1)
-            AX[3*ibg+1].scatter(sp[cond], i*np.ones(len(sp[cond])), color=ge.orange, s=4)
+    for i, sp0 in enumerate(data['BG_raster']):
+        sp = np.array(sp0)
+        AX[1].scatter(sp, i*np.ones(len(sp)), color=ge.purple, s=2)
+    for i, sp0 in enumerate(data['STIM_raster']):
+        sp = np.array(sp0)
+        AX[1].scatter(sp, i*np.ones(len(sp)), color=ge.orange, s=4)
             
-        ge.annotate(AX[3*ibg+1], '$\\nu_{bg}$=%.1fHz' % bg, (0,0), color=ge.purple, rotation=90, ha='right')
-        ge.set_plot(AX[3*ibg], [], xlim=[t0, t1])#, ylabel='Vm (mV)')
-        ge.draw_bar_scales(AX[3*ibg], Ybar_label_format="%.1fmV", Xbar_label_format="%.0fms",
-                           Ybar_fraction=.25, Xbar_fraction=.05, loc=(0.005,.99), orientation='right-bottom')
-        ge.annotate(AX[3*ibg], ' -75mV', (t1,-75), xycoords='data', va='center')
-        ge.set_plot(AX[3*ibg+1], [], xlim=[t0, t1])#, ylabel='synapse ID')
-        ge.set_plot(AX[3*ibg+2], [], xlim=[t0, t1])#, ylabel='synapse ID')
-        # AX[3*ibg+2].axis('off')
+    ge.annotate(AX[1], '$\\nu_{bg}$=%.1fHz' % args['bg_level'], (0,0), color=ge.purple, rotation=90, ha='right')
+    ge.set_plot(AX[0], [], xlim=[0, data['t'][-1]])#, ylabel='Vm (mV)')
+    ge.draw_bar_scales(AX[0], Ybar_label_format="%.1fmV", Xbar_label_format="%.0fms",
+                       Ybar_fraction=.25, Xbar_fraction=.05, loc=(0.005,.99), orientation='right-bottom')
+    ge.annotate(AX[0], ' -75mV', (data['t'][-1],-75), xycoords='data', va='center')
+    ge.set_plot(AX[1], [], xlim=[0, data['t'][-1]])#, ylabel='synapse ID')
+    ge.set_plot(AX[2], [], xlim=[0, data['t'][-1]])#, ylabel='synapse ID')
+    AX[2].axis('off')
 
-    y1 = AX[1].get_ylim()[1]
-    for istim, nstim in enumerate(args['NSTIMs']):
-        ge.annotate(AX[1], ' %i syn.' % nstim,
-                    (args['stim_delay']+istim*args['duration_per_bg_level']*len(args['stimSEEDS']),y1/2),
-                    xycoords='data', color=ge.orange, va='center', ha='right', rotation=90)
+    # y1 = AX[1].get_ylim()[1]
+    # for istim, nstim in enumerate(args['NSTIMs']):
+    #     ge.annotate(AX[1], ' %i syn.' % nstim,
+    #                 (args['stim_delay']+istim*args['duration_per_bg_level']*len(args['stimSEEDS']),y1/2),
+    #                 xycoords='data', color=ge.orange, va='center', ha='right', rotation=90)
         
     
 
@@ -294,12 +290,12 @@ if __name__=='__main__':
     parser.add_argument("--Nsyn",help="#", type=int, default=20)
     parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
                         default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
-    # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
-    #                     default=range(20), nargs='*')
+    # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int, default=range(20), nargs='*')
     parser.add_argument("--stimseed", type=int, default=10)
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
     # model variations
+    parser.add_argument("--preset", help="either, 'L23', 'L4', 'AMPA'",  default='') # 
     parser.add_argument("--active",
                         help="with active conductances",
                         action="store_true")
@@ -315,12 +311,22 @@ if __name__=='__main__':
 
     args = parser.parse_args()
 
+    if args.preset=='L23':
+        args.alphaZn = 0.45
+        args.ampa_only = False
+    elif args.preset=='L4':
+        args.alphaZn = 0.45
+        args.ampa_only = False
+    elif args.preset=='AMPA':
+        args.ampa_only = True
+
+        
     if args.task=='run':
         run_sim_with_bg_levels(args)
             
     elif args.task=='analyze':
         # args.chelated  = False
-        data = load_dict(filename(args))
+        data = np.load(filename(args), allow_pickle=True).item()
         # args.chelated  = True
         # data2 = load_dict(filename(args))
         analyze_sim(data, data)
@@ -334,8 +340,18 @@ if __name__=='__main__':
         run_sim_with_bg_levels(args)
                 
     elif args.task=='plot':
-        data = load_dict(filename(args))
-        plot_sim(data, data)
+        data = np.load(filename(args), allow_pickle=True).item()
+        try:
+            args.alphaZn = 0.
+            data2 = np.load(filename(args), allow_pickle=True).item()
+        except FileNotFoundError:
+            data2 = None
+        try:
+            args.ampa_only = True
+            data3 = np.load(filename(args), allow_pickle=True).item()
+        except FileNotFoundError:
+            data3 = None
+        plot_sim(data, data2=data2, data3=data3)
         ge.show()
         
     elif args.task=='active-demo':
