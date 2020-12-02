@@ -221,7 +221,7 @@ def analyze_sim(data, data2):
     ge.annotate(AX[1][0], 'chelated-Zinc', (0,1), bold=True, color=ge.green, size='large')
     
                 
-def plot_sim(data, data2=None):
+def plot_sim(data, data2=None, data3=None):
     """
     for demo data only not thought to handle different seeds
     """
@@ -231,8 +231,10 @@ def plot_sim(data, data2=None):
                         figsize=(2.5,.15), wspace=0., left=.4, top=4, right=2.)
     
     if data2 is not None:
-        AX[0].plot(data2['t'], data2['Vm_soma'], color=ge.green, label='chelated-Zinc', lw=1.5)
-    AX[0].plot(data['t'], data['Vm_soma'], color='k', label='free-Zinc', lw=1.5)
+        AX[0].plot(data2['t'], data2['Vm_soma'], color=ge.green, label='chelated-Zinc', lw=1)
+    if data3 is not None:
+        AX[0].plot(data3['t'], data3['Vm_soma'], color=ge.blue, label='AMPA-only', lw=1)
+    AX[0].plot(data['t'], data['Vm_soma'], color='k', label='free-Zinc', lw=1)
 
     AX[0].plot([0,data['t'][-1]], [-75,-75], 'k--', lw=0.5)
         
@@ -288,12 +290,12 @@ if __name__=='__main__':
     parser.add_argument("--Nsyn",help="#", type=int, default=20)
     parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
                         default=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18], nargs='*')
-    # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int,
-    #                     default=range(20), nargs='*')
+    # parser.add_argument("--NSTIMs",help="# < Nsyn", type=int, default=range(20), nargs='*')
     parser.add_argument("--stimseed", type=int, default=10)
     # loop over locations
     parser.add_argument("--syn_locations",help="#", type=int, default=[], nargs='*')
     # model variations
+    parser.add_argument("--preset", help="either, 'L23', 'L4', 'AMPA'",  default='') # 
     parser.add_argument("--active",
                         help="with active conductances",
                         action="store_true")
@@ -309,6 +311,16 @@ if __name__=='__main__':
 
     args = parser.parse_args()
 
+    if args.preset=='L23':
+        args.alphaZn = 0.45
+        args.ampa_only = False
+    elif args.preset=='L4':
+        args.alphaZn = 0.45
+        args.ampa_only = False
+    elif args.preset=='AMPA':
+        args.ampa_only = True
+
+        
     if args.task=='run':
         run_sim_with_bg_levels(args)
             
@@ -329,7 +341,17 @@ if __name__=='__main__':
                 
     elif args.task=='plot':
         data = np.load(filename(args), allow_pickle=True).item()
-        plot_sim(data, data)
+        try:
+            args.alphaZn = 0.
+            data2 = np.load(filename(args), allow_pickle=True).item()
+        except FileNotFoundError:
+            data2 = None
+        try:
+            args.ampa_only = True
+            data3 = np.load(filename(args), allow_pickle=True).item()
+        except FileNotFoundError:
+            data3 = None
+        plot_sim(data, data2=data2, data3=data3)
         ge.show()
         
     elif args.task=='active-demo':
