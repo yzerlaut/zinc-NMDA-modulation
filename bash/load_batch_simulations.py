@@ -11,11 +11,12 @@ def count_spikes(t, Vm, t0, t1, threshold=0):
     return len(np.argwhere((Vm[cond][:-1]<threshold) & (Vm[cond][1:]>=threshold)))
 
 def build_full_dataset(key='passive',
+                       folder=os.path.join('data', 'bg-modul'),
                        filename_only=True,                       
                        nfile_start=0, nfile_stop=int(1e8)):
     """
     """
-    filenames = get_files_with_given_exts('data/bg-modul/%s' % key, '.npz')
+    filenames = get_files_with_given_exts(os.path.join(folder,key), '.npz')
     RESP = {'filename':[]}
     K = ['Vm_soma', 't', 'BG_raster', 'STIM_raster']
     KEYS = ['seed', 'stimseed', 'alphaZn','syn_location',
@@ -23,7 +24,7 @@ def build_full_dataset(key='passive',
             'duration_per_bg_level', 'stim_delay']
     for key in KEYS+K:
         RESP[key] = []
-
+        
     for i, fn in enumerate(filenames[nfile_start:nfile_stop]):
         if os.path.isfile(fn):
             try:
@@ -43,6 +44,7 @@ def build_full_dataset(key='passive',
     return RESP
 
 def build_full_dataset_per_stim(key='passive',
+                                folder=os.path.join('data', 'bg-modul'),
                                 nfile_start=0, nfile_stop=int(1e8),
                                 with_Vm_trace=True,
                                 filename_only=True,
@@ -50,8 +52,9 @@ def build_full_dataset_per_stim(key='passive',
                                 baseline_window=[-100,0],
                                 peak_window=[0,500],
                                 integral_window=[0,500],
-                                spike_window=[0,2]):
-    filenames = get_files_with_given_exts('data/bg-modul/%s' % key, '.npz')
+                                spike_window=[0,200]):
+    filenames = get_files_with_given_exts(os.path.join(folder,key), '.npz')
+    
     RESP_PER_STIM = {'Vm':[],
                      'Vm_peak':[], 'Vm_integral':[], 'Vm_baseline':[],
                      'freq':[], 'Nspike':[], 'spike':[], 'nstim':[], 'filename':[]}
@@ -81,7 +84,7 @@ def build_full_dataset_per_stim(key='passive',
                         n=0
                     RESP_PER_STIM['Nspike'].append(n)
                     RESP_PER_STIM['spike'].append(np.sign(n)) # 0/1 spike/no-spike
-                    RESP_PER_STIM['freq'].append(n/spike_window*1e3)
+                    RESP_PER_STIM['freq'].append(n/float(np.diff(spike_window))*1e3)
                     # finding baseline Vm
                     tcond = (data['t']>=t0+data['args']['stim_delay']+baseline_window[0]) &\
                         (data['t']<t0+data['args']['stim_delay']+baseline_window[1])
@@ -105,8 +108,9 @@ def build_full_dataset_per_stim(key='passive',
 
 
 if __name__=='__main__':
-    
-    RESP = build_full_dataset(key='active',
-                              filename_only=True,                       
-                              nfile_start=0, nfile_stop=30)
-    print(RESP)
+
+    pass
+    # RESP = build_full_dataset(key='active',
+    #                           filename_only=True,                       
+    #                           nfile_start=0, nfile_stop=30)
+    # print(RESP)

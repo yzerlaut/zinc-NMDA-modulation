@@ -45,26 +45,34 @@ def get_trial_average_responses(RESP_PER_STIM,
            
             if nstim in NSTIMS:
                 RESP[ibg]['nstims'].append(nstim)
+                
                 scond = cond &\
                     (RESP_PER_STIM['nstim']==nstim) & (RESP_PER_STIM['bg_level']==bg)
-                # trial average
-                y = np.mean([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
-                # sy = np.std([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
-                # baseline
-                BSLcond = (t>=RESP_PER_STIM['stim_delay']+baseline_window[0]) &\
-                                (t<RESP_PER_STIM['stim_delay']+baseline_window[1])
-                BSL = np.mean(y[BSLcond])
-                # peak depol
-                PEAKcond = (t>=RESP_PER_STIM['stim_delay']+peak_window[0]) &\
-                                (t<RESP_PER_STIM['stim_delay']+peak_window[1])
-                RESP[ibg]['Peak'].append(np.max(y[PEAKcond])-BSL)
-                # depol integral
-                INTcond = (t>=RESP_PER_STIM['stim_delay']+integral_window[0]) &\
-                                (t<RESP_PER_STIM['stim_delay']+integral_window[1])
-                RESP[ibg]['Integral'].append(np.trapz(y[INTcond]-BSL, t[INTcond])/1e3)
+                # spike resp
                 RESP[ibg]['Freq'].append(np.mean([RESP_PER_STIM['freq'][i] for i, s in enumerate(scond) if s]))
                 RESP[ibg]['Proba'].append(np.mean([RESP_PER_STIM['spike'][i] for i, s in enumerate(scond) if s]))
 
+                if len(RESP_PER_STIM['Vm'])>0:
+                    # trial average
+                    y = np.mean([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
+                    # sy = np.std([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
+                    # baseline
+                    BSLcond = (t>=RESP_PER_STIM['stim_delay']+baseline_window[0]) &\
+                                    (t<RESP_PER_STIM['stim_delay']+baseline_window[1])
+                    BSL = np.mean(y[BSLcond])
+                    # peak depol
+                    PEAKcond = (t>=RESP_PER_STIM['stim_delay']+peak_window[0]) &\
+                                    (t<RESP_PER_STIM['stim_delay']+peak_window[1])
+                    RESP[ibg]['Peak'].append(np.max(y[PEAKcond])-BSL)
+                    # depol integral
+                    INTcond = (t>=RESP_PER_STIM['stim_delay']+integral_window[0]) &\
+                                    (t<RESP_PER_STIM['stim_delay']+integral_window[1])
+                    RESP[ibg]['Integral'].append(np.trapz(y[INTcond]-BSL, t[INTcond])/1e3)
+                else:
+                    for key in ['Peak', 'Integral']:
+                        RESP[ibg][key].append(np.abs(np.random.randn()*1e-12))
+                    
+                    
         x = NSTIMS
         for key in ['Peak', 'Integral', 'Freq', 'Proba']:
             y = np.array(RESP[ibg][key])
@@ -76,7 +84,10 @@ def get_trial_average_responses(RESP_PER_STIM,
             RESP[ibg][key+'-coeffs'] = res.x
             yf = res.x[0]*sigmoid_func(x, res.x[1], res.x[2])
             if key in thresholds:
-                RESP[ibg][key+'-threshold'] = np.array(x)[yf>thresholds[key]].min()
+                try:
+                    RESP[ibg][key+'-threshold'] = np.array(x)[yf>thresholds[key]].min()
+                except ValueError:
+                    RESP[ibg][key+'-threshold'] = 0
             
     return RESP
 
@@ -164,12 +175,15 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
         else:
             for C, ax in zip(CS, AX):
                 # data
-                ge.scatter(C[ibg]['nstims'], C[ibg][method], 
+                try:
+                    ge.scatter(C[ibg]['nstims'], C[ibg][method], 
                         ax=ax, color=cmap(ibg/(len(BG_levels)-1)), no_set=True, lw=0.5, ms=2)
-                # fit
-                x, coefs = np.linspace(C[ibg]['nstims'][0], C[ibg]['nstims'][-1], 100), C[ibg][method+'-coeffs']
-                y = coefs[0]*sigmoid_func(x, coefs[1], coefs[2])
-                ge.plot(x, y, ax=ax, color=cmap(ibg/(len(BG_levels)-1)), no_set=True, lw=3, alpha=0.5)
+                    # fit
+                    x, coefs = np.linspace(C[ibg]['nstims'][0], C[ibg]['nstims'][-1], 100), C[ibg][method+'-coeffs']
+                    y = coefs[0]*sigmoid_func(x, coefs[1], coefs[2])
+                    ge.plot(x, y, ax=ax, color=cmap(ibg/(len(BG_levels)-1)), no_set=True, lw=3, alpha=0.5)
+                except IndexError:
+                    pass
                 # ADDING THE c50 position:
                 if crossing is not None:
                     try:
