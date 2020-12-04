@@ -61,8 +61,8 @@ Model = {
     ########################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
     ########################################################
-    # 'alphaZn':0.19,# FITTED
-    'alphaZn':0.35,# FITTED
+    'alphaZn':0.19,# FITTED
+    # 'alphaZn':0.35,# FITTED
     # 'tauRiseZn':150.,# [ms], # FITTED
     'tauDecayZn':638.,# [ms], # FITTED
     'Deltax0':1., # FITTED
