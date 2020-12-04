@@ -28,14 +28,11 @@ We make use of the publicly available dataset of cellular morphologies taken fro
 
 Jiang et al., _Science_ (2015): Principles of connectivity among morphologically defined cell types in adult neocortex https://science.sciencemag.org/content/350/6264/aac9462
 
-<!-- Set of morphologies (dendritic arborization in red, axonal projections in green): -->
-<!-- ![](figures/all_cells.png) -->
-
 ## Model capabilities
 
-### - Branco et al., *Neuron* 2011
+### Branco et al., *Neuron* 2011
 
-We reproduce below Figure 5 of [Branco et al. (2011)](https://www.sciencedirect.com/science/article/pii/S0896627311001036) in our model with the considered morphology:
+As a starting point for this investigation, we reproduced Figure 5 of [Branco et al. (2011)](https://www.sciencedirect.com/science/article/pii/S0896627311001036) in our model with the considered morphology:
 
 ![](figures/Branco_et_al_2011.png)
 
@@ -51,5 +48,5 @@ If you find a bug, please open a ticket in the [issue tracker](https://github.co
 
 <div><img src="https://www.frm.org/bundles/app/images/logo-header-new2.png" alt="FRM Logo" height="23%" width="15%" align="right" style="margin-left: 10px"></div>
 
-Research funded by a fellowship from the [Fondation pour la Recherche Médicale](https://www.frm.org/).
+This open source software code was developed thanks to the funding from the [Fondation pour la Recherche Médicale](https://www.frm.org/) under the fellowship agreement ARF201909009117.
 
