@@ -41,8 +41,15 @@ We reproduce below Figure 5 of [Branco et al. (2011)](https://www.sciencedirect.
 
 See the [branco-et-al-2011.py](./branco-et-al-2011.py) script for the implementation.
 
+## Getting help
+
+In case of questions, you can email: [yann [dot] zerlaut [at] icm-institute [dot] org](yann.zerlaut@icm-institute.org).
+
+If you find a bug, please open a ticket in the [issue tracker](https://github.com/yzerlaut/zinc-NMDA-modulation/issues).
+
 ## Acknowledgments
 
-Research funded by a  fellowship from the [Fondation pour la Recherche Médicale](https://www.frm.org/).
+<div><img src="https://www.frm.org/bundles/app/images/logo-header-new2.png" alt="FRM Logo" height="23%" width="15%" align="right" style="margin-left: 10px"></div>
 
-contact: (yann [dot] zerlaut [at] icm-institute [dot] org)[yann.zerlaut@icm-institute.org]
+Research funded by a fellowship from the [Fondation pour la Recherche Médicale](https://www.frm.org/).
+
