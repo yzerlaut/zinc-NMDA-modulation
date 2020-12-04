@@ -40,7 +40,7 @@ See the [branco-et-al-2011.py](./branco-et-al-2011.py) script for the implementa
 
 ## Getting help
 
-In case of questions, you can email: [yann [dot] zerlaut [at] icm-institute [dot] org](yann.zerlaut@icm-institute.org).
+In case of questions, you can email: yann.zerlaut [at] icm-institute.org.
 
 If you find a bug, please open a ticket in the [issue tracker](https://github.com/yzerlaut/zinc-NMDA-modulation/issues).
 
