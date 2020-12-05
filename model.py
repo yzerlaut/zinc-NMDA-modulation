@@ -116,4 +116,4 @@ Model['nGABA'] = double_exp_normalization(Model['tauRiseGABA'],Model['tauDecayGA
 Model['nNMDA'] = double_exp_normalization(Model['tauRiseNMDA'],Model['tauDecayNMDA'])
 
 if __name__=='__main__':
-    np.savez('study.npz', **Model)
+    np.save('study.npy', Model)

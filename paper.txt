@@ -32,7 +32,9 @@ To examine the validity of this theoretical description against our experimental
 
 *** Zinc modulation increases the threshold for NMDA events
 
-We tested the 
+We tested the [...]
+
+[[Figure {nmda-event} around here]]
 
 *** Zinc modulation of NMDAR critically shape the background dependency of the stimulus encoding
 
@@ -177,7 +179,7 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 (a) Fitting the passive properties of the Layer2/3 model, in (i) we show the residual (color-coded) of the square difference between experimentally-recorded and model value for different configurations of the passice conductance and specific membrane capacitance, in (ii) we show the somatic input resistance and capacitance in the data and in the model after minization (black dot in *i*). (b) Fitting the input properties of the electrical stimulation and NMDA kinetics in the "chelated-Zinc" condition (green curves in see Figure {model-description}c), in *i* we show a parallel coordinate plot of 100 (99 randomly-picked + the optimal one) configurations picked from the 5-dimensional grid parameters (see Methods), the color code accounts for the residual value after fitting (as in *a(i)*, the dark line is the optimal configuration). In *ii*, we show the relation between $\chi^2$-residual and normalized distance with respect to the best-fit configuration of parameters. (c) Fitting the parameters of the Zinc modulation mechanism in the "free-Zinc" condition (black curves in Figure {model-description}c), plots as in *b*.
 
 *** NMDA event
-#+options : {'label':'optimization', 'extent':'one-and-a-half-column', 'height':50, 'file':'figures/nmda-event.png'}
+#+options : {'label':'nmda-event', 'extent':'double-column', 'height':50, 'file':'figures/nmda-event.png'}
 (a) Morphology. (b) Raw traces. (c) Summary.
 
 
