@@ -1,12 +1,11 @@
 #+Title: Modeling Zinc-modulation of NMDAR signaling in L2/3 pyramidal cell
-#+author: Zerlaut Y., Morabito A. \& N. Rebola
 
 * Key Points
 
 [[Figure {model-description} around here]]
 
 \item We derive a model for the modulation of synaptic transmission through NMDA receptor channels due to the binding of endogeneously-released Zinc. 
-\item We calibrate the model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells. We use a combination of extracellular stimulation recordings to calibrate the biophysical parameters and paired intracellular-recordings to calibrate the pathway-specificty of the Zinc modulation.
+\item We calibrate the model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells. We use a combination of extracellular stimulation experiments and paired intracellular recordings to calibrate respectively the biophysical parameters and the pathway-specificty of the Zinc modulation.
 \item We investigate the functional impact of the Zinc modulation for the computation performed by Layer 2/3 pyramidal cells during \textit{in vivo}-like regimes of cortical activity (strong synaptic bombardment). 
 \item We find that, while NMDAR in L2/3 cells is strongly involved in shaping the response to both L4 and L2/3 synaptic stimulation, For L4->L2/3 synaptic stimulation, the Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of stimulus intensity. On the other hand, the strong Zinc modulation characterizing L2/3 synapses implements a background-invariant encoding of stimulus intensity. 
 
@@ -36,6 +35,23 @@ We tested the [...]
 
 [[Figure {nmda-event} around here]]
 
+*** Effect of Zinc modulation in regimes of ongoing synaptic activity
+
+We now add synaptic activity (Destexhe et al, 1999).
+
+The effect of background activity on the PSP has been studied in Farinella et al. (2015).
+
+[[Figure {bg-dep-single-trial} around here]]
+
+Summary data
+
+[[Figure {bg-dep-passive} around here]]
+
+We now add active conductances.
+
+[[Figure {bg-dep-active-single-trial} around here]]
+
+
 *** Zinc modulation of NMDAR critically shape the background dependency of the stimulus encoding
 
 \begin{itemize}
@@ -43,10 +59,8 @@ We tested the [...]
 \item The Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3 synaptic stimulation
 \end{itemize}
 
-
 We then embed this model in a background of synaptic activity and examined how the Zinc modulation mechanism affect the NMDA events following diverse sets of synchronized synaptic events, see Figure {model-prediction}.
 
-[[Figure {model-prediction} around here]]
 
 * Methods
 
@@ -163,7 +177,7 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 * Figures
 
 *** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
-#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':40, 'file':'figures/fig-model-description.png'}
+#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':40, 'file':'figures/model-description.png'}
 (a) Biophysical model of NMDAR Zinc modulation at the single synapse level. Glutamate release is translated into a state-dependent integration variable $x$ (the $x$-dependency of the $\Delta x$ increments is shown in the inset, grey line). The $x$ variable is then non-linearly transformed and low-pass filtered to give the Zinc-binding variable $b_{Zn}$ (see the sigmoid in the inset, black line). Zinc binding reduces the NMDA synaptic conductance ($g_{NMDA}$, top plot), at full-binding $b_{Zn}=1$, the conductance is reduced by a factor $\alpha_{Zn}$. The increment parameter of the model $\Delta x^0$ is set to 0 when there is no available Zinc ("chelated-Zinc", green lines). (b) Morphological reconstruction of a Layer 2/3 pyramidal in the primary sensory cortex of the mouse (Jiang et al. (2015)). We highlight the soma (red circle) and the 5 glutamergic synapses on the basal dendite (orange dots) of panel *c*. (c) Voltage-clamp recordings in the model (see Methods) at four holding potentials following the synchronous stimulation of 5 glutamatergic synapses at 20Hz. We show the membrane potential (top plot, at the soma in red and at one synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom). The green curves show the "chelated-Zinc" case ($\Delta_x^0$=0). 
 
 *** Zinc modulation under synaptic bombardment decrease the temporal extent of NMDA events / shifts the threshold for NMDA-spike.
@@ -178,9 +192,21 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 #+options : {'label':'optimization', 'extent':'one-and-a-half-column', 'height':50, 'file':'figures/optimization.png'}
 (a) Fitting the passive properties of the Layer2/3 model, in (i) we show the residual (color-coded) of the square difference between experimentally-recorded and model value for different configurations of the passice conductance and specific membrane capacitance, in (ii) we show the somatic input resistance and capacitance in the data and in the model after minization (black dot in *i*). (b) Fitting the input properties of the electrical stimulation and NMDA kinetics in the "chelated-Zinc" condition (green curves in see Figure {model-description}c), in *i* we show a parallel coordinate plot of 100 (99 randomly-picked + the optimal one) configurations picked from the 5-dimensional grid parameters (see Methods), the color code accounts for the residual value after fitting (as in *a(i)*, the dark line is the optimal configuration). In *ii*, we show the relation between $\chi^2$-residual and normalized distance with respect to the best-fit configuration of parameters. (c) Fitting the parameters of the Zinc modulation mechanism in the "free-Zinc" condition (black curves in Figure {model-description}c), plots as in *b*.
 
-*** NMDA event
+*** Zinc modulation increases the threshold for NMDA events.
 #+options : {'label':'nmda-event', 'extent':'double-column', 'height':50, 'file':'figures/nmda-event.png'}
-(a) Morphology. (b) Raw traces. (c) Summary.
+(a) Morphology. (b) Raw traces. (c) PSP integral of the 3rd pulse.
+
+*** Single cell integration of synaptic stimulation under various background activity levels in the single cell model.
+#+options : {'label':'bg-dep-single-trial', 'extent':'double-column', 'file':'figures/bg-dep-passive-full-example-single-trial.png'}
+From left to right, the intensity of the synaptic stimulation is increased by raising the number of synapses recruited in the stimulation window. From top to bottom, the background activity is raised by increasing the rate of the Poisson process setting the background activity of each individual synapses (see firing rate level on the figure). We show the responses (color-coded) with synaptic properties associated to the 3 following cases: L23-to-L4 synaptic properties, L23-to-L23 synaptic properties and AMPA-only synapses. Shown for a synaptic ensemble (loc #5) and the same set of stimulus and background seed.
+
+*** Zinc modulation makes synaptic integration of L23-to-L23 input background invariant
+#+options : {'label':'bg-dep-passive', 'extent':'single-column', 'file':'figures/passive-bg-dep.png'}
+Integral of the PSP response in 3 following cases: L23-to-L4 synaptic properties, L23-to-L23 synaptic properties and AMPA-only synapses (from top to bottom). Errorbars indicate variability (s.d.) over n=5 stimulus seed and n=10 background seeds, the plain line is a sigmoid fit to the average response over seeds.
+
+*** Single cell processing of synaptic stimulation under various background activity levels in the single cell model.
+#+options : {'label':'bg-dep-single-trial-active', 'extent':'double-column', 'file':'figures/bg-dep-active-full-example-single-trial.png'}
+Same than Figure {bg-dep-single-trial} by simulating active conductances in the model (see methods).
 
 
 * Tables

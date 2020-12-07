@@ -16,7 +16,7 @@ def build_full_dataset(key='passive',
                        nfile_start=0, nfile_stop=int(1e8)):
     """
     """
-    filenames = get_files_with_given_exts(os.path.join(folder,key), '.npz')
+    filenames = get_files_with_given_exts(os.path.join(folder,key), '.npy')
     RESP = {'filename':[]}
     K = ['Vm_soma', 't', 'BG_raster', 'STIM_raster']
     KEYS = ['seed', 'stimseed', 'alphaZn','syn_location',
@@ -28,7 +28,7 @@ def build_full_dataset(key='passive',
     for i, fn in enumerate(filenames[nfile_start:nfile_stop]):
         if os.path.isfile(fn):
             try:
-                data = load_dict(fn)
+                data = np.load(fn, allow_pickle=True).item()
                 if np.isfinite(data['Vm_soma'].max()):
                     RESP['filename'].append(fn)
                     for key in KEYS:
@@ -53,7 +53,7 @@ def build_full_dataset_per_stim(key='passive',
                                 peak_window=[0,500],
                                 integral_window=[0,500],
                                 spike_window=[0,200]):
-    filenames = get_files_with_given_exts(os.path.join(folder,key), '.npz')
+    filenames = get_files_with_given_exts(os.path.join(folder,key), '.npy')
     
     RESP_PER_STIM = {'Vm':[],
                      'Vm_peak':[], 'Vm_integral':[], 'Vm_baseline':[],
@@ -64,22 +64,21 @@ def build_full_dataset_per_stim(key='passive',
 
     for fn in filenames[nfile_start:nfile_stop]:
         if not os.path.isdir(fn):
-            data = load_dict(fn)
+            data = np.load(fn, allow_pickle=True).item()
             if np.isfinite(data['Vm_soma'].max()) and ('stimseed' in data['args']):
                 for i, nstim in enumerate(data['args']['NSTIMs']):
                     t0 = i*data['args']['duration_per_bg_level']
                     t1 = t0+data['args']['duration_per_bg_level']
-                    tcond = (data['t']>=t0) & (data['t']<t1)
+                    tcond0 = (data['t']>=t0) & (data['t']<t1)
                     if with_Vm_trace:
-                        RESP_PER_STIM['Vm'].append(data['Vm_soma'][tcond])
+                        RESP_PER_STIM['Vm'].append(data['Vm_soma'][tcond0])
                     RESP_PER_STIM['nstim'].append(nstim)
                     for k in KEYS:
                         RESP_PER_STIM[k].append(data['args'][k])
                     # counting spikes
                     if key=='active':
-                        n = count_spikes(data['t'], data['Vm_soma'],
-                                data['args']['stim_delay']+t0+spike_window[0],
-                                data['args']['stim_delay']+t0+spike_window[1])
+                        n = np.sum((data['tspikes']>t0+spike_window[0]) &\
+                                   (data['tspikes']<t0+spike_window[1]))
                     else:
                         n=0
                     RESP_PER_STIM['Nspike'].append(n)
@@ -100,7 +99,7 @@ def build_full_dataset_per_stim(key='passive',
                                         np.trapz(data['Vm_soma'][tcond]-RESP_PER_STIM['Vm_baseline'][-1],\
                                                  data['t'][tcond])/1e3)
                     
-                RESP_PER_STIM['t'] = data['t'][tcond]-t0
+                RESP_PER_STIM['t'] = data['t'][tcond0]-t0
                 RESP_PER_STIM['stim_delay'] = data['args']['stim_delay']
     for key in RESP_PER_STIM.keys():
         RESP_PER_STIM[key] = np.array(RESP_PER_STIM[key])

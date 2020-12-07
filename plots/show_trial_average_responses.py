@@ -5,7 +5,8 @@ from scipy.optimize import minimize
 def sigmoid_func(x, x0=0, sx=1.):
     return 1./(1+np.exp(-(x-x0)/(1e-9+np.abs(sx))))
         
-cmap = ge.blue_to_red #ge.get_linear_colormap(ge.orange, ge.purple)
+# cmap = ge.blue_to_red
+cmap = ge.get_linear_colormap(ge.orange, ge.purple)
 
 def get_trial_average_responses(RESP_PER_STIM,
                                 resp='',
@@ -16,7 +17,7 @@ def get_trial_average_responses(RESP_PER_STIM,
                                 baseline_window=[-100,0],
                                 peak_window=[0,500],
                                 integral_window=[0,500]):
-
+    print(syn_location)
     if resp=='ampa-only':
         cond = (RESP_PER_STIM['ampa_only']==True)
     else:
@@ -52,9 +53,10 @@ def get_trial_average_responses(RESP_PER_STIM,
                 RESP[ibg]['Freq'].append(np.mean([RESP_PER_STIM['freq'][i] for i, s in enumerate(scond) if s]))
                 RESP[ibg]['Proba'].append(np.mean([RESP_PER_STIM['spike'][i] for i, s in enumerate(scond) if s]))
 
-                if len(RESP_PER_STIM['Vm'])>0:
+                VALS = [RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s]
+                if len(VALS)>0:
                     # trial average
-                    y = np.mean([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
+                    y = np.mean(VALS, axis=0)
                     # sy = np.std([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
                     # baseline
                     BSLcond = (t>=RESP_PER_STIM['stim_delay']+baseline_window[0]) &\
@@ -86,15 +88,15 @@ def get_trial_average_responses(RESP_PER_STIM,
             if key in thresholds:
                 try:
                     RESP[ibg][key+'-threshold'] = np.array(x)[yf>thresholds[key]].min()
-                except ValueError:
+                except (RuntimeWarning, ValueError):
                     RESP[ibg][key+'-threshold'] = 0
             
     return RESP
 
-def show_trial_average_responses(RESP_PER_STIM, ge=ge,
+def show_trial_average_responses(RESP_PER_STIM,
                                  resp='', 
                                  alphaZn=0., 
-                                 VLIM=None,
+                                 VLIM=None,  ge=ge,
                                  syn_location='all',
                                  window=[-200,400]):
 
@@ -111,11 +113,12 @@ def show_trial_average_responses(RESP_PER_STIM, ge=ge,
         
     bg_levels = np.unique(RESP_PER_STIM['bg_level'])
     fig, AX = ge.figure(axes=(len(bg_levels),1), wspace=0.1, right=1.3)
+
+    ge.annotate(fig, '%s, n=%i bg seeds, n=%i stim seeds, %s' % (resp,
+                                                                   len(np.unique(RESP_PER_STIM['seed'])),
+                                                                   len(np.unique(RESP_PER_STIM['seed'])), # STIM SEED HERE !
+                                                                   sloc), (.5, .95), va='top', ha='center', size='small')
     
-    fig.suptitle('%s, n=%i bg seeds, n=%i stim seeds, %s' % (resp,
-                                                    len(np.unique(RESP_PER_STIM['seed'])),
-                                                    len(np.unique(RESP_PER_STIM['seed'])), # STIM SEED HERE !
-                                                    sloc))
     t = RESP_PER_STIM['t']
     ylim, ylim2 = [np.inf, -np.inf], [np.inf, -np.inf]
     for ibg, bg in enumerate(bg_levels):
@@ -136,7 +139,7 @@ def show_trial_average_responses(RESP_PER_STIM, ge=ge,
         if VLIM is not None:
             ylim = VLIM
         ge.set_plot(AX[ibg], [], ylim=ylim)
-    ge.draw_bar_scales(AX[0], Xbar = 200, Xbar_label='200ms',
+    ge.draw_bar_scales(AX[0], Xbar = 100, Xbar_label='100ms',
                               Ybar = 10, Ybar_label='10mV',
                               loc=(0.05,.8), orientation='right-bottom')
     ge.bar_legend(fig, X=np.unique(RESP_PER_STIM['nstim']),

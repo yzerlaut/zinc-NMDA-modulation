@@ -315,7 +315,7 @@ if __name__=='__main__':
         args.alphaZn = 0.45
         args.ampa_only = False
     elif args.preset=='L4':
-        args.alphaZn = 0.45
+        args.alphaZn = 0.
         args.ampa_only = False
     elif args.preset=='AMPA':
         args.ampa_only = True
@@ -327,7 +327,7 @@ if __name__=='__main__':
     elif args.task=='analyze':
         # args.chelated  = False
         data = np.load(filename(args), allow_pickle=True).item()
-        # args.chelated  = True
+        # args.chelated = True
         # data2 = load_dict(filename(args))
         analyze_sim(data, data)
         ge.show()
