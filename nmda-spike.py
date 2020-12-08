@@ -122,23 +122,25 @@ if __name__=='__main__':
         
     elif sys.argv[-1]=='run-demo':
 
-        data = run_sim(Model, ampa_only=True, NSYNs=NSYNs, syn_loc0=LOCs[0])
-        np.savez('data/nmda-spike/demo-AMPA-only.npz', **data)
-        data = run_sim(Model, ampa_only=False, chelated=True, NSYNs=NSYNs, syn_loc0=LOCs[0])
-        np.savez('data/nmda-spike/demo-chelated-Zinc.npz', **data)
-        data = run_sim(Model, ampa_only=False, chelated=False, NSYNs=NSYNs, syn_loc0=LOCs[0])
-        np.savez('data/nmda-spike/demo-free-Zinc.npz', **data)
+        syn_loc0 = 9
+        NSYNs=[2, 4, 6, 8, 10]
+        data = run_sim(Model, ampa_only=True, NSYNs=NSYNs, syn_loc0=LOCs[syn_loc0])
+        np.save('data/nmda-spike/demo-AMPA-only.npy', data)
+        data = run_sim(Model, ampa_only=False, chelated=True, NSYNs=NSYNs, syn_loc0=LOCs[syn_loc0])
+        np.save('data/nmda-spike/demo-chelated-Zinc.npy', data)
+        data = run_sim(Model, ampa_only=False, chelated=False, NSYNs=NSYNs, syn_loc0=LOCs[syn_loc0])
+        np.save('data/nmda-spike/demo-free-Zinc.npy', data)
 
     elif sys.argv[-1]=='run-full':
         
         NSYNs=np.arange(1, 15)
         for loc in LOCs:
             data = run_sim(Model, ampa_only=True, NSYNs=NSYNs, syn_loc0=loc)
-            np.savez('data/nmda-spike/data-loc-%i-AMPA-only.npz' % loc, **data)
+            np.save('data/nmda-spike/data-loc-%i-AMPA-only.npy' % loc, data)
             data = run_sim(Model, ampa_only=False, chelated=True, NSYNs=NSYNs, syn_loc0=loc)
-            np.savez('data/nmda-spike/data-loc-%i-chelated-Zinc.npz' % loc, **data)
+            np.save('data/nmda-spike/data-loc-%i-chelated-Zinc.npy' % loc, data)
             data = run_sim(Model, ampa_only=False, chelated=False, NSYNs=NSYNs, syn_loc0=loc)
-            np.savez('data/nmda-spike/data-loc-%i-free-Zinc.npz' % loc, **data)
+            np.save('data/nmda-spike/data-loc-%i-free-Zinc.npy' % loc, data)
 
     elif sys.argv[-1]=='fig-full':
 

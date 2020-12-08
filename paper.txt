@@ -15,15 +15,13 @@
 
 We derive a model of the Zinc modulation of NMDAR signaling based on our experimental observations and previous studies (Vergnano et al., 2014, ...). Our modeling approach aimed at describing the modulation in the form of a minimal phenomenological description at the single synapse level (see Discussion). 
 
-The phenomenology and the reasoning guiding the derivation of the model were the following (illustrated in Figure {model-description}). Glutamatergic events are associated to a release of Zinc in the synaptic cleft. Zinc has a high affinity for binding and does not accumulate in the cleft (the cleft is free of Zinc in less than 2ms, REF), so the dynamics is led by the binding-unbinding phenomenon. Zinc binding is modelled by a variable $b_{Zn}$ varying betweeen 0 (no binding) and 1 (full binding). Zinc binding is approximated as instantaneous and fully saturating the binding site at every single synaptic release event (see the systematic jump to $b_Zn$=1 after glutamatergic events in Figure {model-description}a). Zinc unbinding has a decay time constant $\tau^{decay}_{Zn}$. 
+The phenomenology and the reasoning guiding the derivation of the model were the following (illustrated in Figure {model-description}). Glutamatergic events are associated to a release of Zinc in the synaptic cleft. Zinc has a high affinity for binding and does not accumulate in the cleft (the cleft is free of Zinc in less than 2ms, REF), so the dynamics is led by the binding-unbinding phenomenon. Zinc binding is modelled by a variable $b_{Zn}$ varying betweeen 0 (no binding) and 1 (full binding). Zinc binding is approximated as instantaneous and fully saturating the binding site at every single synaptic release event (see the systematic jump to $b_Zn$=1 after glutamatergic events in Figure {model-description}a). Zinc unbinding has a decay time constant $\tau^{decay}_{Zn}$. At the time of a synaptic release, the current level of Zinc binding will determine the magnitude of the reduction of NMDA conductance due to the Zinc modulation (red curve in Figure {model-description}a).
 
 A parameter $\alpha_{Zn}$ captures the inhibitory efficacy of Zinc binding on NMDAR conductance. At full binding ($b_{Zn}$=1), the NMDA conductance has a factor 1-$\alpha_{Zn}$. Zinc binding as an inertia captured by a time constant $\tau^{rise}_{Zn}$. 
 
-Zinc binding is a non-linear phenomenon, from Vergnano et al. (2014), we extrapolate that the relation between available Zinc (upon synaptic release) and Zinc binding should be captured by a sigmoid function. This non-linearity is implemented in two-steps. First the relation between Glutamate release and the increments of Zinc binding are state-dependent and bounded to 1, we therefore introduce an intermediate variable $x$ that is incremented at synaptic events (see Figure {model-description}a). Second, we apply the sigmoid function on that variable to enforce the non-linear behavior of Zinc-binding (to display full binding level for sustained inputs, see Figure {model-description}a). Finally, we low-pass filter this signal to add the binding dynamics. The two-dimensional system of equations implementing those steps is Equation {Zn-modul}.
-
-We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015) and we fixed biophysical parameters (beside NMDA and Zinc-modulation parameters) to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014). 
-
+[[Figure {L23-L4-opti} around here]]
 *** Calibrating model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells
+We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015) and we fixed biophysical parameters (beside NMDA and Zinc-modulation parameters) to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014). 
 
 This model allowed to implement synaptic stimulation coupled with current-clamp and voltage-clamp recording protocols similar to our experimental recordings (see Methods). We therefore calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz (see Methods, Figure {optimization}a,b,c and Table {model-params}). After parameter optimization, the error between model and experiment for the "chelation"-effect (defined by the residual trace: chelated - control) only represented {MAPE_chelation_model_exp} of the experimentally recorded variations (see Figure {optimization}d), we therefore conclude that our theoretical description successfully captured the experimentally observed modulation of NMDAR signalling by endogeneous Zinc.
 
@@ -60,7 +58,6 @@ We now add active conductances.
 \end{itemize}
 
 We then embed this model in a background of synaptic activity and examined how the Zinc modulation mechanism affect the NMDA events following diverse sets of synchronized synaptic events, see Figure {model-prediction}.
-
 
 * Methods
 
@@ -177,8 +174,16 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 * Figures
 
 *** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
-#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':40, 'file':'figures/model-description.png'}
-(a) Biophysical model of NMDAR Zinc modulation at the single synapse level. Glutamate release is translated into a state-dependent integration variable $x$ (the $x$-dependency of the $\Delta x$ increments is shown in the inset, grey line). The $x$ variable is then non-linearly transformed and low-pass filtered to give the Zinc-binding variable $b_{Zn}$ (see the sigmoid in the inset, black line). Zinc binding reduces the NMDA synaptic conductance ($g_{NMDA}$, top plot), at full-binding $b_{Zn}=1$, the conductance is reduced by a factor $\alpha_{Zn}$. The increment parameter of the model $\Delta x^0$ is set to 0 when there is no available Zinc ("chelated-Zinc", green lines). (b) Morphological reconstruction of a Layer 2/3 pyramidal in the primary sensory cortex of the mouse (Jiang et al. (2015)). We highlight the soma (red circle) and the 5 glutamergic synapses on the basal dendite (orange dots) of panel *c*. (c) Voltage-clamp recordings in the model (see Methods) at four holding potentials following the synchronous stimulation of 5 glutamatergic synapses at 20Hz. We show the membrane potential (top plot, at the soma in red and at one synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom). The green curves show the "chelated-Zinc" case ($\Delta_x^0$=0). 
+#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':30, 'file':'figures/model-description.png'}
+(a) Biophysical model of NMDAR Zinc modulation at the single synapse level: glutamate events (top panel) trigger Zinc binding (middle panel, $b_{Zn}$) that scales the NMDAR conductance (bottom panel, $g_{NMDA}$) following a synaptic event. The level of Zinc binding at the time of a synaptic release (highlighted by dots) determines the efficacy. (b) Morphological reconstruction of a Layer 2/3 pyramidal in mouse V1 (Jiang et al. (2015)). (c) Voltage-clamp recordings in the model (see Methods) at four holding potentials following a single synapse stimulation at 20Hz in the free and chelated Zinc conditions (black and green curves respectively). We show the membrane potential (top plot, at the soma in red and at the synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom).
+
+*** Calibrating the biophysical properties of the Zinc modulation effect
+#+options : {'label':'L23-L4-opti', 'extent':'single-column', 'file':'figures/L23-L4-params-optimization.png'}
+We use the [...] to infer the $\alpha_{Zn}$ level of 
+
+*** Calibrating the pathway-specificity of the Zinc modulation effect from L23-L23 and L4-L23 pair recordings.
+#+options : {'label':'L23-L4-opti', 'extent':'single-column', 'file':'figures/L23-L4-params-optimization.png'}
+We use the [...] to infer the $\alpha_{Zn}$ level of 
 
 *** Zinc modulation under synaptic bombardment decrease the temporal extent of NMDA events / shifts the threshold for NMDA-spike.
 #+options : {'label':'model-prediction', 'extent':'doublecolumn', 'file':'figures/fig-model-prediction.png'}
@@ -207,7 +212,6 @@ Integral of the PSP response in 3 following cases: L23-to-L4 synaptic properties
 *** Single cell processing of synaptic stimulation under various background activity levels in the single cell model.
 #+options : {'label':'bg-dep-single-trial-active', 'extent':'double-column', 'file':'figures/bg-dep-active-full-example-single-trial.png'}
 Same than Figure {bg-dep-single-trial} by simulating active conductances in the model (see methods).
-
 
 * Tables
 
@@ -534,6 +538,44 @@ How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been stu
   revised         = {2020-04-08},
 }
 
+* Supplementary
+** Supplementary Text
+*** Section talking abour first supplementary result
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dignissim nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies vel, semper in, velit. Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis solliciudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nuncquis urna dictum turpis accumsan semper.
+
+\begin{equation}
+\left\{
+\begin{split}
+& \frac{\partial^2 d}{\partial t ^2} = -x^3 \\
+& \sum_{x} 1/x^2 \rightarrow y
+\end{split}
+\right.
+\end{equation}
+
+** Supplementary Figures
+
+*** Caption for first supplementary figure.
+#+options : {'label':'Fig1', 'extent':'single-column', 'file':'figures/fig.png'}
+(a) Generate the figure with : \url{python_code/script.py} Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. (b) Nullam necmi et neque pharetra sollicitudin. Praesent im-perdiet mi nec ante. Donec ullamcorper, felis nonsodales commodo, lectus velit ultrices augue, a dig-nissim nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies vel, semper in, velit.Ut porttitor. Praesent in sapien. (c) Lorem ipsumdolor sit amet, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. Nuncquis urna dictum turpis accumsan semper.
+
+** Supplementary Tables
+
+*** Caption for the first supplementary table
+#+options : {'label':'sTab1', 'extent':'single-column'}
+\begin{tabular}{lrr}
+Name & Phone & Age\\
+\hline
+Peter & \{blabla\} & 17\\
+Anna & 4321 & 25\\
+Patrick & 4321 & 25\\
+\end{tabular}
+
+# | Name    |    Phone | Age |
+# |---------+----------+-----|
+# | Peter   | {blabla} |  17 |
+# | Anna    |     4321 |  25 |
+# | Patrick |     4321 |  25 |
 * Informations
 
 *** Short_Title
@@ -544,7 +586,6 @@ FRM fellowship
 
 *** Data_availability
 The code to run and analyze the numerical simulations of this study is publicy available at the url: \url{https://github.com/yzerlaut/zinc-NMDA-modulation/README.md}.
-
 * Pieces of text
 
 *** Zinc modulation enables pathway-specific routing of information.
