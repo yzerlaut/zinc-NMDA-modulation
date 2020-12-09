@@ -61,8 +61,8 @@ Model = {
     ########################################################
     # ---------- ZINC MODULATION PARAMS  ----------------- #
     ########################################################
-    # 'alphaZn':0.19,# FITTED
-    'alphaZn':0.35,# FITTED
+    'alphaZn':0.19,# FITTED
+    # 'alphaZn':0.35,# FITTED
     # 'tauRiseZn':150.,# [ms], # FITTED
     'tauDecayZn':638.,# [ms], # FITTED
     'Deltax0':1., # FITTED
@@ -116,4 +116,4 @@ Model['nGABA'] = double_exp_normalization(Model['tauRiseGABA'],Model['tauDecayGA
 Model['nNMDA'] = double_exp_normalization(Model['tauRiseNMDA'],Model['tauDecayNMDA'])
 
 if __name__=='__main__':
-    np.savez('study.npz', **Model)
+    np.save('study.npy', Model)

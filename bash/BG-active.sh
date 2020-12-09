@@ -15,7 +15,8 @@ do
 	do
 	    for bg_level in 0 1 2 3 4
 	    do
-		for preset in L23 L4 AMPA
+		# for preset in L23 L4 AMPA
+		for preset in L4
 		do
 		    echo [active] Running preset=$preset, stimseed=$stimseed, seed=$seed, syn_location=$syn_location, bg_level=$bg_level
 		    if [ $(($n % $Nproc)) -eq 0 ]

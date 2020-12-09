@@ -114,7 +114,8 @@ if __name__=='__main__':
         for nsyn, ax in zip(NSYNs, AX):
             ge.title(ax, '$N_{syn}$=%i' % nsyn, size='xx-small')
             vis.plot_segments(SEGMENTS['comp_type']!='axon',
-                              bar_scale_args=dict(Ybar=100, Ybar_label='100um', Xbar=None, size='xx-small'),
+                              bar_scale_args=dict(Ybar=50, Xbar_label='50um', Xbar=50, Ybar_label='',
+                                                  loc='top-right', xyLoc=(-110,90), size='xx-small'),
                               ax=ax)
             vis.add_dots(ax, loc_syn0+np.arange(nsyn), 10, ge.orange)
         ge.show()
