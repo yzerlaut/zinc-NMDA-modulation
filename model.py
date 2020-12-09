@@ -1,9 +1,10 @@
 import numpy as np
 
-def add_value_to_study_data(key, value, study='study.npy'):
-    Model2 = np.load(study, allow_pickle=True).item()
+from analyz.IO.npz import load_dict
+def add_value_to_study_data(key, value, study='study.npz'):
+    Model2 = load_dict(study)
     Model2[key] = value
-    np.save(study, Model2)
+    np.savez(study, **Model2)
     
 
 Model = {
