@@ -158,11 +158,11 @@ if __name__=='__main__':
         from datavyz import ges as ge
         _, neuron, SEGMENTS = initialize_sim(Model)
         vis = nrnvyz(SEGMENTS, ge=ge)
-        fig, ax = ge.figure(figsize=(1.,1.5), left=0, top=0.3, bottom=0, right=0)
+        fig, ax = ge.figure(figsize=(.8,1.1), left=0, top=0.3, bottom=0, right=0)
         vis.plot_segments(SEGMENTS['comp_type']!='axon',
                           # bar_scale_args=dict(Ybar=50, Xbar_label='50um', Xbar=50, Ybar_label='', loc='bottom-left', size='xx-small'),
                           bar_scale_args=dict(Ybar=50, Xbar_label='50um', Xbar=50, Ybar_label='',
-                                              loc='top-right', xyLoc=(-110,90), size='xx-small'),
+                                              loc='top-right', xyLoc=(-110,90), size='xxx-small'),
                           ax=ax)
 
         soma = (SEGMENTS['name']=='soma')
@@ -187,7 +187,7 @@ if __name__=='__main__':
         ge.show()
         print(len(LOCs), 'segments')
         np.save('data/nmda-spike/locations.npy', np.array(LOCs))
-
+        fig.savefig(os.path.join('figures','all-syn-locs.svg'))
     else:
         print("""
         Should be used as either:

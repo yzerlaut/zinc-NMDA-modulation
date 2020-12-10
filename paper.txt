@@ -19,19 +19,44 @@ The phenomenology and the reasoning guiding the derivation of the model were the
 
 A parameter $\alpha_{Zn}$ captures the inhibitory efficacy of Zinc binding on NMDAR conductance. At full binding ($b_{Zn}$=1), the NMDA conductance has a factor 1-$\alpha_{Zn}$. Zinc binding as an inertia captured by a time constant $\tau^{rise}_{Zn}$. 
 
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/description.ipynb}{Notebook}
+\end{itemize}
+
+We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015). After fitting the passive properties (see next section), we fixed classical biophysical parameters to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014) and estimated the parameters introduced by our theoretical description on our experimental recordings (see next section).
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/single_cell_sim.py}{Script}
+\end{itemize}
+
+The resulting model implementation was found to reproduce the results of Branco et al. (2011), see the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/Branco-et-al-2011.ipynb}{Notebook} and underlying \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/branco-et-al-2011.py}{Script}.
+
+[[Figure {passive-props} around here]]
 [[Figure {L23-L4-opti} around here]]
 *** Calibrating model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells
-We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015) and we fixed biophysical parameters (beside NMDA and Zinc-modulation parameters) to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014). 
+
+The model calibration followed 
+\paragraph*{Passive properties}
+
+We first calibrated the passive properties of the model: the membrane leak conductance $g_l$ and the membrane capacitance $c_m$ (see Table {model-params}). We used our current-clamp experimental recordings to determine the input resistance and capacitance at the soma, see Figure {passive-props}. This was performed byWe fitted the input resistance at the soma  The experimental values were found to be {exp-passive-props}.
+
+First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: {exp-passive-props}. We varied the passive parameters in the model and computed the input resistance at the soma (by fitting the $V_m$ response to a 200 pA current step). The range for the parameter grid was [{gL_min},{gL_max}]pS/$\mu$m$^2$ and [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and Häusser, 2011; Palmer et al., 2014).
+
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/passive-props.ipynb}{Notebook}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/passive_props.py}{Script}
+\end{itemize}
+
+\paragraph*{Chelated Zinc}
 
 This model allowed to implement synaptic stimulation coupled with current-clamp and voltage-clamp recording protocols similar to our experimental recordings (see Methods). We therefore calibrated the model parameters on our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz (see Methods, Figure {optimization}a,b,c and Table {model-params}). After parameter optimization, the error between model and experiment for the "chelation"-effect (defined by the residual trace: chelated - control) only represented {MAPE_chelation_model_exp} of the experimentally recorded variations (see Figure {optimization}d), we therefore conclude that our theoretical description successfully captured the experimentally observed modulation of NMDAR signalling by endogeneous Zinc.
 
 To examine the validity of this theoretical description against our experimental observations, we incorporated 
 
+[[Figure {nmda-event} around here]]
+[[Figure {nmda-event-all} around here]]
 *** Zinc modulation increases the threshold for NMDA events
 
 We tested the [...]
-
-[[Figure {nmda-event} around here]]
 
 *** Effect of Zinc modulation in regimes of ongoing synaptic activity
 
@@ -102,14 +127,14 @@ I^i_{syn}(t, V_m^i) = q_{syn} \cdot (E_{syn} - V_m^i) \cdot \sum_{ \{t_k\} } \ma
 
 where $q_{syn}$ is the conductance quantal of the synaptic release (setting the peak conductance level) and $\mathcal{H}(t)$ is the Heaviside (step) function. We measured AMPA and NMDA peak currents to determine the ratio of NMDA to AMPA conductances (see Figure {nmda-ampa}), this ratio was used to set the NMDA conductance quantal from the AMPA conductance quantal (see Table {model-params}).
 
-For NMDA synapses, we add a Zinc-binding dependency (detailed in the next section) and a voltage-dependency due to the Magnesium block captured by an exponential function (Ascher and Nowak, 1988; Jahr and Stevens, 1990; Koch, 2004):
+For NMDA synapses, we add a voltage-dependency due to the Magnesium block captured by an exponential function (Ascher and Nowak, 1988; Jahr and Stevens, 1990; Koch, 2004) and a Zinc-binding dependency (detailed in the next section):
 
 [[Figure {nmda-ampa} around here]]
 
 \begin{equation}
 \label{eq:nmda}
 \begin{split}
-& I^i_{NMDA} (t, V_m^i, b^i_{Zn}) = \big(1 - \alpha_{Zn} \, b_{Zn} \big) 
+& I^i_{NMDA} (t, V_m^i, b^i_{Zn}) = \big(1 - \alpha_{Zn} \, m_{Zn} \big) 
 \cdot \frac{1}{1+ \eta \, [\text{Mg}^{2+}] e^{- V_m^i / V_0 }}  \\ 
 & \qquad \times q_{NMDA} \, (E_{NMDA} - V_m^i) \sum_{ \{t_k\} } \mathcal{H}(t-t_k) \, F_{NMDA}(t-t_k)
 \end{split}
@@ -121,20 +146,21 @@ All synaptic parameters are summarized on Table {model-params}.
 
 *** Zinc modulation model
 
-The system of equation setting the dynamics of the binding variable $b_{Zn}$ in the NMDA conductance (Equation {eq:nmda}) reads:
-    
+The modulation factor $m_{Zn}$ that scales the NMDA conductance, see $g_{NMDA} \propto (1- \alpha_{Zn} \cdot m_{Zn})$ in Equation {nmda}, is determined by the level of Zinc binding at the time of the synaptic event. Therefore, for a set of glutamatergic events $\{t^k\}_{glut}$, the time-varying factor $m_{Zn}$ is defined by the piecewise function:
+
 \begin{equation}
-\label{eq:Zn-modul}
-\left\{
-\begin{split}
-\tau^{decay}_{Zn} \cdot \frac{d x}{ dt }  = & - x + \Delta_x ( x )  \sum_{\{t^{k}\}_{glut}} \delta (t-t^k) \\
-\tau^{rise}_{Zn} \cdot \frac{d b_{Zn}}{ dt }  = & - b_{Zn} + \mathcal{S}(\frac{x-x_0}{\delta x}) 
-\end{split}
-\right.
+\label{eq:mZn}
+ m_{Zn} : t \req \rightarrow b_{Zn}(t^k) \qquad \forall t \in [t^k, t^{k+1}[
 \end{equation}
 
-where $\Delta_x (x)$ is the ($x$-dependent) increment defined by  $\Delta_x : x \rightarrow \Delta_x^0 \cdot \big(1- x \big)$. The function $\mathcal{S}$ is the sigmoid function defined by: $\mathcal{S} : X \rightarrow \frac{1}{1+e^{-X}}$, the parameters $x_0$ and $\delta x$ therefore define the center and slope of the sigmoid. To limit the number of free parameters, the parameter $x_0$ was constrained to $x_0$=$\Delta_x^0$, meaning that the sigmoid of the Zinc-modulation activation was centered around one the increment corresponding to one synaptic event (see Figure {model-description}a). Such constraint did not prevent an accurate quantitative description of the effect (see Figure {optimization}d).
+The variable $b_{Zn}(t)$ describes the dynamics of Zinc binding. It is updated to fully-bound level ($b_{Zn}$=1) at each glutamatergic event and decays to the unbound level ($b_{Zn}$=0) with a time constant $\tau^{decay}_{Zn}$. It therefore follows the equation:
 
+\begin{equation}
+\label{eq:bZn}
+\tau^{decay}_{Zn} \cdot \frac{d b_{Zn}}{ dt }  = & - b_{Zn} + (1-b_{Zn}) \cdot \sum_{\{t^{k}\}_{glut}} \delta (t-t^k)
+\end{equation}
+
+The dynamics of the $b_{Zn}$ and $m_{Zn}$ variables following synaptic events is illustrated on Figure {model-description}a.
 
 *** Model calibration: parameter fitting
 
@@ -142,7 +168,7 @@ where $\Delta_x (x)$ is the ($x$-dependent) increment defined by  $\Delta_x : x 
 
 The parameter of the model were fitted in three steps (respectively shown in *a*, *b* and *c* in Figure {optimization}) yielding the constrained model shown in Figure {optimization}d). 
 
-First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: $R_m$={Rm_exp}, $C_m$={Cm_exp} (n={ncell_RmCm} cells). The range for the parameter grid was [{gL_min},{gL_max}]pS/$\mu$m$^2$ and [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and Häusser, 2011; Palmer et al., 2014).
+First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: {exp-passive-props}. We varied the passive parameters in the model and computed the input resistance at the soma (by fitting the $V_m$ response to a 200 pA current step). The range for the parameter grid was [{gL_min},{gL_max}]pS/$\mu$m$^2$ and [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and Häusser, 2011; Palmer et al., 2014).
 
 We then used our set of voltage-clamp recordings with extracellular stimulation at 20Hz and 3Hz to constraint the Zinc-dependent NMDAR model (optimizing the product of the normalized residual traces at 20Hz and 3Hz between model and experiment). 
 
@@ -174,15 +200,19 @@ capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP re
 * Figures
 
 *** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
-#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':30, 'file':'figures/model-description.png'}
-(a) Biophysical model of NMDAR Zinc modulation at the single synapse level: glutamate events (top panel) trigger Zinc binding (middle panel, $b_{Zn}$) that scales the NMDAR conductance (bottom panel, $g_{NMDA}$) following a synaptic event. The level of Zinc binding at the time of a synaptic release (highlighted by dots) determines the efficacy. (b) Morphological reconstruction of a Layer 2/3 pyramidal in mouse V1 (Jiang et al. (2015)). (c) Voltage-clamp recordings in the model (see Methods) at four holding potentials following a single synapse stimulation at 20Hz in the free and chelated Zinc conditions (black and green curves respectively). We show the membrane potential (top plot, at the soma in red and at the synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom).
+#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':30, 'file':'figures/model-description.png', 'hrule_bottom':True}
+(a) Biophysical model of NMDAR Zinc modulation at the single synapse level: glutamate events (top panel) trigger Zinc binding (middle panel, $b_{Zn}$) that reduces the NMDAR conductance (bottom panel, $g_{NMDA}$) in the free Zinc condition (black curve). The modulation factor $m_{Zn}$ that scales $g_{NMDA}$ is determined by the Zinc binding level at the time of a synaptic release (highlighted by dots). (b) Morphological reconstruction of a Layer 2/3 pyramidal in mouse V1 (Jiang et al. (2015)). (c) Voltage-clamp recordings in the model at four holding potentials following a single synapse stimulation at 20Hz in the free and chelated Zinc conditions (black and green curves respectively). We show the membrane potential (top plot, at the soma in red and at the synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom).
+
+*** Calibrating the passive properties of the Layer 2/3 pyramidal cell model
+#+options : {'label':'passive-props', 'extent':'one-and-a-half-column', 'height':40, 'file':'figures/passive-props.png', 'hrule_bottom':True}
+(a) Varying the passive properties in the model ($g_L$, $c_m$) and computing the square residual with respect to the experimental estimate. Resulting input resistance (b) and capacitance (c) at the soma in the data (n={ncell_RmCm} cells) and in the model for the optimal parameters .
 
 *** Calibrating the biophysical properties of the Zinc modulation effect
-#+options : {'label':'L23-L4-opti', 'extent':'single-column', 'file':'figures/L23-L4-params-optimization.png'}
+#+options : {'label':'biophysical-params-opti', 'extent':'single-column', 'file':'figures/L23-L4-params-optimization.png'}
 We use the [...] to infer the $\alpha_{Zn}$ level of 
 
 *** Calibrating the pathway-specificity of the Zinc modulation effect from L23-L23 and L4-L23 pair recordings.
-#+options : {'label':'L23-L4-opti', 'extent':'single-column', 'file':'figures/L23-L4-params-optimization.png'}
+#+options : {'label':'L23-L4-params-opti', 'extent':'single-column', 'file':'figures/L23-L4-params-optimization.png'}
 We use the [...] to infer the $\alpha_{Zn}$ level of 
 
 *** Zinc modulation under synaptic bombardment decrease the temporal extent of NMDA events / shifts the threshold for NMDA-spike.
@@ -200,6 +230,10 @@ We use the [...] to infer the $\alpha_{Zn}$ level of
 *** Zinc modulation increases the threshold for NMDA events.
 #+options : {'label':'nmda-event', 'extent':'double-column', 'height':50, 'file':'figures/nmda-event.png'}
 (a) Morphology. (b) Raw traces. (c) PSP integral of the 3rd pulse.
+
+*** Zinc modulation increases the threshold for the generation of NMDA events.
+#+options : {'label':'nmda-event-all', 'extent':'single-column', 'height':50, 'file':'figures/nmda-event-all.png'}
+(a) Adding synaptic stimulation at n=25 locations over the basal dendritic tree. (b) Half activation level (in terms of number of synapses $N_{syn}$, see Figure {nmda-event}c) without (black bar) and with (green bar) Zinc chelation. N=25 locations, statistical test: paired t-test. (c) Effect of the Zinc chelation at the N=25 locations, statistical test: paired t-test.
 
 *** Single cell integration of synaptic stimulation under various background activity levels in the single cell model.
 #+options : {'label':'bg-dep-single-trial', 'extent':'double-column', 'file':'figures/bg-dep-passive-full-example-single-trial.png'}
