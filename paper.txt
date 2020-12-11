@@ -21,8 +21,9 @@ The Zinc modulation is therefore summarized by the dependency: $g_{NMDA} \propto
 \item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/description.ipynb}{Model description Notebook}.
 \end{itemize}
 
-We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). See the associated \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/single_cell_sim.py}{Script}. We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015). After fitting the passive properties (see next section), we fixed classical biophysical parameters to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014) and estimated the parameters introduced by our theoretical description on our experimental recordings (see next section).
+We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). See the associated \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/single_cell_sim.py}{Script}. We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015). 
 
+We fixed classical biophysical and synaptic parameters to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014) and used our experimental recordings to calibrate those introduced by our theoretical description (see next section). The model parameters are summarized on Table {model-params}.
 
 The resulting model implementation was found to reproduce the results of Branco et al. (2011), see the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/Branco-et-al-2011.ipynb}{Notebook} and underlying \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/branco-et-al-2011.py}{Script}.
 
@@ -35,9 +36,11 @@ The model calibration consisted in three successive steps, we determined: 1) the
 
 \paragraph*{Passive properties}
 
-We first calibrated the passive properties of the model: the membrane leak conductance $g_l$ and the membrane capacitance $c_m$ (see Table {model-params}). We used our current-clamp experimental recordings to determine the input resistance and capacitance at the soma, see Figure {passive-props}. This was performed by . We fitted the input resistance at the soma  The experimental values were found to be {exp-passive-props}.
+We first calibrated the passive properties of the model: the membrane leak conductance $g_l$ and the membrane capacitance $c_m$ (see Table {model-params}). We used our set of current-clamp experimental recordings to determine the input resistance and capacitance at the soma (see Methods). The experimental values were found to be {exp-passive-props} (see Figure {passive-props}).
 
-First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: {exp-passive-props}. In the model, we varied the passive parameters and computed the input resistance and capacitance at the soma. This was achieved by fitting the $V_m$ response to the single compartment response following a 200 pA current step. The range for the parameter parameter variation was $g_L \in $ [{gL_min},{gL_max}]pS/$\mu$m$^2$ and $c_m \in$ [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {passive-props}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and Häusser, 2011; Palmer et al., 2014).
+First, we determined the passive properties of the model using our current-clamp experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: {exp-passive-props}. 
+
+In the model, we varied the passive parameters and computed the input resistance and capacitance at the soma. This was achieved by fitting the $V_m$ response to the single compartment response following a 200 pA current step. The range for the parameter parameter variation was $g_L \in $ [{gL_min},{gL_max}]pS/$\mu$m$^2$ and $c_m \in$ [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {passive-props}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and HÃ¤usser, 2011; Palmer et al., 2014).
 
 \begin{itemize}
 \item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/passive-props.ipynb}{Notebook}
@@ -88,7 +91,6 @@ We then embed this model in a background of synaptic activity and examined how t
 * Methods
 
 [[Table {model-params} around here]]
-
 [[Table {active-params} around here]]
 
 *** Numerical simulations of morphologically-detailed L2/3 pyramidal cells
@@ -169,7 +171,7 @@ The dynamics of the $b_{Zn}$ and $m_{Zn}$ variables following synaptic events is
 
 The parameter of the model were fitted in three steps (respectively shown in *a*, *b* and *c* in Figure {optimization}) yielding the constrained model shown in Figure {optimization}d). 
 
-First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: {exp-passive-props}. We varied the passive parameters in the model and computed the input resistance at the soma (by fitting the $V_m$ response to a 200 pA current step). The range for the parameter grid was [{gL_min},{gL_max}]pS/$\mu$m$^2$ and [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and Häusser, 2011; Palmer et al., 2014).
+First, we determined the passive properties of the model using our experimental characterization of somatic input resistance and capacitance in layer 2/3 pyramidal cells: {exp-passive-props}. Those values were obtained by fitting (using the \texttt{minimize} function of the \texttt{scipy} module) the response to current steps in a our current-clamp recordings. We varied the passive parameters in the model and computed the input resistance at the soma (by fitting the $V_m$ response to a 200 pA current step). The range for the parameter grid was [{gL_min},{gL_max}]pS/$\mu$m$^2$ and [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {optimization}a. The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and HÃ¤usser, 2011; Palmer et al., 2014).
 
 We then used our set of voltage-clamp recordings with extracellular stimulation at 20Hz and 3Hz to constraint the Zinc-dependent NMDAR model (optimizing the product of the normalized residual traces at 20Hz and 3Hz between model and experiment). 
 
@@ -198,8 +200,12 @@ to each $V_m$ response and reported the area of the fitted function
 (see Figure XX). Note that this function $f$ has the ability to
 capture both classic PSP response (see "AMPA-only" case in Figure XX) and PSP responses with transient plateau depolarizations (see "chelated-Zinc" case in Figure XX).
 
-* Figures
+*** Numerical analysis
 
+All data analysis and visualization was performed using the \texttt{python} ecosystem for scientific computing using the \texttt{numpy}  (Harris et al., 2020), \texttt{scipy} (Virtanen et al., 2020) ecosystem and \texttt{matplotlib} modules.
+
+* Figures
+  
 *** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
 #+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':30, 'file':'figures/model-description.png', 'hrule_bottom':True}
 (a) Biophysical model of NMDAR Zinc modulation at the single synapse level: glutamate events (top panel) trigger Zinc binding (middle panel, $b_{Zn}$) that reduces the NMDAR conductance (bottom panel, $g_{NMDA}$) in the free Zinc condition (black curve). The modulation factor $m_{Zn}$ that scales $g_{NMDA}$ is determined by the Zinc binding level at the time of a synaptic release (highlighted by dots). (b) Morphological reconstruction of a Layer 2/3 pyramidal in mouse V1 (Jiang et al. (2015)). (c) Voltage-clamp recordings in the model at four holding potentials following a single synapse stimulation at 20Hz in the free and chelated Zinc conditions (black and green curves respectively). We show the membrane potential (top plot, at the soma in red and at the synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom).
@@ -283,7 +289,7 @@ Values for the parameters used in the numerical simulations of single cell integ
 
 *** Active currents in the L2/3 pyramidal cell model.
 #+options : {'label':'active-params', 'extent':'double-column'}
-Active currents included in the detailed model with their respective densities in the different compartments in picosiemens/micrometer$^2$ (Branco and Häusser, 2011).
+Active currents included in the detailed model with their respective densities in the different compartments in picosiemens/micrometer$^2$ (Branco and HÃ¤usser, 2011).
 \begin{tabular}{l|c|c|c|}
 \textbf{Current type} \hspace{2cm} Densities in pS/$\mu$m$^2$
 		 & Basal Dendrite  & Soma & Axon\\ 
@@ -304,6 +310,69 @@ How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been stu
 
 * References
 
+@Article{Hunter_2007,
+  author    = {Hunter, John D},
+  journal   = {Computing in science \& engineering},
+  title     = {Matplotlib: A 2D graphics environment},
+  year      = {2007},
+  number    = {3},
+  pages     = {90--95},
+  volume    = {9},
+  publisher = {IEEE Computer Society},
+}
+
+@Article{Virtanen_et_al_2020,
+  author          = {Virtanen, Pauli and Gommers, Ralf and Oliphant, Travis E. and Haberland, Matt and Reddy, Tyler and Cournapeau, David and Burovski, Evgeni and Peterson, Pearu and Weckesser, Warren and Bright, Jonathan and van der Walt, Stéfan J. and Brett, Matthew and Wilson, Joshua and Millman, K. Jarrod and Mayorov, Nikolay and Nelson, Andrew R. J. and Jones, Eric and Kern, Robert and Larson, Eric and Carey, C. J. and Polat, İlhan and Feng, Yu and Moore, Eric W. and VanderPlas, Jake and Laxalde, Denis and Perktold, Josef and Cimrman, Robert and Henriksen, Ian and Quintero, E. A. and Harris, Charles R. and Archibald, Anne M. and Ribeiro, Antônio H. and Pedregosa, Fabian and van Mulbregt, Paul and Contributors, SciPy 1.0},
+  journal         = {Nature methods},
+  title           = {SciPy 1.0: fundamental algorithms for scientific computing in Python.},
+  year            = {2020},
+  issn            = {1548-7105},
+  month           = mar,
+  pages           = {261--272},
+  volume          = {17},
+  citation-subset = {IM},
+  completed       = {2020-04-17},
+  country         = {United States},
+  doi             = {10.1038/s41592-019-0686-2},
+  file            = {:Virtanen2020 - SciPy 1.0_ Fundamental Algorithms for Scientific Computing in Python..pdf:PDF},
+  issn-linking    = {1548-7091},
+  issue           = {3},
+  keywords        = {Algorithms; Computational Biology, history, methods; Computer Simulation; History, 20th Century; History, 21st Century; Linear Models; Models, Biological; Nonlinear Dynamics; Programming Languages; Signal Processing, Computer-Assisted; Software},
+  nlm-id          = {101215604},
+  owner           = {NLM},
+  pii             = {10.1038/s41592-019-0686-2},
+  pmc             = {PMC7056644},
+  pmid            = {32015543},
+  pubmodel        = {Print-Electronic},
+  pubstate        = {ppublish},
+  revised         = {2020-07-15},
+}
+
+@Article{Harris_et_al_2020,
+  author          = {Harris, Charles R. and Millman, K. Jarrod and van der Walt, Stéfan J. and Gommers, Ralf and Virtanen, Pauli and Cournapeau, David and Wieser, Eric and Taylor, Julian and Berg, Sebastian and Smith, Nathaniel J. and Kern, Robert and Picus, Matti and Hoyer, Stephan and van Kerkwijk, Marten H. and Brett, Matthew and Haldane, Allan and Del Río, Jaime Fernández and Wiebe, Mark and Peterson, Pearu and Gérard-Marchant, Pierre and Sheppard, Kevin and Reddy, Tyler and Weckesser, Warren and Abbasi, Hameer and Gohlke, Christoph and Oliphant, Travis E.},
+  journal         = {Nature},
+  title           = {Array programming with NumPy.},
+  year            = {2020},
+  issn            = {1476-4687},
+  month           = sep,
+  pages           = {357--362},
+  volume          = {585},
+  citation-subset = {IM},
+  completed       = {2020-10-29},
+  country         = {England},
+  doi             = {10.1038/s41586-020-2649-2},
+  file            = {:Harris2020 - Array Programming with NumPy..pdf:PDF},
+  issn-linking    = {0028-0836},
+  issue           = {7825},
+  keywords        = {Computational Biology, methods; Mathematics; Programming Languages; Software Design},
+  nlm-id          = {0410462},
+  owner           = {NLM},
+  pii             = {10.1038/s41586-020-2649-2},
+  pmid            = {32939066},
+  pubmodel        = {Print-Electronic},
+  pubstate        = {ppublish},
+  revised         = {2020-10-29},
+}
 
 @Article{Palmer_et_al_2014,
   author          = {Palmer, Lucy M. and Shai, Adam S. and Reeve, James E. and Anderson, Harry L. and Paulsen, Ole and Larkum, Matthew E.},
@@ -332,8 +401,8 @@ How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been stu
 }
 
 
-@Article{Branco_and_Häusser_2011,
-  author          = {Branco, Tiago and Häusser, Michael},
+@Article{Branco_and_HÃ¤usser_2011,
+  author          = {Branco, Tiago and HÃ¤usser, Michael},
   journal         = {Neuron},
   title           = {Synaptic integration gradients in single cortical pyramidal cell dendrites.},
   year            = {2011},
@@ -361,7 +430,7 @@ How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been stu
 
 
 @Article{Branco_et_al_2010,
-  author          = {Branco, Tiago and Clark, Beverley A. and Häusser, Michael},
+  author          = {Branco, Tiago and Clark, Beverley A. and HÃ¤usser, Michael},
   journal         = {Science (New York, N.Y.)},
   title           = {Dendritic discrimination of temporal input sequences in cortical neurons.},
   year            = {2010},
