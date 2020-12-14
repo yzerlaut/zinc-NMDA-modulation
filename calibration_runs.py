@@ -12,10 +12,10 @@ def run_single_sim(Model, stim,
                    seed=0):
     
     Model['VC-cmd'] = Vcmd
-    Model['tstop'] = stim['t'][-1]
+    Model['dt'] = 0.01
     
     # initialize voltage-clamp sim
-    t, neuron, SEGMENTS = initialize_sim(Model, method='voltage-clamp')
+    t, neuron, SEGMENTS = initialize_sim(Model, method='voltage-clamp', tstop=stim['t'][-1])
 
     # find synapses
     basal_cond = ntwk.morpho_analysis.find_conditions(SEGMENTS,
@@ -51,6 +51,7 @@ def run_single_sim(Model, stim,
     S = ntwk.StateMonitor(ES, ('X', 'gAMPA', 'gRiseNMDA', 'gDecayNMDA', 'bZn'), record=[0])
 
     # # Run simulation
+    print(Model['tstop'])
     ntwk.run(Model['tstop']*ntwk.ms)
 
     output = {'t':np.array(M.t/ntwk.ms), 'Vcmd':Vcmd}
@@ -197,14 +198,13 @@ if __name__=='__main__':
         Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'], Model['Nsyn2'],
                                                             Model['Tnsyn20Hz'], Model['Tnsyn3Hz'])
         stim = build_stimulation()
-
+        print(stim)
         # 1
         # Model['alphaZn'], Model['Deltax0'] = 0, 0 # forcing "chelated-Zinc" condition
         # output = run_single_sim(Model, stim, Npicked=Npicked)
         # np.savez(os.path.join('data','calib', 'Best_chelatedZn.npz'), **output)
         
         # 2
-
         best_freeZn_config = load_dict('data/best_freeZn_config.npz') 
         for key, val in best_freeZn_config.items():
             Model[key] = val
@@ -309,4 +309,4 @@ if __name__=='__main__':
         Npicked = compute_time_varying_synaptic_recruitment(Model['Nsyn1'], Model['Nsyn2'],
                                                             Model['Tnsyn20Hz'], Model['Tnsyn3Hz'])
         stim = build_stimulation()
-        
+        print(stim)
