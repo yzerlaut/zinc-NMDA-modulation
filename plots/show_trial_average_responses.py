@@ -198,9 +198,8 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
         for ax in AX[:2]:
             ax.plot([x[0], x[-1]], crossing*np.ones(2), ':', lw=0.5, color=ge.dimgrey)
         
-    ge.annotate(AX[1], 'syn. props\nL23-L23', (0., .7), size='small', color='dimgrey', bold=True)
-    ge.annotate(AX[0], 'syn. props\nL4-L23', (0., .7), size='small', color=ge.green, bold=True)
-    
+    ge.annotate(AX[1], 'syn. props\nL23-L23', (0., .8), size='small', color='dimgrey', bold=True)
+    ge.annotate(AX[0], 'syn. props\nL4-L23', (0., .8), size='small', color=ge.green, bold=True)
     if method=='Integral':
         ylabel='PSP integral (mV.s)'+10*' '
     if method=='Peak':
@@ -208,7 +207,7 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
     if method=='Freq':
         ylabel='Spike Freq. (Hz) '+10*' '
     if method=='Proba':
-        ylabel='Spike Probability '+10*' '
+        ylabel='Spike Probability '+20*' '
     if method=='deltaFreq':
         ylabel='$\delta$ Spike Freq. (Hz) '+10*' '
         
@@ -221,7 +220,6 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
         ge.set_plot(AX[1], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim)
         ge.set_plot(AX[2], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim)
         ge.annotate(AX[2], 'AMPA\nonly', (0., .55), size='small', color=ge.blue, bold=True)
-        
         
     #ge.set_plot(ax2, xlabel='$\\nu_{bg}$ (Hz)', ylabel='$c_{50}$ ($N_{syn}$)')
     
