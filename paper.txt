@@ -31,7 +31,7 @@ The resulting model implementation was found to reproduce the results of Branco 
 
 *** Calibrating model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells
 
-The model calibration consisted in three successive steps, we determined: 1) the passive properties, 2) the biophysical parameters of the Zinc modulation phenomenon, 3) the pathway specificity of the Zinc modulation.
+We calibrated the model on our L23 pyramidal cell recordings in three successive steps. We first determined the AMPA-to-NMDA ratio (see Figure {ampa-nmda}) and the passive properties of the model (see Figure {passive-props}). We then used a of the L23 . , 2) the biophysical parameters of the Zinc modulation phenomenon, 3) the pathway specificity of the Zinc modulation.
 
 \paragraph*{Passive properties}
 
@@ -641,21 +641,36 @@ How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been stu
 * Supplementary
 ** Supplementary Text
 
-[[Figure {nmda-ampa} around here]]
-
-[[Figure {passive-props} around here]]
-
-[[Figure {biophysical-calib-1} around here]]
-
-[[Figure {biophysical-calib-2} around here]]
-
 *** Estimating the ratio of NMDA to AMPA synaptic conductances.
+
+[[Figure {nmda-ampa} around here]]
 
 See Figure {nmda-ampa}.
 
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/ampa-nmda.ipynb}{Notebook}.
+\end{itemize}
+
+
 *** Fitting passive properties
 
+[[Figure {passive-props} around here]]
+
 In the model, we varied the passive parameters and computed the input resistance and capacitance at the soma. This was achieved by fitting the $V_m$ response to the single compartment response following a 200 pA current step. The range for the parameter parameter variation was $g_L \in $ [{gL_min},{gL_max}]pS/$\mu$m$^2$ and $c_m \in$ [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {passive-props}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and Häusser, 2011; Palmer et al., 2014).
+
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/passive-props.ipynb}{Notebook}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/passive_props.py}{Script}
+\end{itemize}
+
+*** Fitting 
+
+[[Figure {biophysical-calib-1} around here]]
+
+*** Fitting 
+
+[[Figure {biophysical-calib-2} around here]]
+
 
 ** Supplementary Figures
 *** Estimating the ratio of NMDA to AMPA synaptic conductances.
