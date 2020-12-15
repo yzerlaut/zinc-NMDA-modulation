@@ -242,7 +242,7 @@ We use the [...] to infer the $\alpha_{Zn}$ level of
 From left to right, the intensity of the synaptic stimulation is increased by raising the number of synapses recruited in the stimulation window. From top to bottom, the background activity is raised by increasing the rate of the Poisson process setting the background activity of each individual synapses (see firing rate level on the figure). We show the responses (color-coded) with synaptic properties associated to the 3 following cases: L23-to-L4 synaptic properties, L23-to-L23 synaptic properties and AMPA-only synapses. Shown for a synaptic ensemble (loc #5) and the same set of stimulus and background seed.
 
 *** Zinc modulation makes synaptic integration of L23-to-L23 input background invariant
-#+options : {'label':'bg-dep-passive', 'extent':'single-column', 'file':'figures/passive-bg-dep.png'}
+#+options : {'label':'bg-dep-passive', 'extent':'single-column', 'file':'figures/bg-passive-analysis.png'}
 Integral of the PSP response in 3 following cases: L23-to-L4 synaptic properties, L23-to-L23 synaptic properties and AMPA-only synapses (from top to bottom). Errorbars indicate variability (s.d.) over n=5 stimulus seed and n=10 background seeds, the plain line is a sigmoid fit to the average response over seeds.
 
 *** Single cell processing of synaptic stimulation under various background activity levels in the single cell model.
@@ -645,14 +645,9 @@ How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been stu
 
 [[Figure {nmda-ampa} around here]]
 
-See Figure {nmda-ampa}.
+See Figure {nmda-ampa} and the dedicated  \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/ampa-nmda.ipynb}{Notebook}
 
-\begin{itemize}
-\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/ampa-nmda.ipynb}{Notebook}.
-\end{itemize}
-
-
-*** Fitting passive properties
+*** Fit of the passive properties
 
 [[Figure {passive-props} around here]]
 
@@ -663,14 +658,23 @@ In the model, we varied the passive parameters and computed the input resistance
 \item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/passive_props.py}{Script}
 \end{itemize}
 
-*** Fitting 
+*** Fit of the electrical stimulation properties in the model
+
+See Figure {biophysical-calib-1} and the 
 
 [[Figure {biophysical-calib-1} around here]]
 
-*** Fitting 
+*** Fit of the Zinc modulation parameters
+
+See Figure {biophysical-calib-2}.
 
 [[Figure {biophysical-calib-2} around here]]
 
+*** Trial averaging
+
+See Figure {bg-trial-average}.
+
+[[Figure {bg-trial-average} around here]]
 
 ** Supplementary Figures
 *** Estimating the ratio of NMDA to AMPA synaptic conductances.
@@ -688,6 +692,10 @@ In the model, we varied the passive parameters and computed the input resistance
 *** Fitting the parameters of the Zinc modulation in the "free-Zinc" condition.
 #+options : {'label':'biophysical-calib-2', 'extent':'single-column', 'file':'figures/biophysical-calib-2.png'}
 Square residual of the model response with respect to the experimental observation when varying the model parameters $\tau_{Zn}^{decay}$ and $\alpha_{Zn}$ over a two-dimensional grid. The white dot corresponds to the optimal parameter set.
+
+*** Trial-averaging of evoked responses across background seeds.
+#+options : {'label':'bg-trial-average', 'extent':'double-column', 'file':'figures/bg-trial-average.png'}
+Waveform of $V_m$ response at the soma after trial averaging at the different background simulation levels (from left to right). From top to bottom, in the "ampa-only", "$\alpha_{Zn}$=0" and "$\alpha_{Zn}$=0.45" cases respectively.
 
 ** Supplementary Tables
 

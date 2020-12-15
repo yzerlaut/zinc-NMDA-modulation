@@ -148,13 +148,14 @@ def show_trial_average_responses(RESP_PER_STIM,
                   inset=dict(rect=[.999,.4,.016, .5]),
                   colormap=ge.red_to_blue, label='$N_{syn}$')
 
+    return fig
 
 def show_response_bg_dep(FREE, CHELATED, AMPA=None,
                          ge=ge,
                          method='Integral',
                          BG_levels=None,
                          crossing=None,
-                         xlim=None, ylim=None):
+                         xlim=None, ylim=None, yscale='lin'):
     
     if BG_levels is None:
         BG_levels = [R['bg_level'] for R in FREE]
@@ -213,12 +214,12 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
         
     ge.set_plot(AX[0], ['left'], ylabel=ylabel, ylim=ylim)
     if AMPA is None:
-        ge.set_plot(AX[0], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim)
-        ge.set_plot(AX[1], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim)
+        ge.set_plot(AX[0], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim, yscale=yscale)
+        ge.set_plot(AX[1], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim, yscale=yscale)
     else:
-        ge.set_plot(AX[0], ['left'], ylim=ylim, xlim=xlim)
-        ge.set_plot(AX[1], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim)
-        ge.set_plot(AX[2], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim)
+        ge.set_plot(AX[0], ['left'], ylim=ylim, xlim=xlim, yscale=yscale)
+        ge.set_plot(AX[1], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim, yscale=yscale)
+        ge.set_plot(AX[2], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim, yscale=yscale)
         ge.annotate(AX[2], 'AMPA\nonly', (0., .55), size='small', color=ge.blue, bold=True)
         
     #ge.set_plot(ax2, xlabel='$\\nu_{bg}$ (Hz)', ylabel='$c_{50}$ ($N_{syn}$)')
