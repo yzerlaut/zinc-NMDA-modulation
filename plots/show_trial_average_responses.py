@@ -17,7 +17,6 @@ def get_trial_average_responses(RESP_PER_STIM,
                                 baseline_window=[-100,0],
                                 peak_window=[0,500],
                                 integral_window=[0,500]):
-    print(syn_location)
     if resp=='ampa-only':
         cond = (RESP_PER_STIM['ampa_only']==True)
     else:
@@ -98,6 +97,7 @@ def show_trial_average_responses(RESP_PER_STIM,
                                  alphaZn=0., 
                                  VLIM=None,  ge=ge,
                                  syn_location='all',
+                                 annotate=True,
                                  window=[-200,400]):
 
     if resp=='ampa-only':
@@ -112,12 +112,13 @@ def show_trial_average_responses(RESP_PER_STIM,
         sloc = 'Nloc=%i' % len(np.unique(RESP_PER_STIM['syn_location']))
         
     bg_levels = np.unique(RESP_PER_STIM['bg_level'])
-    fig, AX = ge.figure(axes=(len(bg_levels),1), wspace=0.1, right=1.3)
+    fig, AX = ge.figure(figsize=(.85,.9),
+                        axes=(len(bg_levels),1), wspace=0.1, right=1.3)
 
-    ge.annotate(fig, '%s, n=%i bg seeds, n=%i stim seeds, %s' % (resp,
+    ge.annotate(AX[-1], '%s, n=%i bg seeds, n=%i stim-seeds, %s' % (resp,
                                                                    len(np.unique(RESP_PER_STIM['seed'])),
-                                                                   len(np.unique(RESP_PER_STIM['seed'])), # STIM SEED HERE !
-                                                                   sloc), (.5, .95), va='top', ha='center', size='small')
+                                                                   len(np.unique(RESP_PER_STIM['stimseed'])), # STIM SEED HERE !
+                                                                   sloc), (1., 1), ha='right', size='small')
     
     t = RESP_PER_STIM['t']
     ylim, ylim2 = [np.inf, -np.inf], [np.inf, -np.inf]
@@ -130,10 +131,13 @@ def show_trial_average_responses(RESP_PER_STIM,
             tcond = (t>=RESP_PER_STIM['stim_delay']+window[0]) & (t<RESP_PER_STIM['stim_delay']+window[1])
             y0 = np.mean([RESP_PER_STIM['Vm'][i] for i, s in enumerate(scond) if s], axis=0)
             AX[ibg].plot(t[tcond], y0[tcond],lw=1,
-                    color=ge.red_to_blue(1-istim/len(np.unique(RESP_PER_STIM['nstim']))))
+                  color=cmap(1-istim/len(np.unique(RESP_PER_STIM['nstim']))))
             ylim = [-76, max([ylim[1],y0.max()])]
         AX[ibg].plot([t[tcond][0],t[tcond][-1]], -75*np.ones(2), 'k:', lw=0.5)
-        ge.annotate(AX[ibg],'%.1fHz'%bg,(1,1),color=ge.purple,ha='right',va='top')
+        if annotate:
+            ge.annotate(AX[ibg],'%.1fHz'%bg,(1,.7),
+                        color=ge.purple,ha='right',va='top')
+        
         
     for ibg, bg in enumerate(bg_levels):
         if VLIM is not None:
@@ -146,7 +150,7 @@ def show_trial_average_responses(RESP_PER_STIM,
                   bounds=[0, np.unique(RESP_PER_STIM['nstim'])[-1]],
                   ticks_labels=['%i' % x if i%4==0 else '' for i, x in enumerate(np.unique(RESP_PER_STIM['nstim']))],
                   inset=dict(rect=[.999,.4,.016, .5]),
-                  colormap=ge.red_to_blue, label='$N_{syn}$')
+                  colormap=cmap, label='$N_{syn}$')
 
     return fig
 
@@ -199,8 +203,8 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
         for ax in AX[:2]:
             ax.plot([x[0], x[-1]], crossing*np.ones(2), ':', lw=0.5, color=ge.dimgrey)
         
-    ge.annotate(AX[1], 'syn. props\nL23-L23', (0., .8), size='small', color='dimgrey', bold=True)
-    ge.annotate(AX[0], 'syn. props\nL4-L23', (0., .8), size='small', color=ge.green, bold=True)
+    ge.annotate(AX[1], 'L23-L23\nprops', (0., .9), size='small', color='dimgrey', bold=True, va='top')
+    ge.annotate(AX[0], 'L4-L23\nprops', (0., .9), size='small', color=ge.green, bold=True, va='top')
     if method=='Integral':
         ylabel='PSP integral (mV.s)'+10*' '
     if method=='Peak':
@@ -220,7 +224,7 @@ def show_response_bg_dep(FREE, CHELATED, AMPA=None,
         ge.set_plot(AX[0], ['left'], ylim=ylim, xlim=xlim, yscale=yscale)
         ge.set_plot(AX[1], ['left'], ylabel=ylabel, ylim=ylim, xlim=xlim, yscale=yscale)
         ge.set_plot(AX[2], xlabel='$N_{syn}$', ylim=ylim, xlim=xlim, yscale=yscale)
-        ge.annotate(AX[2], 'AMPA\nonly', (0., .55), size='small', color=ge.blue, bold=True)
+        ge.annotate(AX[2], 'AMPA\nonly', (0., .9), size='small', color=ge.blue, bold=True, va='top')
         
     #ge.set_plot(ax2, xlabel='$\\nu_{bg}$ (Hz)', ylabel='$c_{50}$ ($N_{syn}$)')
     
