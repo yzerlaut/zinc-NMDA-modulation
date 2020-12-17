@@ -97,6 +97,7 @@ def show_trial_average_responses(RESP_PER_STIM,
                                  alphaZn=0., 
                                  VLIM=None,  ge=ge,
                                  syn_location='all',
+                                 stimseed='all',
                                  annotate=True,
                                  window=[-200,400]):
 
@@ -110,15 +111,19 @@ def show_trial_average_responses(RESP_PER_STIM,
         sloc = 'loc #%i' % syn_location
     else:
         sloc = 'Nloc=%i' % len(np.unique(RESP_PER_STIM['syn_location']))
+    if stimseed!='all':
+        cond = cond & (RESP_PER_STIM['stimseed']==stimseed)
+        stim = 'stim-seed #%i' % (1+np.argwhere(np.unique(RESP_PER_STIM['stimseed'])==stimseed)[0][0])
+    else:
+        stim = 'n=%i stim-seeds' % len(np.unique(RESP_PER_STIM['stimseed']))
         
     bg_levels = np.unique(RESP_PER_STIM['bg_level'])
     fig, AX = ge.figure(figsize=(.85,.9),
                         axes=(len(bg_levels),1), wspace=0.1, right=1.3)
 
-    ge.annotate(AX[-1], '%s, n=%i bg seeds, n=%i stim-seeds, %s' % (resp,
-                                                                   len(np.unique(RESP_PER_STIM['seed'])),
-                                                                   len(np.unique(RESP_PER_STIM['stimseed'])), # STIM SEED HERE !
-                                                                   sloc), (1., 1), ha='right', size='small')
+    ge.annotate(AX[-1], '%s, n=%i bg seeds, %s, %s' % (resp,
+                                                       len(np.unique(RESP_PER_STIM['seed'])),
+                                                       stim, sloc), (1., 1), ha='right', size='small')
     
     t = RESP_PER_STIM['t']
     ylim, ylim2 = [np.inf, -np.inf], [np.inf, -np.inf]
