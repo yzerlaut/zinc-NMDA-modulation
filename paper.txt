@@ -56,9 +56,9 @@ Conversely, we found that Zinc modulation was strongly reducing the $V_m$ respon
 [[Figure {bg-dep-single-trial} around here]]
 [[Figure {bg-dep-passive} around here]]
 
-We then investigated the potential role of Zinc modulation in the regimes of strong ongoing synaptic activity found \textit{in vivo} (Destexhe et al., 2003). We mimicked ongoing network-driven presynaptic activity by adding a background excitatory synaptic input controlled by a parameter $\nu_{bg}$ setting the frequency of ongoing synaptic release (Farinella et al, 2014; Zerlaut and Destexhe, 2017), see Methods. We investigated single cell computation by analyzing the response to short synaptic sequences of varying levels of synaptic recruitment $N_{syn}$ (see Figure {bg-dep-single-trial})
+We then investigated the potential role of Zinc modulation in the regimes of strong ongoing synaptic activity found \textit{in vivo} (Destexhe et al., 2003). We mimicked ongoing network-driven presynaptic activity by adding a background excitatory synaptic input controlled by a parameter $\nu_{bg}$ setting the frequency of ongoing synaptic release (Farinella et al, 2014; Zerlaut and Destexhe, 2017), see Methods. We investigated single cell computation by analyzing the response to short synaptic sequences of varying levels of synaptic recruitment $N_{syn}$ (see Figure {bg-dep-single-trial}).
 
-Because of their drastically different levels of Zinc modulation, we analyzed this question in the context of the two pathways considered in this study: the feedforward interlaminar pathway (with no Zinc modulation, refered to as  "L4-L23") and the intralaminar pathway (with a strong Zinc modulation, refered to as "L23-L23").
+Because of their drastically different levels of Zinc modulation (see Figure {L23-L4-calib}), we analyzed this question in the context of the two pathways considered in this study: the feedforward interlaminar pathway (with no Zinc modulation, refered to as  "L4-L23") and the intralaminar pathway (with a strong Zinc modulation, refered to as "L23-L23").
 
 In the "L4-L23" setting (no Zinc modulation), we found that the excitatory background activity $\nu_{bg}$ had a strong impact on the $V_m$ responses. It indeed decreased the threshold for the recruitment of NMDA conductances and widened the post-synaptic responses following synaptic stimulation in accordance with previous finding (Farinella et al, 2014). On the other hand, the $V_m$ response in the "L23-L23" setting (strong Zinc modulation) did not vary greatly when increasing the background activity. We analyzed this phenomenon by quantifying the $V_m$ response as the integral of the evoked depolarization. We found indeed that the relationship between input (synaptic recruitment $N_{syn}$) and output ($V_m$ integral) was nearly identical for all background levels $\nu_{bg}$ in the "L23-L23" case (see Figure {bg-dep-passive}a,b) while the response were strongly shifted toward low inputs when increasing background levels for the "L4-L23" case (see Figure {bg-dep-passive}a,b). We quantified this trend by introducing an arbitrary threshold in the integral response and we computed the input value at which the threshold was reached $N_{syn}^{thre}$ for each background level. The increase of background activity had a null effect on the $N_{syn}^{thre}$ value for the "L23-L23" setting (the variations of $N_{syn}^{thre}$ with $\nu_{bg}$ had a slope of 0.2$\pm$0.1 synapses/Hz) while it exerted a strong shift in the "L4-L32" setting (with a slope of 1.6$\pm$0.1 synapses/Hz ), see Figure {bg-dep-passive}c.
 
@@ -66,42 +66,28 @@ In the "L4-L23" setting (no Zinc modulation), we found that the excitatory backg
 
 Thanks to its strong Zinc modulation properties, the "L23-to-L23" pathway has a remarkable feature: it keep the post-synaptic response invariant across various levels of background activity. We next asked what could be the computational consequences in terms of stimulus encoding of such a phenomenon.
 
-To analyze the stimulus encoding properties of the single cell model, we build a decoder of stimulus intensity relying on single-trial $V_m$ responses. Stimulus intensity is here the number of recruited synapses $N_{syn}$, we consider 10 different levels from 0 to 18, so chance level is 10 \%. For simplicity, we consider a nearest-neighbor classifier with an euclidian distance between waveforms (see Methods) and the "ground-truth" waveforms for a given level $N_{syn}$ is the trial-averaged waveform across n=10 background realisations.
+To analyze the stimulus encoding properties of the single cell model, we build a decoder of stimulus intensity relying on single-trial $V_m$ responses. Stimulus intensity is here the number of recruited synapses $N_{syn}$, we consider 10 different levels from 0 to 18, so chance level is 10 \%. For simplicity, we consider a nearest-neighbor classifier with an euclidian distance between waveforms (see Methods) and the "ground-truth" waveforms for a given level $N_{syn}$ is the trial-averaged of all waveforms in the dataset (see Methods). We repeat this analysis across stimulus locations (n=5 randomly picked in the set of locations of Figure {nmda-event-all}a) and stimulus seeds (n=3) for the robustness of the results.
 
-We show in Figure {bg-dep-passive}d the output of this decoding procedure 
-For the three considered settings ("AMPA-only", "L4-L23" and "L23-L23"), we show the decoding accuracy per background activity level (orange to purple color-code as in *a*) and the decoding accuracy in a set of responses merging all background levels (large bar, lower accuracies because containing more potentially counfouding responses). In the absence of background activity (orange bar for all cases), the decoding is perfect (100\% accuracy as there is no confounding factor). Performance degrades in all settings with the increase of background activity because the waveforms are more and more noisy (see Figure {bg-dep-single-trial}). When mixing up background activity levels in the dataset (large bars), the 
+For the three considered settings ("AMPA-only", "L4-L23" and "L23-L23"), we show in Figure {bg-dep-passive}d the decoding accuracy per background activity level (orange to purple color-code as in *a*) and the decoding accuracy in a set of responses merging all background levels (large bar, lower accuracies because containing more potentially counfouding responses). In the absence of background activity (orange bar for all cases), the decoding is optimal (100\% accuracy) as there is no confounding factor. Performance degrades in all settings with the increase of background activity because the waveforms are more and more noisy (see Figure {bg-dep-single-trial}). When mixing up the different background activity levels in the test set (large bars), the performance goes down to low levels in the "L4" case (accuracy of 40.2\%$\pm$3.2\%). This happens because the background activity strongly alter PSP magnitude in the "L4" case (see Figure {bg-dep-passive}a,b) thus impeding the identification of a given PSP magnitude to a given input level. Adding the Zinc modulation ("L23" case) led to a strong  increase in the decoding accuracy (+58\%: 40.2\%$\pm$3.2\% versus 63.7\%$\pm$2.1\%, average over n=3 stimulus seeds, n=5 synaptic locations, paired ttest, p=5.3e-17) because this modulation kept PSP magnitude constant across all background levels (Figure {bg-dep-passive}a,b).
 
+Interstingly, the performance in the "L23" case even increases with respect to the "AMPA" case (from 55.1\%$\pm$2.1\% to 63.7\%$\pm$2.1\%, average over n=3 stimulus seeds, n=5 synaptic locations, paired ttest, p=1.2e-12). This happens because the reduction of PSP amplitude with increasing background activity, due to driving force reduction and conductance shunting (Destexhe et al., 1999; Zerlaut and Destexhe, 2017), introduces a misclassification of the PSP waveforms (low-background PSPs are mixed up with high-background PSPs of higher $N_{syn}$ input). On the other hand, in the "L23" case, this phenomenon is compensated by the NMDAR amplification of $V_m$ response that are concomitant with increased depolarization levels. 
 
-Performance of a nearest-neighbor decoder of stimulus intensity based on PSPs waveforms (one response is the sum over n=5 locations, see Methods). For each case ("AMPA-only", "L4-L23" and "L23-L23"), we show the decoding accuracy per background activity level (orange to purple color-code as in *a*) and the decoding accuracy in a set of responses merging all background levels (large bar, lower accuracies because containing more potentially counfouding responses). Errorbar are s.d. over n=3 stimulus seeds.
-
-See Figure {bg-dep-passive}d.
-
-L4 accuracy was 38.0%, L23 accuracy was 50.0% (average over n=3 stimulus seeds, n=5 synaptic locations, paired ttest, p=2.3e-03) 
-
-
- The Zinc-modulated recruitment of NMDAR implements a background-invariant encoding of stimulus intensity for L2/3->L2/3 synaptic 
- The Zinc-independent recruitment of NMDAR implements a background-facilitating encoding of L4->L2/3 synaptic stimulation
-
-We therefore analyzed . To this purpose, we designed a simple decoder of $V_m$ responses to synaptic stimulations. 
-
-
-NMDAR recruitment detroys the 
-Note how the Zinc modulation enables to recover 
-
-L4 accuracy was 38.0%, L23 accuracy was 50.0% (average over n=3 stimulus seeds, n=5 synaptic locations, paired ttest, p=2.3e-03) 
+Overall this demonstrates that the recruitment of NMDA combined with the activity-dependent Zinc inhibition appears as an optimal setting to preserve PSP amplitude across different background activity levels. Such a property would allow to implement a background-invariant encoding of stimulus intensity in the intralaminar pathway of the L23 network.
 
 *** Effect of Zinc modulation during active cellular processing 
 
 [[Figure {bg-dep-single-trial-active} around here]]
 [[Figure {bg-dep-active} around here]]
 
+Finally, we investigated the impact of Zinc modulation in presence of active cellular mechanisms ("Na"-current, "Kv"-current, "T"-current, "Ca"-current, "M"-current, "H"-current, "KCa"-current and a decay dynamics for the Calcium concentration, see Branco and Häusser (2011) and Table {active-params}). We show the response of the model to  in the protocols of Figure {bg-dep-single-trial-active}.
 
-See Figure {bg-dep-single-trial-active} and Figure {bg-dep-active}.
+We analyzed the processing of input stimuli in this extended model. We tracked the output in terms of spiking (as a binary variable, mutliple spiking was rare for those inputs, not shown) and we computed the input-output curves at different levels of background activity in the "L4" and "L23" settings, see Figure {bg-dep-active}. The "L4" setting resulted in a strong effect of the background activity on the response curves, increasing background activity indeed facilitated the response, see the shift toward low inputs of the curves with increasing background (Figure {bg-dep-active}a). In presence of the Zinc modulation effect ("L23" setting), this facilitating behavior disappeared (Figure {bg-dep-active}a). This was quantified by introducing a threshold in the spike probability and computing the input level at which this threshold was reached: $N_{syn}^{thre}$. The responses "L23" setting had clost to no dependency on the background level (the slope of the $N_{syn}^{thre}$-$\nu_{bg}$ relationship was 0.2$\pm$0.3 synapses/Herz) while this dependency was strong in the "L4" setting (the slope of the $N_{syn}^{thre}$-$\nu_{bg}$ relationship was 1.2$\pm$0.1). 
+
+We conclude that Zinc modulation of NMDAR signalling has a strong impact also in terms of spiking output: it shifts the encoding strategy from background-facilitating to background-invariant in L23 pyramidal cells.
 
 * Methods
 
 [[Table {model-params} around here]]
-
 [[Table {active-params} around here]]
 
 *** Numerical simulations of morphologically-detailed L2/3 pyramidal cells
@@ -121,12 +107,6 @@ For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a facto
 The simulations were implemented using the \textit{Brian2} simulator (Stimberg et al., 2019). Numerical integration was performed with an "exponential Euler" integration scheme and a time step of {dt}ms.
 
 The morphology of the layer 2/3 pyramidal cell used in this study ("L23pyr-j150407a", see Figure {model-description}b) was taken from the publicly available dataset of Jiang et al. (2015). 
-
-*** Set of random synaptic locations in the basal dendritic tree
-
-To host the synaptic stimulation, we looked for n=25 set of segments distributed over the basal dendrite. The criteria to include a location was that the set of segment should be contiguous over the dendritic tree (i.e. not spread over multiple branches) and the starting point should at least 50$\mu$m far from the soma (as excitatory synapses tend to avoid perisomatic locations). We looped over random starting segments in the dendritic tree, a location was considered as the starting segment with the next 20 following segments. The location was included if the criteria was matched and the loop was stopped when we found n=25 locations. The resulting set of the synaptic locations is shown in Figure {nmda-event-all}a.
-
-We then spread one synapse per segment. From this set of locations, we can therefore recruit up to 20 synapses (see Figure {nmda-event} or Figure {bg-dep-single-trial}).
 
 *** Synaptic current models
 
@@ -182,6 +162,11 @@ The variable $b_{Zn}(t)$ describes the dynamics of Zinc binding. It is updated t
 
 The dynamics of the $b_{Zn}$ and $m_{Zn}$ variables following synaptic events is illustrated on Figure {model-description}a.
 
+*** Set of random synaptic locations in the basal dendritic tree
+
+To host the synaptic stimulation, we looked for n=25 set of segments distributed over the basal dendrite. The criteria to include a location was that the set of segment should be contiguous over the dendritic tree (i.e. not spread over multiple branches) and the starting point should at least 50$\mu$m far from the soma (as excitatory synapses tend to avoid perisomatic locations). We looped over random starting segments in the dendritic tree, a location was considered as the starting segment with the next 20 following segments. The location was included if the criteria was matched and the loop was stopped when we found n=25 locations. The resulting set of the synaptic locations is shown in Figure {nmda-event-all}a.
+
+We then spread one synapse per segment. From this set of locations, we can therefore recruit up to 20 synapses (see Figure {nmda-event} or Figure {bg-dep-single-trial}).
 *** Model calibration: parameter fitting
 
 The parameter of the model were fitted in successive steps yielding the constrained model shown in Figure {biophysical-calib}). 
@@ -219,15 +204,18 @@ An example of the background and stimulus-evoked synaptic events are shown on Fi
 
 *** Decoding stimulus intensity from single trial $V_m$ responses
 
-We build a decoder of the stimulus intensity relying on single-trial somatic $V_m$ responses in the [-100,300]ms interval surrounding stimulus onset. The waveforms were baseline-substracted (window [-100,0]ms) to remove the influence of the relationship between background activity and baseline level. This decoder was implemented using the \texttt{NearestNeighbors} function of \\texttt{sklearn} (Pedregosa et al., 2011) and we used the texttt{euclidean} metric to evaluate distance between responses waveforms.
+We build a decoder of the stimulus intensity relying on single-trial somatic $V_m$ responses in the [-100,300]ms interval surrounding stimulus onset. The waveforms were baseline-substracted (window [-100,0]ms) to remove the influence of the relationship between background activity and baseline level. This decoder was implemented using the \texttt{NearestNeighbors} function of \texttt{sklearn} (Pedregosa et al., 2011) and we used the \texttt{euclidean} metric to evaluate distance between responses waveforms.
 
-The "test set" was the set of single trials of n=10 stimulus intensities at n=5 background level (see Figure {bg-dep-single-trial} for such an example) repeated over n=10 background seeds, n=3 stimulus seeds and n=5 synaptic locations. The "truth" PSP (i.e. the "training set") at a given stimulus intensity in a given synaptic location and for a single stimulus seed was defined as a the trial-average over all the n=10 background seeds (see example trial-averaged PSPs in Figure {bg-trial-average}).
+To study the influence of background activity, we design two types of datasets: datasets consisting of only the $V_m$ responses at a given backgournd activity level (see thin color-coded bars in Figure {bg-dep-passive}d) and datasets merging all background levels (see large bars in Figure {bg-dep-passive}d).
 
-We could run the decoder in dataset of only one background level (see thin color-coded bars in Figure {bg-dep-passive}d) or in datasets merging all background levels (see large bars in Figure {bg-dep-passive}d) in the different biophysical settings of the model.
+The set of "true" PSP (i.e. the "training set") was the set of trial-average over all waveforms at a given stimulus intensity $N_{syn}$ (see example trial-averaged PSPs in Figure {bg-trial-average}). This meant averaging over n=10 background activity realisations for the datasets at a given background levels and across both n=10 background activity levels and n=5 background levels in the dataset merging all background levels. The "test set" was the set of single trials $V_m$ responses (see Figure {bg-dep-single-trial} for an example on a given synaptic location and a given single stimulus seed).
+
+We repeated this decoding analysis using different simulations on different synaptic locations and stimulus seeds as well as different biophysical settings for the model (see Figure {bg-dep-passive}d).
 
 *** Active membrane currents
 
-We investigated active cellular processing by adding the following mechanisms in the single cell model: "Na"-current, "Kv"-current, "T"-current, "Ca"-current, "M"-current, "H"-current, "KCa"-current and a decay dynamics for the Calcium concentration, see Branco and Häusser (2011). The currents and their densities in the different compartments are listed Table {active-params}. 
+We investigated active cellular processing by adding the following mechanisms in the single cell model: "Na"-current, "Kv"-current, "T"-current, "Ca"-current, "M"-current, "H"-current, "KCa"-current and a decay dynamics for the Calcium concentration, see Branco and Häusser (2011). The currents 
+and their densities in the different compartments are listed Table {active-params}. 
 
 *** Data analysis
 
@@ -245,11 +233,11 @@ We show the experimental data (top panels) used for the optimization of model pa
 
 *** Effect of Zinc modulation on NMDA recruitment.
 #+options : {'label':'nmda-event', 'extent':'double-column', 'height':50, 'file':'figures/nmda-event.png'}
-(a) We add a synaptic Figure {model-description}a. Morphology of the single cell model. The location for the synaptic stimulation is highlighted with an orange dot. (b) Membrane potential (top) and conductance (bottom) traces. (c) PSP integral of the 3rd pulse. (c) We hilight the half-activation level $N_{syn}^{1/2}
+(a) Adding a synaptic stimulation in the morphological model. The location for the synaptic stimulation is highlighted with an orange dot. (b) Membrane potential (top) and conductance (bottom) traces following the stimulation with an increasing number of recruited synapses $N_{syn}$. The different biophysical settings are color-coded. (c) Integral of the $V_m$ response foollowing the 3rd pulse. We highlight the half-activation level $N_{syn}^{1/2} in the different settings with dashed dotted lines.
 
 *** Zinc modulation increases the threshold for the generation of NMDA events.
 #+options : {'label':'nmda-event-all', 'extent':'single-column', 'height':50, 'file':'figures/nmda-event-all.png'}
-(a) Adding synaptic stimulation at n=25 locations over the basal dendritic tree. (b) Half activation level (in terms of number of synapses $N_{syn}$, see Figure {nmda-event}c) without (black bar) and with (green bar) Zinc chelation. N=25 locations, statistical test: paired t-test. (c) Effect of the Zinc chelation at the N=25 locations, statistical test: paired t-test.
+(a) Adding synaptic stimulation at n=25 locations over the basal dendritic tree. (b) Half activation level (in terms of number of synapses $N_{syn}$, see Figure {nmda-event}c) without (black bar) and with (green bar) Zinc chelation. n=25 locations, statistical test: paired t-test. (c) Effect of the Zinc chelation at the free-Zinc half activation level. n=25 locations, statistical test: paired t-test.
 
 *** Single cell integration of synaptic stimulation under various background activity levels in the single cell model.
 #+options : {'label':'bg-dep-single-trial', 'extent':'double-column', 'file':'figures/bg-dep-passive-full-example-single-trial.png'}
@@ -758,7 +746,7 @@ See Figure {L23-L4-calib}.
 *** Zinc modulation in presence of background synaptic activity
 
 \begin{itemize}
-\item More details on the  \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/Sensitivity_to_Background_Modulation.ipynb}{Notebook}.
+\item More details on the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/Sensitivity_to_Background_Modulation.ipynb}{Notebook} both in the passive and active cases.
 \item implementation in the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/bg_modulation.py}{Script}.
 \end{itemize}
 
@@ -795,23 +783,6 @@ Relationship between $\alpha_{Zn}$ and the charge increase with Zinc chelation i
 #+options : {'label':'bg-trial-average', 'extent':'double-column', 'file':'figures/bg-trial-average.png'}
 Waveform of $V_m$ response at the soma after trial averaging over background seeds at the different background simulation levels (from left to right). From top to bottom, in the "ampa-only", "$\alpha_{Zn}$=0" and "$\alpha_{Zn}$=0.45" cases respectively. Those waveforms are used to build the "training set" of the decoder for a given synaptic location and stimulus seed.
 
-** Supplementary Tables
-
-*** Caption for the first supplementary table
-#+options : {'label':'sTab1', 'extent':'single-column'}
-\begin{tabular}{lrr}
-Name & Phone & Age\\
-\hline
-Peter & \{blabla\} & 17\\
-Anna & 4321 & 25\\
-Patrick & 4321 & 25\\
-\end{tabular}
-
-# | Name    |    Phone | Age |
-# |---------+----------+-----|
-# | Peter   | {blabla} |  17 |
-# | Anna    |     4321 |  25 |
-# | Patrick |     4321 |  25 |
 * Informations
 
 *** Short_Title
