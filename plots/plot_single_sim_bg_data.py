@@ -21,7 +21,7 @@ def plot_single_sim_bg_data(RESP,
                                                   Ybar = 15, Ybar_label='15mV ',
                                                   loc=(0.1,.8), orientation='right-bottom'),
                             ampa_color=ge.blue,
-                            figsize=(2.2,.15),
+                            figsize=(2.1,.15),
                             VLIM=[-85, 30]):
     
     """
@@ -51,7 +51,7 @@ def plot_single_sim_bg_data(RESP,
         for acond in CONDS:
             cond = cond | acond
 
-        cond0 = (RESP['bg_level']==bg_level) & (RESP['syn_location']==syn_location)            
+        cond0 = (RESP['bg_level']==bg_level) & (RESP['syn_location']==syn_location)
         cond = cond & cond0
 
         # adding the same bg-seed and stim-seed condition
@@ -103,27 +103,27 @@ def plot_single_sim_bg_data(RESP,
                                 sp = np.array(sp0)
                                 spcond = (sp>=t0) & (sp<t1)
                                 ax2.scatter(sp[spcond]-t0+iplot*(shift+view[1]-view[0]),
-                                                i*np.ones(len(sp[spcond])), color=ge.purple, s=2)
+                                                i*np.ones(len(sp[spcond])), color=ge.purple, s=1)
 
                             for i, sp0 in enumerate(STIM_raster):
                                 sp = np.array(sp0)
                                 spcond = (sp>=t0) & (sp<t1)
                                 ax2.scatter(sp[spcond]-t0+iplot*(shift+view[1]-view[0]),
-                                            i*np.ones(len(sp[spcond])), color=ge.orange, s=2)
+                                            i*np.ones(len(sp[spcond])), color=ge.orange, s=1)
                         if bg_level==0. or with_nsyn_annot:
-                            # ge.annotate(ax2, '$N_{syn}$=%i' % nstim, 
-                            #                     (iplot*(shift+view[1]-view[0])-view[0], i), va='top', clip_on=False,
-                            #                     xycoords='data',rotation=90,color=ge.orange,ha='right',size='x-small')
-                            ge.annotate(ax3, '  $N_{syn}$=%i' % nstim, 
-                                        (iplot*(shift+view[1]-view[0])-view[0], 0), clip_on=False,
-                                        xycoords='data', color=ge.orange, size='x-small')
+                            ge.annotate(ax2, '$N_{syn}$=%i' % nstim, 
+                                        (iplot*(shift+view[1]-view[0])-view[0], i), va='top', clip_on=False,
+                                        xycoords='data',rotation=90,color=ge.orange,ha='right',size='x-small')
+                            # ge.annotate(ax3, '  $N_{syn}$=%i' % nstim, 
+                            #             (iplot*(shift+view[1]-view[0])-view[0], 0), clip_on=False,
+                            #             xycoords='data', color=ge.orange, size='x-small')
 
                         iplot+=1
             else:
                 print('data not found for color:', color)
         #    fig.suptitle('loc-ID=%i, bg-seed=%i, stim-seed=%i' % (syn_location, available_bg_seeds[seed],
         #                                                    available_stim_seeds[stimseed]))
-        ge.annotate(ax2, '$\\nu_{bg}$=%.1fHz' % bg_level, (0,0), color=ge.purple, rotation=90, ha='right', size='small')
+        ge.annotate(ax2, '$\\nu_{bg}$=%.0fHz' % bg_level, (0,0), color=ge.purple, rotation=90, ha='right', size='small')
         ge.set_plot(ax, [], xlim=[0, iplot*(shift+view[1]-view[0])], ylim=VLIM)
         ge.set_plot(ax2, [], xlim=[0, iplot*(shift+view[1]-view[0])], ylim=[-1,i+1])
         ge.set_plot(ax3, [], xlim=[0, iplot*(shift+view[1]-view[0])], ylim=[-1,i+1])
