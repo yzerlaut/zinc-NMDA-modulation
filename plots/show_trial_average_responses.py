@@ -1,4 +1,5 @@
 import numpy as np
+np.seterr(divide='ignore', invalid='ignore')
 from datavyz import ge
 # to fit
 from scipy.optimize import minimize
@@ -79,9 +80,8 @@ def get_trial_average_responses(RESP_PER_STIM,
             y = np.array(RESP[ibg][key])
             def to_minimize(coefs):
                 return np.sum((y-coefs[0]*sigmoid_func(x, coefs[1], coefs[2]))**2)
-                #return np.sum((y-max(y)*sigmoid_func(x, coefs[1], coefs[2]))**2)
             res = minimize(to_minimize, [y.max()-y[0], np.mean(x), np.std(x)],
-                            bounds=([0, 1.5*y.max()], [1, x[-2]], [0.5, x[-2]]))
+                                bounds=([0, 1.5*y.max()], [1, x[-2]], [0.5, x[-2]]))
             RESP[ibg][key+'-coeffs'] = res.x
             yf = res.x[0]*sigmoid_func(x, res.x[1], res.x[2])
             if key in thresholds:
