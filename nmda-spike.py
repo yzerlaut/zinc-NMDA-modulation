@@ -6,7 +6,7 @@ from analyz.IO.npz import load_dict
 def run_sim(Model,
             NSYNs=[3, 6, 9, 12, 15],
             syn_loc0 = 124,
-            t0=100, interstim=400,
+            t0=100, interstim=300,
             freq_stim=50, n_repeat=3,
             active=False,
             ampa_only=False,
