@@ -105,7 +105,7 @@ if __name__=='__main__':
     if sys.argv[-1]=='syn-demo':
 
         from datavyz import nrnvyz, ges as ge
-        
+
         _, neuron, SEGMENTS = initialize_sim(Model)
         vis = nrnvyz(SEGMENTS, ge=ge)
         
