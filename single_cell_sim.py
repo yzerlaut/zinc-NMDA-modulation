@@ -216,7 +216,6 @@ if __name__=='__main__':
     active, chelated = True, True
     t, neuron, SEGMENTS = initialize_sim(Model, active=active)
 
-
     # EstimBg, ESBg, IstimBg, ISBg = set_background_network_stim(t, neuron, SEGMENTS, Model)
     # output = run(neuron, Model, Estim, ES, Istim, IS)
     # from datavyz import ges as ge
