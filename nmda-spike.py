@@ -6,7 +6,7 @@ from analyz.IO.npz import load_dict
 def run_sim(Model,
             NSYNs=[3, 6, 9, 12, 15],
             syn_loc0 = 124,
-            t0=100, interstim=300,
+            t0=100, interstim=400,
             freq_stim=50, n_repeat=3,
             active=False,
             ampa_only=False,
@@ -105,7 +105,7 @@ if __name__=='__main__':
     if sys.argv[-1]=='syn-demo':
 
         from datavyz import nrnvyz, ges as ge
-        
+
         _, neuron, SEGMENTS = initialize_sim(Model)
         vis = nrnvyz(SEGMENTS, ge=ge)
         
