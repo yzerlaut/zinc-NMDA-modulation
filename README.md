@@ -13,15 +13,10 @@
 
 ## Results and implementation
 
-- we derive a model for the Zinc modulation of NMDAR -> see [description notebook](./description.ipynb)
-- we embed the implementation into a morphologically-detailed model of a mouse layer 2/3 pyramidal cell
-- we study the response to synaptic stimulation 
-- we study multi-input integration in the 
+- we derive a model for the Zinc modulation of NMDAR that we implement in a morphologically-detailed reconstruction of a mouse layer 2/3 pyramidal cell --> see [description notebook](./description.ipynb)
+- we study the role of zinc in the NMDAR-mediated response to synaptic stimulation --> see notebook [NMDA-spike](NMDA-spike.ipynb)
+- we study multi-input integration in the model --> see notebook [Multi-Input-Integration](Multi-Input-Integration.ipynb)
 - we analyze the import of *in-vivo*-like ongoing dynamics on the modulation of Zinc --> see notebooks [Sensitivity_to_Background_Modulation](./Sensitivity_to_Background_Modulation.ipynb) and [Figure 5](./Figure5.ipynb).
-
-## Scientific content
-
-Available as a [pdf report](./paper.pdf) (source file available as a [text file](./paper.txt)).
 
 ## Software requirements
 

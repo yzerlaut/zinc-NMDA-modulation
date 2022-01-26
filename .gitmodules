@@ -13,3 +13,6 @@
 [submodule "datavyz"]
 	path = datavyz
 	url = https://github.com/yzerlaut/datavyz
+[submodule "analyz"]
+	path = analyz
+	url = https://github.com/yzerlaut/analyz
