@@ -1,4 +1,6 @@
-# Modeling Zinc modulation NMDAR signaling in neocortical neurons
+<div><img src="./figures/summary.png" alt="FRM Logo" width="20%" align="right" style="margin-left: 10px"></div>
+
+## Modeling Zinc modulation NMDAR signaling in neocortical neurons
 
 > Source code for the theoretical model in the paper:
 
@@ -6,7 +8,6 @@
 
 > A Morabito, Y Zerlaut, B Serraz, R Sala, P Paoletti, N Rebola. Cell Reports (2022)
 
-<div><img src="./figures/summary.png" alt="FRM Logo" width="20%" align="right" style="margin-left: 10px"></div>
 
 [BioRXiv version of the paper](https://www.biorxiv.org/content/10.1101/2021.09.17.460586v1)
 
