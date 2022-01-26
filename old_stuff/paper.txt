@@ -1,0 +1,433 @@
+#+Title: Modeling Zinc-modulation of NMDAR signaling in L23 pyramidal cell
+
+* Key Points
+
+[[Figure {model-description} around here]]
+
+\item We derive a model for the modulation of synaptic transmission through NMDA receptor channels due to the binding of endogeneously-released Zinc. 
+\item We calibrate the model parameters on \textit{in vitro} intracellular recordings of L2/3 pyramidal cells. We use a combination of extracellular stimulation experiments and paired intracellular recordings to calibrate respectively the biophysical parameters and the pathway-specificty of the Zinc modulation. 
+\item We investigate the functional impact of the Zinc modulation for the computation performed by Layer 23 pyramidal cells during \textit{in vivo}-like regimes of cortical activity (strong synaptic bombardment). 
+\item We find that, while NMDAR recruitment is critical in shaping the cellular response for both pathways, the distinct Zinc modulation properties of NMDAR signalling leads to different computational properties at the single cell level. The negligible Zinc modulation of the feedforward pathway leads to a background-facilitating encoding of stimulus intensity. On the other hand, the strong Zinc modulation of the intra-laminar interaction in L23 cells implements a background-invariant encoding of stimulus intensity. 
+\item We conclude that endogeneously-released Zinc might act as a pathway-specific modulator of dendritic function in L23 pyramidal cells.
+
+* Results
+
+*** Modeling Zinc-modulation of NMDAR signaling
+
+We derive a model of the Zinc modulation of NMDAR signaling based on our experimental observations and previous studies (Vergnano et al., 2014, ...). Our modeling approach aimed at describing the modulation in the form of a minimal phenomenological description at the single synapse level (see Discussion). 
+
+The phenomenology and the reasoning guiding the derivation of the model were the following (illustrated in Figure {model-description}). Glutamatergic events are associated to a release of Zinc in the synaptic cleft. Zinc has a high affinity for binding and does not accumulate in the cleft (the cleft is free of Zinc in less than 2ms, REF), so the dynamics is led by the binding-unbinding phenomenon. Zinc binding is modelled by a variable $b_{Zn}$ varying betweeen 0 (no binding) and 1 (full binding). Zinc binding is approximated as instantaneous and fully saturating the binding site at every single synaptic release event (see the systematic jump to $b_Zn$=1 after glutamatergic events in Figure {model-description}a). Zinc unbinding has a decay time constant $\tau^{decay}_{Zn}$. At the time of a synaptic release, the current level of Zinc binding will determine the magnitude of the reduction of NMDA conductance due to the Zinc modulation. The factor modulating the NMDA conductance $m_{Zn}(t)$ is therefore a piecewise time-varying function updated to the $b_{Zn}$ level at every synaptic release (see the thick dashed curve in Figure {model-description}a). Finally, a parameter $\alpha_{Zn}$ captures the inhibitory efficacy of Zinc binding on NMDAR conductance. At full binding ($b_{Zn}$=1), the NMDA conductance has a factor 1-$\alpha_{Zn}$.
+The Zinc modulation is therefore summarized by the dependency: $g_{NMDA} \propto (1 - \alpha_{Zn} \cdot m_{Zn})$, see Equation {nmda} in the Methods.
+
+We implemented the above mechanism into simulations of single cell dynamics in detailed morphological structures (Stimberg et al., 2019). See the associated \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/single_cell_sim.py}{Script}. We used a publicly available morphology of mouse Layer 2/3 pyramidal neuron (Jiang et al., 2015), see Figure {model-description}b. Such a model allowed to reproduce synaptic stimulation coupled with either voltage-clamp protocols (see Methods and in Figure {model-description}c) as in our experimental recordings, we used this property to  calibrate the parameters introduced by our theoretical description (see next section). Otherwise, we fixed biophysical and synaptic parameters to previously used values (Destexhe et al., 1998; Koch, 2004, Farinella et al., 2014). The model parameters are summarized on Table {model-params}.
+
+The resulting model implementation was found to reproduce the results of Branco et al. (2011), see the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/Branco-et-al-2011.ipynb}{Notebook} and underlying \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/branco-et-al-2011.py}{Script}.
+
+[[Figure {biophysical-calib} around here]]
+
+*** Calibrating model parameters on \textit{in vitro} intracellular recordings in L23 pyramidal cells
+
+We calibrated the model on our L23 pyramidal cell recordings in successive steps. 
+
+We first determined the AMPA-to-NMDA ratio (see Figure {nmda-ampa}) and the passive properties of the model (see Methods and Figure {passive-props}). 
+
+We then used our set of voltage-clamp recordings following extracellular stimulation at 20Hz and 3Hz to characterize the magnitude and temporal dynamics of the Zinc modulation effect (see Methods and Figure {biophysical-calib}). The magnitude of the Zinc modulation for the synaptic recruitment associated to the (non-specific) electrical stimulation was found to be $\alpha_{Zn}$={alphaZn} and the decay time of the Zinc binding was found to be $\tau_{Zn}^{decay}$={tauDecayZn} ms. 
+
+Finally, we used our intracellular recordings of synaptic pairs to calibrate the pathway specificity of the model. We computed the relationship between $\alpha_{Zn}$ and the charge increase upon Zinc chelation in the model and we tookf the $\alpha_{Zn}$ level matching the experimental observations (see Figure {L23-L4-calib}). For the L4-to-L23 feedforward pathway, the negligible Zinc chelation effect (null charge increase with chelation) was naturally found to match the $\alpha_{Zn}$=0 configuration. For the intra-laminar L23-to-L23 pathway, the strong Zinc modulation (47\% charge increase with chelation) was found to correspond to a level of $\alpha_{Zn}$=0.45 in the model.
+
+[[Figure {nmda-event} around here]]
+[[Figure {nmda-event-all} around here]]
+*** Zinc modulation increases the threshold for NMDA-mediated $V_m$ depolarization events
+
+We tested the impact of Zinc modulation in shaping post-synaptic response in L23 pyramidal cells. 
+
+We implemented a stimulation pattern made of 3 successive synaptic activation at 50Hz on a given location in the basal dendrite (see Figure {nmda-event}a) and we increased the number of synapses $N_{syn}$ participating to the pattern up to $N_{syn}$=10 synapses (i.e. 10 synapses stimulated 3 times, so 30 synaptic events).
+
+We ran this protocol in different biophysical settings (see Figure {nmda-event}b): with AMPA only synaptic properties, in absence of Zinc modulation ($\alpha_{Zn}$=0, reproducing Zinc chelation) and in the free Zinc condition with the Zinc modulation level corresponding to the electrical stimulation experiments (see previous section and Figure {biophysical-props}). We quantified the magnitude of the $V_m$ response by computing the integral following the third pulse of the synaptic stimulation (see Figure {nmda-event}c).
+
+When increasing synaptic recruitment, the deviation from the "AMPA-only" setting appearing for $N_{syn}\geq 4$ in the "chelated" and "free" Zinc case implies the involvment of NMDAR  (Figure {nmda-event}b,c). Although the NMDAR recruitment was similar at high stimulation levels $N_{syn}\geq 8$, we observed a shift in the onset of the NMDAR recruitment between the free and chelated Zinc condition. This shift was quantified by computing the half activation level $N_{syn}^{1/2}$ (defined as the level correspondig to maximum of the derivative of the response curve), see the dashed line shift in Figure {nmda-event}c.
+
+We anlayzed this phenomenon over different synaptic locations, see Figure {nmda-event-all}a.  We found a systematic positive shift of the half-activation level due to Zinc modulation from 5.9$\pm$1.1 synapses to 7.0+/-1.2 (n=25 locations, paired-ttest: 3.2e-16, see Figure {nmda-event-all}b). 
+
+Conversely, we found that Zinc modulation was strongly reducing the $V_m$ response at the intermediate levels of the NMDAR recruitment (defined as the half activation level in the free Zinc condition, see red area in Figure {nmda-event-all}b). Chelating Zinc indeed increased the response by 55.5\% at those levels (integral response moving from 0.9+/-0.2 mV.s to 1.4+/-0.3 mV.s, n=25 locations, paired-ttest: 2.7e-17, see Figure {nmda-event-all}c).
+
+*** Effect of Zinc modulation on single cell integration in regimes of ongoing synaptic activity
+
+[[Figure {bg-dep-single-trial} around here]]
+[[Figure {bg-dep-passive} around here]]
+
+We then investigated the potential role of Zinc modulation in the regimes of strong ongoing synaptic activity found \textit{in vivo} (Destexhe et al., 2003). We mimicked ongoing network-driven presynaptic activity by adding a background excitatory synaptic input controlled by a parameter $\nu_{bg}$ setting the frequency of ongoing synaptic release (Farinella et al, 2014; Zerlaut and Destexhe, 2017), see Methods. We investigated single cell computation by analyzing the response to short synaptic sequences of varying levels of synaptic recruitment $N_{syn}$ (see Figure {bg-dep-single-trial}).
+
+Because of their drastically different levels of Zinc modulation (see Figure {L23-L4-calib}), we analyzed this question in the context of the two pathways considered in this study: the feedforward interlaminar pathway (with no Zinc modulation, refered to as  "L4-L23") and the intralaminar pathway (with a strong Zinc modulation, refered to as "L23-L23").
+
+In the "L4-L23" setting (no Zinc modulation), we found that the excitatory background activity $\nu_{bg}$ had a strong impact on the $V_m$ responses. It indeed decreased the threshold for the recruitment of NMDA conductances and widened the post-synaptic responses following synaptic stimulation in accordance with previous finding (Farinella et al, 2014). On the other hand, the $V_m$ response in the "L23-L23" setting (strong Zinc modulation) did not vary greatly when increasing the background activity. We analyzed this phenomenon by quantifying the $V_m$ response as the integral of the evoked depolarization. We found indeed that the relationship between input (synaptic recruitment $N_{syn}$) and output ($V_m$ integral) was nearly identical for all background levels $\nu_{bg}$ in the "L23-L23" case (see Figure {bg-dep-passive}a,b) while the response were strongly shifted toward low inputs when increasing background levels for the "L4-L23" case (see Figure {bg-dep-passive}a,b). We quantified this trend by introducing an arbitrary threshold in the integral response and we computed the input value at which the threshold was reached $N_{syn}^{thre}$ for each background level. The increase of background activity had a null effect on the $N_{syn}^{thre}$ value for the "L23-L23" setting (the variations of $N_{syn}^{thre}$ with $\nu_{bg}$ had a slope of 0.2$\pm$0.1 synapses/Hz) while it exerted a strong shift in the "L4-L32" setting (with a slope of 1.6$\pm$0.1 synapses/Hz ), see Figure {bg-dep-passive}c.
+
+*** Zinc modulation implements a background-invariant encoding of synaptic stimulation in the intra-laminar pathway
+
+Thanks to its strong Zinc modulation properties, the "L23-to-L23" pathway has a remarkable feature: it keep the post-synaptic response invariant across various levels of background activity. We next asked what could be the computational consequences in terms of stimulus encoding of such a phenomenon.
+
+To analyze the stimulus encoding properties of the single cell model, we build a decoder of stimulus intensity relying on single-trial $V_m$ responses. Stimulus intensity is here the number of recruited synapses $N_{syn}$, we consider 10 different levels from 0 to 18, so chance level is 10 \%. For simplicity, we consider a nearest-neighbor classifier with an euclidian distance between waveforms (see Methods) and the "ground-truth" waveforms for a given level $N_{syn}$ is the trial-averaged of all waveforms in the dataset (see Methods). We repeat this analysis across stimulus locations (n=5 randomly picked in the set of locations of Figure {nmda-event-all}a) and stimulus seeds (n=3) for the robustness of the results.
+
+For the three considered settings ("AMPA-only", "L4-L23" and "L23-L23"), we show in Figure {bg-dep-passive}d the decoding accuracy per background activity level (orange to purple color-code as in *a*) and the decoding accuracy in a set of responses merging all background levels (large bar, lower accuracies because containing more potentially counfouding responses). In the absence of background activity (orange bar for all cases), the decoding is optimal (100\% accuracy) as there is no confounding factor. Performance degrades in all settings with the increase of background activity because the waveforms are more and more noisy (see Figure {bg-dep-single-trial}). When mixing up the different background activity levels in the test set (large bars), the performance goes down to low levels in the "L4" case (accuracy of 40.2\%$\pm$3.2\%). This happens because the background activity strongly alter PSP magnitude in the "L4" case (see Figure {bg-dep-passive}a,b) thus impeding the identification of a given PSP magnitude to a given input level. Adding the Zinc modulation ("L23" case) led to a strong  increase in the decoding accuracy (+58\%: 40.2\%$\pm$3.2\% versus 63.7\%$\pm$2.1\%, average over n=3 stimulus seeds, n=5 synaptic locations, paired ttest, p=5.3e-17) because this modulation kept PSP magnitude constant across all background levels (Figure {bg-dep-passive}a,b).
+
+Interstingly, the performance in the "L23" case even increases with respect to the "AMPA" case (from 55.1\%$\pm$2.1\% to 63.7\%$\pm$2.1\%, average over n=3 stimulus seeds, n=5 synaptic locations, paired ttest, p=1.2e-12). This happens because the reduction of PSP amplitude with increasing background activity, due to driving force reduction and conductance shunting (Destexhe et al., 1999; Zerlaut and Destexhe, 2017), introduces a misclassification of the PSP waveforms (low-background PSPs are mixed up with high-background PSPs of higher $N_{syn}$ input). On the other hand, in the "L23" case, this phenomenon is compensated by the NMDAR amplification of $V_m$ response that are concomitant with increased depolarization levels. 
+
+Overall this demonstrates that the recruitment of NMDA combined with the activity-dependent Zinc inhibition appears as an optimal setting to preserve PSP amplitude across different background activity levels. Such a property would allow to implement a background-invariant encoding of stimulus intensity in the intralaminar pathway of the L23 network.
+
+*** Effect of Zinc modulation during active cellular processing 
+
+[[Figure {bg-dep-single-trial-active} around here]]
+[[Figure {bg-dep-active} around here]]
+
+Finally, we investigated the impact of Zinc modulation in presence of active cellular mechanisms ("Na"-current, "Kv"-current, "T"-current, "Ca"-current, "M"-current, "H"-current, "KCa"-current and a decay dynamics for the Calcium concentration, see Branco and Hausser (2011) and Table {active-params}). We show the response of the model to  in the protocols of Figure {bg-dep-single-trial-active}.
+
+We analyzed the processing of input stimuli in this extended model. We tracked the output in terms of spiking (as a binary variable, mutliple spiking was rare for those inputs, not shown) and we computed the input-output curves at different levels of background activity in the "L4" and "L23" settings, see Figure {bg-dep-active}. The "L4" setting resulted in a strong effect of the background activity on the response curves, increasing background activity indeed facilitated the response, see the shift toward low inputs of the curves with increasing background (Figure {bg-dep-active}a). In presence of the Zinc modulation effect ("L23" setting), this facilitating behavior disappeared (Figure {bg-dep-active}a). This was quantified by introducing a threshold in the spike probability and computing the input level at which this threshold was reached: $N_{syn}^{thre}$. The responses "L23" setting had clost to no dependency on the background level (the slope of the $N_{syn}^{thre}$-$\nu_{bg}$ relationship was 0.2$\pm$0.3 synapses/Herz) while this dependency was strong in the "L4" setting (the slope of the $N_{syn}^{thre}$-$\nu_{bg}$ relationship was 1.2$\pm$0.1). 
+
+We conclude that Zinc modulation of NMDAR signalling has a strong impact also in terms of spiking output: it shifts the encoding strategy from background-facilitating to background-invariant in L23 pyramidal cells.
+
+* Methods
+
+[[Table {model-params} around here]]
+[[Table {active-params} around here]]
+
+*** Numerical simulations of morphologically-detailed L2/3 pyramidal cells
+
+Single cell integration was simulated using the cable equation (Rall, 1962; Koch, 2004):
+
+\begin{equation}
+\frac{1}{r_i} \frac{\partial^2 V_m}{\partial x^2} = i_m = c_m \frac{\partial V_m}{\partial t} + \frac{V_m-E_L}{r_m} - i_{I}
+\end{equation}
+
+where the membrane current $i_m$ and the input currents $i_I$ are linear density of currents. The cable equation parameters are derived from the membrane parameters of Table {model-params} by applying the radial symmetry (for a segment of diameter $D$: $r_m=\frac{1}{\pi D G_L}$, $c_m=\pi D C_m$, , $r_i=\frac{4 R_i}{\pi D^2}$). 
+
+Additional point currents (synaptic inputs and/or "voltage-clamp"-currents) are inserted in a segment through the $i_I$ term (as $i_I=I/l_S$ for a current $I$ and a segment of length $l_S$).
+
+For voltage-clamp protocols, the leak conductance $g_L$ was decreased by a factor {VC-gL-reduction-factor} (to reproduce the Cesium block), an additional point current $I_{clamp} = g_{clamp} \cdot (V_{cmd} - V_m)$ of clamping conductance {VC-gclamp}$\mu$S was inserted at the soma, an additional {VC-discard-time}ms were added prior to stimulation to reach stationary "clamp" conditions (initialized at $V_{cmd}$) and we report the $I_{amp}$ quantity after those {VC-discard-time}ms (see Figure {model-description}).
+
+The simulations were implemented using the \textit{Brian2} simulator (Stimberg et al., 2019). Numerical integration was performed with an "exponential Euler" integration scheme and a time step of {dt}ms.
+
+The morphology of the layer 2/3 pyramidal cell used in this study ("L23pyr-j150407a", see Figure {model-description}b) was taken from the publicly available dataset of Jiang et al. (2015).
+
+*** Synaptic current models
+We consider 2 types of synaptic transmission in this study: NMDA and AMPA. For both synaptic types, the temporal profile of the synaptically-evoked conductance variations was made of a double exponential waveform (Destexhe et al., 1998; Koch, 2004):
+
+\begin{equation}
+F_{syn} : t \rightarrow A_{syn} \cdot (e^{-t/\tau^{decay}_{syn}} - e^{-t/\tau^{rise}_{syn}} ) 
+\end{equation}
+where $\tau^{rise}_{syn}$ and  $\tau^{decay}_{syn}$ are the rise and a decay time constant respectively. The waveform was normalized to peak leevel with the factor: 
+\begin{equation}
+A_{syn} = \frac{\tau^{rise}_{syn}}{\tau^{decay}_{syn}-\tau^{rise}_{syn}} \cdot (\tau^{decay}_{syn}/\tau^{rise}_{syn})^{\frac{\tau^{decay}_{syn}}{\tau^{decay}_{syn}-\tau^{rise}_{syn}}}
+\end{equation}
+
+For an AMPA synapse activated by a set of events $\{t^k\}$ located at position $i$ (of membrane potential $V_m^i$), the synaptic current $I^i_{syn}$ reads:
+
+\begin{equation}
+I^i_{syn}(t, V_m^i) = q_{syn} \cdot (E_{syn} - V_m^i) \cdot \sum_{ \{t_k\} } \mathcal{H}(t-t_k) \, F_{syn}(t-t_k)
+\end{equation}
+
+where $q_{syn}$ is the conductance quantal of the synaptic release (setting the peak conductance level) and $\mathcal{H}(t)$ is the Heaviside (step) function. We measured AMPA and NMDA peak currents to determine the ratio of NMDA to AMPA conductances (see Figure {nmda-ampa}), this ratio was used to set the NMDA conductance quantal from the AMPA conductance quantal (see Table {model-params}).
+For NMDA synapses, we add a voltage-dependency due to the Magnesium block captured by an exponential function (Ascher and Nowak, 1988; Jahr and Stevens, 1990; Koch, 2004) and a Zinc-binding dependency (detailed in the next section):
+
+[[Figure {nmda-ampa} around here]]
+
+\begin{equation}
+\label{eq:nmda}
+\begin{split}
+& I^i_{NMDA} (t, V_m^i, b^i_{Zn}) = \big(1 - \alpha_{Zn} \, m_{Zn} \big) 
+\cdot \frac{1}{1+ \eta \, [\text{Mg}^{2+}] e^{- V_m^i / V_0 }}  \\ 
+& \qquad \times q_{NMDA} \, (E_{NMDA} - V_m^i) \sum_{ \{t_k\} } \mathcal{H}(t-t_k) \, F_{NMDA}(t-t_k)
+\end{split}
+\end{equation}
+
+The voltage-dependency parameters were fixed to $\eta$={etaMg}mM$^{-1}$, $V_0$={V0NMDA}mV and the Magnesium concentration as $[\text{Mg}^{2+}]$={cMg}mM (Farinella et al., 2014). 
+
+All synaptic parameters are summarized on Table {model-params}.
+
+*** Zinc modulation model
+
+The modulation factor $m_{Zn}$ that scales the NMDA conductance, see $g_{NMDA} \propto (1- \alpha_{Zn} \cdot m_{Zn})$ in Equation {nmda}, is determined by the level of Zinc binding at the time of the synaptic event. Therefore, for a set of glutamatergic events $\{t^k\}_{glut}$, the time-varying factor $m_{Zn}$ is defined by the piecewise function:
+
+\begin{equation}
+\label{eq:mZn}
+ m_{Zn} : t \req \rightarrow b_{Zn}(t^k) \qquad \forall t \in [t^k, t^{k+1}[
+\end{equation}
+
+The variable $b_{Zn}(t)$ describes the dynamics of Zinc binding. It is updated to fully-bound level ($b_{Zn}$=1) at each glutamatergic event and decays to the unbound level ($b_{Zn}$=0) with a time constant $\tau^{decay}_{Zn}$. It therefore follows the equation:
+
+\begin{equation}
+\label{eq:bZn}
+\tau^{decay}_{Zn} \cdot \frac{d b_{Zn}}{ dt }  = & - b_{Zn} + (1-b_{Zn}) \cdot \sum_{\{t^{k}\}_{glut}} \delta (t-t^k)
+\end{equation}
+
+The dynamics of the $b_{Zn}$ and $m_{Zn}$ variables following synaptic events is illustrated on Figure {model-description}a.
+
+*** Set of random synaptic locations in the basal dendritic tree
+
+To host the synaptic stimulation, we looked for n=25 set of segments distributed over the basal dendrite. The criteria to include a location was that the set of segment should be contiguous over the dendritic tree (i.e. not spread over multiple branches) and the starting point should at least 50$\mu$m far from the soma (as excitatory synapses tend to avoid perisomatic locations). We looped over random starting segments in the dendritic tree, a location was considered as the starting segment with the next 20 following segments. The location was included if the criteria was matched and the loop was stopped when we found n=25 locations. The resulting set of the synaptic locations is shown in Figure {nmda-event-all}a.
+
+We then spread one synapse per segment. From this set of locations, we can therefore recruit up to 20 synapses (see Figure {nmda-event} or Figure {bg-dep-single-trial}).
+*** Model calibration: parameter fitting
+
+The parameter of the model were fitted in successive steps yielding the constrained model shown in Figure {biophysical-calib}). 
+
+\paragraph*{\small{NMDA-to-AMPA ratio.}}
+
+We calibrated this ratio using a set of voltage-clamp recordings, we found the NMDA-to-AMPA ratio to be 2.7$\pm$1.5 similar to previous reports (Branco and H{\"a}usser, 2011), see Figure {nmda-ampa}.
+
+\paragraph*{\small{Passive properties.}}
+
+To calibrate the passive properties of the model, i.e. the membrane leak conductance $g_l$ and the membrane capacitance $c_m$ (see Table {model-params}), we used our set of current-clamp experimental recordings to determine the input resistance and capacitance at the soma (see Methods). The experimental values were found to be {exp-passive-props} (see Figure {passive-props}).
+
+In the model, we varied the passive parameters and computed the input resistance and capacitance at the soma. This was achieved by fitting the $V_m$ response to the single compartment response following a 200 pA current step. The range for the parameter parameter variation was $g_L \in $ [{gL_min},{gL_max}]pS/$\mu$m$^2$ and $c_m \in$ [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {passive-props}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$, similar to previous analysis of layer 2/3 pyramidal cell in mice sensory cortex (Branco and H{\"a}usser, 2011; Palmer et al., 2014). Details about the fitting procedure can be found in Figure {passive-props}.
+
+\paragraph*{\small{Biophysical parameters of Zinc modulation.}}
+
+We used our set of voltage-clamp recordings with extracellular stimulation at 20Hz and 3Hz to constraint the Zinc-dependent NMDAR model. We optimized the product of the normalized residual traces at 20Hz and 3Hz between model and experiment. The experimental data was a "grand-average" over cells after trial-averaging (see "data" in Figure {biophysical-props}).
+
+The first step consisted in using the "chelated-Zinc" condition to evaluate the NMDAR kinetics ($\tau_{decay}^{NMDA}$) and to find the correlate in the model of the extracellular stimulation protocol. We described the electrical stimulation as a number of activated synapses $N_{syn}$ decreasing with stimulation time (to capture the decreasing efficacy of the electrical stimulation, see Figure {optimization}d): $N_{syn}: t \rightarrow (N_{syn}^0-N_{syn}^\infty) \cdot e^{-t/\tau_{Nsyn}} + N_{syn}^\infty$. We varied the parameters in the range $\tau_{decay}^{NMDA}$ in [{tauDecayNMDA_min},{tauDecayNMDA_max}]ms,  $N_{syn}^{0}$ $\in$ $[{Nsyn1_min},{Nsyn1_max}]$ synapses $N_{syn}^{\infty}$ $\in$ $[{Nsyn2_min},{Nsyn2_max}]$ synapses and $\tau_{Nsyn}$ $\in$ [{Tnsyn20Hz_min},{Tnsyn20Hz_max}]ms on a [{N_tauDecayNMDA}x{N_Nsyn1}x{N_Nsyn2}x{N_Tnsyn20Hz}] linear grid. This minimization is shown in Figure {biophysical-props-1} and the best fit model was found for: $\tau_{decay}^{NMDA}$={tauDecayNMDA} ms, $N_{syn}^{0}$={Nsyn1} synapses, $N_{syn}^{\infty}$={Nsyn2_min} synapses and $\tau_{Nsyn}$={Tnsyn20Hz} ms.
+
+In a second step, we used the "free-Zinc condition" to determine the Zinc-modulation parameters of the NMDAR model introduced ($\alpha_{Zn}$ and$\tau_{Zn}^{decay}$, see Figure {model-description}). We varied the Zinc parameters in the range $\alpha_{Zn}$ $\in$ [{alphaZn_min},{alphaZn_max}] and
+ $\tau_{Zn}^{decay}$ $\in$ [{tauDecayZn_min},{tauDecayZn_max}] ms on a [{N_alphaZn}x{N_tauDecayZn}] linear grid. This minimization exhibited a clear minimum in this 2D space (see Figure {biophysical-props-2}). The best fit model was found for: $\alpha_{Zn}$={alphaZn} and $\tau_{Zn}^{decay}$={tauDecayZn}.
+
+\paragraph*{\small{Pathway specificity of Zinc modulation.}}
+
+See Figure {L23-L4-calib}.
+
+*** Model of background and stimulus-evoked synaptic activity
+
+Background synaptic activity was generated by independent Poisson point processed at each synapse. The simulations were repeated over different realisations of the background activity, this is referred in the text to as varying the"background seed".
+
+Stimulus-evoked activity was designed as follows. For a stimulation at time $t$ with a level of synaptic recruitement $N_{syn}$, we randomly chose $N_{syn}$ synapses over the 20 synapses available at each synaptic location (see above) and the event of each of the $N_{syn}$ synapse was drawn from a gaussian distribution of extent 20 ms centered at $t$. The simulations were repeated over different realisations of the stimulus, this is referred in the text to as varying the "stimulus seed".
+
+An example of the background and stimulus-evoked synaptic events are shown on Figure {bg-dep-single-trial} with purple and orange dots respectively.
+
+*** Decoding stimulus intensity from single trial $V_m$ responses
+
+We build a decoder of the stimulus intensity relying on single-trial somatic $V_m$ responses in the [-100,300]ms interval surrounding stimulus onset. The waveforms were baseline-substracted (window [-100,0]ms) to remove the influence of the relationship between background activity and baseline level. This decoder was implemented using the \texttt{NearestNeighbors} function of \texttt{sklearn} (Pedregosa et al., 2011) and we used the \texttt{euclidean} metric to evaluate distance between responses waveforms.
+
+To study the influence of background activity, we design two types of datasets: datasets consisting of only the $V_m$ responses at a given backgournd activity level (see thin color-coded bars in Figure {bg-dep-passive}d) and datasets merging all background levels (see large bars in Figure {bg-dep-passive}d).
+
+The set of "true" PSP (i.e. the "training set") was the set of trial-average over all waveforms at a given stimulus intensity $N_{syn}$ (see example trial-averaged PSPs in Figure {bg-trial-average}). This meant averaging over n=10 background activity realisations for the datasets at a given background levels and across both n=10 background activity levels and n=5 background levels in the dataset merging all background levels. The "test set" was the set of single trials $V_m$ responses (see Figure {bg-dep-single-trial} for an example on a given synaptic location and a given single stimulus seed).
+
+We repeated this decoding analysis using different simulations on different synaptic locations and stimulus seeds as well as different biophysical settings for the model (see Figure {bg-dep-passive}d).
+
+*** Active membrane currents
+
+We investigated active cellular processing by adding the following mechanisms in the single cell model: "Na"-current, "Kv"-current, "T"-current, "Ca"-current, "M"-current, "H"-current, "KCa"-current and a decay dynamics for the Calcium concentration, see Branco and H{\"a}usser (2011). The currents 
+and their densities in the different compartments are listed Table {active-params}. 
+
+*** Data analysis
+
+All data analysis and visualization was performed using the \texttt{python} ecosystem for scientific computing using the \texttt{numpy}  (Harris et al., 2020), \texttt{scipy} (Virtanen et al., 2020) and \texttt{matplotlib} (Hunter, 2007) modules.
+
+* Figures
+  
+*** Modeling Zinc modulation of NMDAR signaling in Layer 2/3 pyramidal cells.
+#+options : {'label':'model-description', 'extent':'one-and-a-half-column', 'height':30, 'file':'figures/model-description.png', 'hrule_bottom':True}
+(a) Biophysical model of NMDAR Zinc modulation at the single synapse level: glutamate events (top panel) trigger Zinc binding (middle panel, $b_{Zn}$) that reduces the NMDAR conductance (bottom panel, $g_{NMDA}$) in the free Zinc condition (black curve). The modulation factor $m_{Zn}$ that scales $g_{NMDA}$ is determined by the Zinc binding level at the time of a synaptic release (highlighted by dots). (b) Morphological reconstruction of a Layer 2/3 pyramidal in mouse V1 (Jiang et al. (2015)). (c) Voltage-clamp recordings in the model at four holding potentials following a single synapse stimulation at 20Hz in the free and chelated Zinc conditions (black and green curves respectively). We show the membrane potential (top plot, at the soma in red and at the synapse location in orange), the evoked conductances in one synapse (middle plot, AMPA and NMDA) and the recorded current at the soma (bottom).
+
+*** Calibrating the biophysical properties of the Zinc modulation phenomenon..
+#+options : {'label':'biophysical-calib', 'extent':'one-and-a-half-column', 'height':11, 'file':'figures/biophysical-calib.png', 'hrule_bottom':True}
+We show the experimental data (top panels) used for the optimization of model parameters: the $V_m$ response to 20Hz (left) and 3Hz (right) extracellular stimulation. On the bottom panel, we show the model response for the optimal set of parameters. The "chelated-Zinc" condition (green cruves) was used to determine the properties of the extracellular stimulation in the model (see optimization details in Figure {biophysical-calib-1}). The "free-Zinc" condition (black curves) was used to determine the parameters of the Zinc modulation model (see optimization details in Figure {biophysical-calib-2}).
+
+*** Effect of Zinc modulation on NMDA recruitment.
+#+options : {'label':'nmda-event', 'extent':'double-column', 'height':50, 'file':'figures/nmda-event.png'}
+(a) Adding a synaptic stimulation in the morphological model. The location for the synaptic stimulation is highlighted with an orange dot. (b) Membrane potential (top) and conductance (bottom) traces following the stimulation with an increasing number of recruited synapses $N_{syn}$. The different biophysical settings are color-coded. (c) Integral of the $V_m$ response foollowing the 3rd pulse. We highlight the half-activation level $N_{syn}^{1/2} in the different settings with dashed dotted lines.
+
+*** Zinc modulation increases the threshold for the generation of NMDA events.
+#+options : {'label':'nmda-event-all', 'extent':'single-column', 'height':50, 'file':'figures/nmda-event-all.png'}
+(a) Adding synaptic stimulation at n=25 locations over the basal dendritic tree. (b) Half activation level (in terms of number of synapses $N_{syn}$, see Figure {nmda-event}c) without (black bar) and with (green bar) Zinc chelation. n=25 locations, statistical test: paired t-test. (c) Effect of the Zinc chelation at the free-Zinc half activation level. n=25 locations, statistical test: paired t-test.
+
+*** Single cell integration of synaptic stimulation under various background activity levels in the single cell model.
+#+options : {'label':'bg-dep-single-trial', 'extent':'double-column', 'file':'figures/bg-dep-passive-full-example-single-trial.png'}
+From left to right, the intensity of the synaptic stimulation is increased by raising the number of synapses recruited in the stimulation window. From top to bottom, the background activity is raised by increasing the rate of the Poisson process setting the background activity of each individual synapses (see firing rate level on the figure). We show the responses (color-coded) with synaptic properties associated to the 3 following cases: L23-to-L4 synaptic properties, L23-to-L23 synaptic properties and AMPA-only synapses. Shown for a synaptic ensemble (loc #5) and the same set of stimulus and background seed.
+
+*** Zinc modulation of NMDAR in L23 cells confers distinct computational properties to the intralaminar and the interlaminar pathways: the L4-to-L23 encoding of stimulus intensity is background-facilitated while the L23-to-L23 pathway is background-invariant.
+#+options : {'label':'bg-dep-passive', 'extent':'single-column', 'file':'figures/bg-passive-analysis.png'}
+(a) Integral of the PSP response in 3 following cases: L23-to-L4 synaptic properties, L23-to-L23 synaptic properties and AMPA-only synapses (from top to bottom). Errorbars indicate variability (s.d.) over n=5 stimulus seed and n=10 background seeds, the plain line is a sigmoid fit to the average response over seeds. The dashed line indicate an arbitrary threshold and the level at which this threshold is reached $N_{syn}^{thresh}$ for the different background levels. Shown for the synaptic location #1. (b) Same than *a* for another synaptic location. (c) Background dependency of $N_{syn}^{thresh}$ (see dashed line levels in *a*): slope of the relation between background level $\nu_{bg}$ and $N_{syn}^{thresh}$ in the L23-to-L23 and L40-to-L23 cases (black and green respectively). (d) Performance of a nearest-neighbor decoder of stimulus intensity based on single-trial somatic $V_m$ responses (see Methods). For each case ("AMPA-only", "L4-L23" and "L23-L23"), we show the decoding accuracy per background activity level (orange to purple color-code as in *a*) and the decoding accuracy in a set of responses merging all background levels (large bar). Errorbars are s.d. over 10x3x5 configurations (backgrounds seeds, stimulus seeds and synaptic locations respectively).
+
+*** Active single cell processing of synaptic stimulation under various background activity levels in the single cell model.
+#+options : {'label':'bg-dep-single-trial-active', 'extent':'double-column', 'file':'figures/bg-dep-active-full-example-single-trial.png'}
+Same than Figure {bg-dep-single-trial} by simulating active conductances in the model (see methods).
+
+*** Zinc modulation makes single cell computation of L23-to-L23 input background invariant
+#+options : {'label':'bg-dep-active', 'extent':'single-column', 'file':'figures/bg-dep-active.png'}
+Spike probability response in 2 following cases: L23-to-L4 synaptic properties, L23-to-L23 synaptic properties (from top to bottom). Errorbars indicate variability (s.d.) over n=5 stimulus seed and n=10 background seeds, the plain line is a sigmoid fit to the average response over seeds.
+
+* Tables
+
+*** Parameters of the L2/3 pyramidal cell model.
+#+options : {'label':'model-params', 'extent':'singlecolumn'}
+Values for the parameters used in the numerical simulations of single cell integration (unless otherwise stated, see annotations in Figure {model-description} and Figure {model-prediction}). The parameters highlighted with a star(*) were fitted from experimental recordings (see Methods), the other synaptic and biophysical parameters were taken from previous studies (Destexhe et al., 1998; Farinella et al., 2014).
+\begin{tabular}{l|c|c}
+\textbf{Model parameter} & \textbf{Symbol} & \textbf{Value} \\ 
+ \hline \vspace{-.3cm} \\ 
+ membrane leak conductance* & $G_L$ & {gL}pS/$\mu$m$^2$ \\
+ membrane capacitance* & $C_m$ & {cm}$\mu$F/cm$^2$ \\
+ intracellular resistance & $R_i$ & {Ri} $\Omega$.cm \\
+ leak reversal potential & $E_L$ & {EL}mV \\[.05cm]
+ \hline \vspace{-.3cm} \\ 
+ AMPA conductance quantal & $q_{AMPA}$ & {qAMPA}nS \\
+ AMPA reversal potential & $E_{AMPA}$ & {Ee}mV \\
+ AMPA rise time &  $\tau_{AMPA}^{rise}$ & {tauRiseAMPA}ms\\
+ AMPA decay time &  $\tau_{AMPA}^{decay}$ & {tauDecayAMPA}ms  \\[.05cm]
+ \hline \vspace{-.3cm} \\ 
+ NMDA conductance quantal* & $q_{NMDA}$ & {qNMDA}nS \\
+ NMDA reversal potential & $E_{NMDA}$ & {Ee}mV \\
+ NMDA rise time &  $\tau_{NMDA}^{rise}$ & {tauRiseNMDA}ms\\
+ NMDA decay time &  $\tau_{NMDA}^{decay}$ & {tauDecayNMDA}ms\\
+% NMDA density &  $D_{NMDA}$ & {DensityNMDA} syn./100$\mu$m$^2$  \\[.05cm]
+ \hline \vspace{-.3cm} \\ 
+  Mg$^{2+}$ concentration & $[\text{Mg}^{2+}]$ & {cMg}mM \\
+  Mg-NMDA sensitivity  &  $\eta_{Mg}$ & {etaMg}mM$^{-1}$ \\
+  Mg-NMDA voltage slope factor &  $V^0_{Mg}$ & {V0NMDA}mV \\
+ \hline \vspace{-.3cm} \\ 
+ Zinc-NMDA inhibition factor* &  $\alpha_{Zn}$ & {alphaZn} \\
+ Zinc-NMDA decay time* &  $\tau_{decay}^{Zn}$ & {tauDecayZn}ms\\
+\hline
+\end{tabular}
+
+*** Active currents in the L2/3 pyramidal cell model.
+#+options : {'label':'active-params', 'extent':'double-column'}
+Active currents included in the detailed model with their respective densities in the different compartments in picosiemens/micrometer$^2$ (Branco and H{\"a}usser, 2011).
+\begin{tabular}{l|c|c|c|}
+\textbf{Current type} \hspace{2cm} Densities in pS/$\mu$m$^2$
+		 & Basal Dendrite  & Soma & Axon\\ 
+ \hline \vspace{-.3cm} \\ 
+ Sodium channel: "Na"-current & 40 & 1500 & 30000 \\ 
+ Potassium channel: "Kv"-current & 30 & 200 & 400 \\ 
+ Low-threshold calcium channel: "T"-current & 0.0003 & 0.0006 & 0 \\
+ High-voltage activation calcium channel: "Ca"-current & 0.5 & 0.5 & 0 \\
+ Muscarinic potassium channel: "M"-current & 0.05 & 0 & 0 \\
+ Hyperpolarization-activated cation channel: "H"-current & 0 & 0 & 0 \\
+ Calcium-dependent potassium: "KCa"-current & 2.5 & 2.5 & 0 \\[.05cm]
+\hline
+\end{tabular}
+
+* Discussion
+
+\begin{itemize}
+
+\item The level of Zinc modulation can shift the stimulus encoding strategy of a given synaptic pathway from: background-invariant (as for the L23-to-L23 pathway, strongly modulated) to background-facilitating (as for the L4-to-L23 pathway, negligibly modulated).
+
+\item It is important to note that the Zinc modulation is not a suppression of the dendritic non-linearity during \textit{in vivo}-like activity. As can be seen from the strong deviation with respect to the "AMPA-only" case (see Figure {bg-dep-single-trial} and Figure {bg-dep-passive}, the response in the interlaminar pathway is critically shaped by NMDAR recruitment. Therefore the computational properties associated to NMDAR recruitment (Branco et al., ...) are conserved in the interlaminar pathway. The activity-dependent inhibition mediated by Zinc only acts as a way to normalize the (non-linear) responses across different background activity levels. 
+
+\item How Zinc modulation at NMDAR synapse emerge from molecular dynamics has been studied theoretically in Vergnano et al. (2014), here we provide a complementary description, we derived and calibrated a phenomenological model at the single synapse level. Such model allow to study cellular integration at the whole cell level (see Figure {model-description}).
+
+\end{itemize}
+
+* Supplementary
+** Supplementary Text
+
+[[Figure {nmda-ampa} around here]]
+[[Figure {passive-props} around here]]
+[[Figure {biophysical-calib-1} around here]]
+[[Figure {biophysical-calib-2} around here]]
+[[Figure {L23-L4-calib} around here]]
+[[Figure {bg-trial-average} around here]]
+
+*** Model description
+
+\begin{itemize}
+\item More details on the  \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/description.ipynb}{Model description Notebook}.
+\end{itemize}
+
+*** Estimating the ratio of NMDA to AMPA synaptic conductances.
+
+The ratio of NMDA to AMPA synaptic conductances in the model was estimated from experimental measurements, see Figure {nmda-ampa} and the dedicated  \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/ampa-nmda.ipynb}{Notebook}.
+
+The experimental data are available in the following \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/data/exp_datasets.py}{file} as \texttt{SYN\_CONDUCTANCE\_MEASUREMENTS}.
+
+*** Fit of the passive properties
+
+In the model, we varied the passive parameters and computed the input resistance and capacitance at the soma. This was achieved by fitting the $V_m$ response to the single compartment response following a 200 pA current step. The range for the parameter parameter variation was $g_L \in $ [{gL_min},{gL_max}]pS/$\mu$m$^2$ and $c_m \in$ [{cm_min},{cm_max}]$\mu$F/cm$^2$ on a [{N_gL}x{N_cm}] regular grid, see Figure {passive-props}a). The joint minimization (via the product of the normalized square residual) of the somatic $R_m$ and $C_m$ in the model led to the parameters $g_L$={gL}pS/$\mu$m$^2$ and $c_m$={cm}$\mu$F/cm$^2$. Note the clear minimum in the paramter space in Figure {passive-props}.
+
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/passive-props.ipynb}{Notebook}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/passive_props.py}{Script}
+\item The list of experimental data used for this mimization is available in the following \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/data/exp_datasets.py}{file} as \texttt{IC\_STEPS\_DATASET}.
+\end{itemize}
+
+*** Fit of the electrical stimulation properties in the model
+
+The monotonic relationship between residual and euclidian distance with respect the to the best-fit parameter set is compatible with a minimum over this paramter space, see Figure {biophysical-calib-1}.
+
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/chelated-zinc.ipynb}{Notebook}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/calibration_runs.py}{Script}
+\item The list of experimental data used for this mimization is available in the following \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/data/exp_datasets.py}{file} as \texttt{VC\_STEPS\_DATASET['Tricine']}.
+\end{itemize}
+
+*** Fit of the Zinc modulation parameters
+
+Note the clear minimum in the paramter space in Figure {biophysical-calib-2}.
+
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/free-zinc.ipynb}{Notebook}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/calibration_runs.py}{Script}
+\item The list of experimental data used for this mimization is available in the following \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/data/exp_datasets.py}{file} as \texttt{VC\_STEPS\_DATASET['Control']}.
+\end{itemize}
+
+*** Fit of the pathway specificity
+
+See Figure {L23-L4-calib}.
+
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/L23_L23_pairs.ipynb}{Notebook}
+\end{itemize}
+
+*** Effect of Zinc modulation on NMDA recruitment.
+
+\begin{itemize}
+\item More details on the  \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/NMDA-spike.ipynb}{Notebook}.
+\end{itemize}
+
+*** Zinc modulation in presence of background synaptic activity
+
+\begin{itemize}
+\item More details on the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/Sensitivity_to_Background_Modulation.ipynb}{Notebook} both in the passive and active cases.
+\item implementation in the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/bg_modulation.py}{Script}.
+\end{itemize}
+
+*** Trial averaging across realisations of the background seeds
+
+See Figure {bg-trial-average}.
+
+\begin{itemize}
+\item \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/L23_L23_pairs.ipynb}{Script}
+\end{itemize}
+
+** Supplementary Figures
+*** Estimating the ratio of NMDA to AMPA synaptic conductances.
+#+options : {'label':'nmda-ampa', 'extent':'single-column', 'height':25, 'file':'figures/ampa-nmda-ratio.png', 'page_position': 'b!'}
+(a) Peak amplitudes of AMPA and NMDA currents at -80mV and +20mV respectively (after liquid junction potential correction) over n=10 cells. (b) Estimated conductances from which the ratio of NMDA to AMPA condutances is extracted. See code in the \href{https://github.com/yzerlaut/zinc-NMDA-modulation/blob/master/model-calibration/ampa-nmda.ipynb}{Notebook}.
+
+*** Calibrating the passive properties of the Layer 2/3 pyramidal cell model
+#+options : {'label':'passive-props', 'extent':'one-and-a-half-column', 'height':10, 'file':'figures/passive-props.png', 'hrule_bottom':True}
+(a) Varying the passive properties in the model ($g_L$, $c_m$) and computing the square residual $\chi^2$ with respect to the experimental estimate. The black dot is the optimal parameter set. (b) Resulting input resistance and (c) capacitance at the soma in the data (n={ncell_RmCm} cells) and in the model for the optimal parameters. 
+
+*** Fitting the input properties of the electrical stimulation and NMDA kinetics in the "chelated-Zinc" condition.
+#+options : {'label':'biophysical-calib-1', 'extent':'one-and-a-half-column', 'height':9, 'file':'figures/biophysical-calib-1.png', 'hrule_bottom':True}
+We vary the parameters $\tau_{decay}^{NMDA}$, $N_{syn}^{0}$, $N_{syn}^{\infty}$ and $\tau_{Nsyn}$={Tnsyn20Hz} over a linear grid  (see Methods) and compute the residual with respect to the cell-averaged experimental trace (see Figure {biophysical-props}). (a) Parallel coordinate plot of 100 (99 randomly-picked + the optimal one) configurations picked from the 5-dimensional grid parameters (see Methods), the color code accounts for the residual value after fitting (as in *a*, the dark line is the optimal configuration). (b) Relationship between $\chi^2$-residual and normalized distance with respect to the best-fit configuration of parameters.
+
+*** Fitting the parameters of the Zinc modulation in the "free-Zinc" condition.
+#+options : {'label':'biophysical-calib-2', 'extent':'single-column', 'file':'figures/biophysical-calib-2.png'}
+Square residual of the model response with respect to the experimental observation when varying the model parameters $\tau_{Zn}^{decay}$ and $\alpha_{Zn}$ over a two-dimensional grid. The white dot corresponds to the optimal parameter set.
+
+*** Calibrating the pathway-specificity of the Zinc modulation effect from L23-to-L23 and L4-to-L23 synaptically-coupled pair recordings.
+#+options : {'label':'L23-L4-calib', 'extent':'single-column', 'file':'figures/L23-L4-params-optimization.png'}
+Relationship between $\alpha_{Zn}$ and the charge increase with Zinc chelation in the model. We highlight the levels found experimentally in pair recordings in the L23-to-L23 pathway and L4-to-L23 pathway (black and green dots respectively). We show the $\alpha_{Zn}$ values in the model corresponding to those levels of charge increase (dashed lines). 
+
+*** Trial-averaging of evoked responses over background seeds.
+#+options : {'label':'bg-trial-average', 'extent':'double-column', 'file':'figures/bg-trial-average.png'}
+Waveform of $V_m$ response at the soma after trial averaging over background seeds at the different background simulation levels (from left to right). From top to bottom, in the "ampa-only", "$\alpha_{Zn}$=0" and "$\alpha_{Zn}$=0.45" cases respectively. Those waveforms are used to build the "training set" of the decoder for a given synaptic location and stimulus seed.
+* Informations
+
+*** Short_Title
+Modeling Zinc-Modulation of NMDAR signalling
+
+*** Funding
+FRM fellowship 
+
+*** Data_availability
+The code to run and analyze the numerical simulations of this study is publicy available at the url: \url{https://github.com/yzerlaut/zinc-NMDA-modulation/README.md}.
