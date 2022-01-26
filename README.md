@@ -18,15 +18,19 @@
 - we study multi-input integration in the model --> see notebook [Multi-Input-Integration](Multi-Input-Integration.ipynb)
 - we analyze the import of *in-vivo*-like ongoing dynamics on the modulation of Zinc --> see notebooks [Sensitivity_to_Background_Modulation](./Sensitivity_to_Background_Modulation.ipynb) and [Figure 5](./Figure5.ipynb).
 
-## Software requirements
+## Software requirements / Installation
 
-- A `python` distribution for scientific computing (e.g. Anaconda)
+- A `python` distribution for scientific computing (e.g. Anaconda) with the classical modules for scientific analysis.
 
 - `brian2`: a simulator of single cell and network dynamics, see the [Brian2 documentation](https://brian2.readthedocs.io/en/stable/), get it with `pip install brian2`.
 
-All other dependencies are listed in [requirements.txt](./requirements.txt), install them with:
+*Installation commands (from the [Anaconda prompt](https://docs.anaconda.com/anaconda/user-guide/getting-started/#write-a-python-program-using-anaconda-prompt-or-terminal))*
 ```
-pip install -r requirements.txt
+pip install numpy scipy matplotlib argparse brian2 # required dependencies (see above) if not already installed !
+git clone https://github.com/yzerlaut/zinc-NMDA-modulation
+cd zinc-NMDA-modulation
+git submodule init
+git submodule update
 ```
 
 ## Cellular morphology dataset
@@ -47,7 +51,7 @@ See the [branco-et-al-2011.py](./branco-et-al-2011.py) script for the implementa
 
 ## Getting help
 
-In case of questions, you can email: yann.zerlaut [at] icm-institute.org.
+In case of questions, you can email: yann [dot] zerlaut [at] gmail [dot] com.
 
 If you find a bug, please open a ticket in the [issue tracker](https://github.com/yzerlaut/zinc-NMDA-modulation/issues).
 
