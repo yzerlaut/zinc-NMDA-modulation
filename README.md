@@ -1,6 +1,6 @@
 <div><img src="./figures/summary.png" alt="FRM Logo" width="20%" align="right" style="margin-left: 10px"></div>
 
-## Modeling Zinc modulation NMDAR signaling in neocortical neurons
+## Modeling Zinc modulation of NMDAR signaling in neocortical neurons
 
 > Source code for the theoretical model in the paper:
 
@@ -15,8 +15,9 @@
 
 - we derive a model for the Zinc modulation of NMDAR -> see [description notebook](./description.ipynb)
 - we embed the implementation into a morphologically-detailed model of a mouse layer 2/3 pyramidal cell
-- we study the response to synaptic stimulation
-- we analyze the import of *in-vivo*-like ongoing dynamics on the modulation of Zinc
+- we study the response to synaptic stimulation 
+- we study multi-input integration in the 
+- we analyze the import of *in-vivo*-like ongoing dynamics on the modulation of Zinc --> see notebooks [Sensitivity_to_Background_Modulation](./Sensitivity_to_Background_Modulation.ipynb) and [Figure 5](./Figure5.ipynb).
 
 ## Scientific content
 
