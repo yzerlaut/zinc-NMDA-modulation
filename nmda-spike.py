@@ -97,9 +97,13 @@ if __name__=='__main__':
 
     try:
         LOCs = np.load('data/nmda-spike/locations.npy')
-        loc_syn0 = LOCs[1]
     except BaseException:
-        pass
+        # LOCs = np.load('data/nmda-spike/locations.npy') ---> corresponds to:
+        LOCs = [74, 124, 313, 363, 474, 630, 680, 800, 886, 936, 1036, 1227, 1428, 1478, 1634, 1856, 2117, 2183, 2233, 2379, 2429, 3177, 3319, 3464, 3514]
+        
+    loc_syn0 = LOCs[1]
+
+        
     NSYNs=[2, 4, 6, 8, 10, 12, 14]
 
     if sys.argv[-1]=='syn-demo':

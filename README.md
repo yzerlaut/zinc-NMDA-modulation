@@ -1,8 +1,13 @@
 # Modeling Zinc modulation NMDA receptor signalling in neocortical neurons
 
-> Source code for the theoretical model of zinc modulation of synaptic transmission through NMDA receptors (NMDAR) in neocortical neurons
+> Source code for the theoretical model in the paper:
+> "Activity-dependent modulation of NMDA receptors by endogenous zinc shapes dendritic function in cortical neurons". A Morabito, Y Zerlaut, B Serraz, R Sala, P Paoletti, N Rebola. Cell Reports (2022)
 
-- we derive a model for the Zinc modulation of NMDAR
+[BioRXiv version of the paper](https://www.biorxiv.org/content/10.1101/2021.09.17.460586v1)
+
+## Results and implementation
+
+- we derive a model for the Zinc modulation of NMDAR -> see [description notebook](./description.ipynb)
 - we embed the implementation into a morphologically-detailed model of a mouse layer 2/3 pyramidal cell
 - we study the response to synaptic stimulation
 - we analyze the import of *in-vivo*-like ongoing dynamics on the modulation of Zinc
